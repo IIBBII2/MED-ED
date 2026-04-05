@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedLearn — Medical Knowledge Game</title>
+<style>
+  /* ── Reset & base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f3;
+    --bg3: #eeecea;
+    --text: #1a1a18;
+    --text2: #6b6b66;
+    --text3: #9b9b94;
+    --border: rgba(0,0,0,0.10);
+    --border2: rgba(0,0,0,0.18);
+    --accent: #2563eb;
+    --accent-bg: #eff6ff;
+    --accent-text: #1d4ed8;
+    --success-bg: #f0fdf4;
+    --success-text: #166534;
+    --danger-bg: #fef2f2;
+    --danger-text: #991b1b;
+    --warning-bg: #fffbeb;
+    --warning-text: #92400e;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg2: #252523;
+      --bg3: #2e2e2b;
+      --text: #e8e8e2;
+      --text2: #a0a09a;
+      --text3: #6b6b66;
+      --border: rgba(255,255,255,0.10);
+      --border2: rgba(255,255,255,0.18);
+      --accent: #3b82f6;
+      --accent-bg: #1e3a5f;
+      --accent-text: #93c5fd;
+      --success-bg: #14261a;
+      --success-text: #4ade80;
+      --danger-bg: #2d1515;
+      --danger-text: #f87171;
+      --warning-bg: #2a1f0a;
+      --warning-text: #fbbf24;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Layout ── */
+  #app { max-width: 780px; margin: 0 auto; padding: 24px 16px 48px; }
+
+  /* ── Header ── */
+  #site-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 28px; padding-bottom: 16px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { font-size: 22px; }
+  .logo-text { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+  .logo-sub { font-size: 12px; color: var(--text2); }
+  .header-meta { font-size: 12px; color: var(--text3); text-align: right; }
+
+  /* ── Breadcrumb ── */
+  #breadcrumb {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    font-size: 12px; color: var(--text2); margin-bottom: 20px; min-height: 18px;
+  }
+  .bc-link { cursor: pointer; color: var(--accent); }
+  .bc-link:hover { text-decoration: underline; }
+  .bc-sep { color: var(--text3); }
+
+  /* ── Mode switcher ── */
+  .mode-switcher {
+    display: flex; gap: 4px; background: var(--bg2);
+    border: 0.5px solid var(--border); border-radius: var(--radius-lg);
+    padding: 4px; margin-bottom: 20px;
+  }
+  .mode-btn {
+    flex: 1; padding: 7px 12px; border: none; background: none;
+    font-size: 13px; font-weight: 500; color: var(--text2);
+    border-radius: 8px; cursor: pointer; transition: all 0.15s;
+  }
+  .mode-btn.active {
+    background: var(--bg); color: var(--text);
+    box-shadow: var(--shadow); border: 0.5px solid var(--border);
+  }
+
+  /* ── Section label ── */
+  .section-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--text3); margin-bottom: 12px;
+  }
+
+  /* ── Cards ── */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 10px; margin-bottom: 24px; }
+  .card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+    display: flex; flex-direction: column; gap: 5px;
+    box-shadow: var(--shadow);
+  }
+  .card:hover { border-color: var(--border2); box-shadow: 0 4px 12px rgba(0,0,0,0.10); transform: translateY(-1px); }
+  .card:active { transform: translateY(0); }
+  .card-icon { font-size: 20px; line-height: 1; margin-bottom: 2px; }
+  .card-name { font-size: 14px; font-weight: 600; }
+  .card-sub { font-size: 12px; color: var(--text2); line-height: 1.4; }
+  .card-count { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+  /* ── Back button ── */
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; padding: 6px 12px; margin-bottom: 20px;
+    border: 0.5px solid var(--border2); border-radius: var(--radius);
+    cursor: pointer; background: var(--bg); color: var(--text2);
+    transition: background 0.15s, color 0.15s;
+  }
+  .back-btn:hover { background: var(--bg2); color: var(--text); }
+
+  /* ── Disease header ── */
+  .disease-header { margin-bottom: 20px; }
+  .disease-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .disease-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-size: 11px; font-weight: 500; padding: 2px 8px;
+    border-radius: 20px; background: var(--accent-bg); color: var(--accent-text);
+  }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex; gap: 0; margin-bottom: 20px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .tab-btn {
+    font-size: 13px; font-weight: 500; padding: 8px 16px;
+    border: none; background: none; color: var(--text2);
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── AI content box ── */
+  .ai-box {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    font-size: 14px; line-height: 1.75;
+    color: var(--text);
+    min-height: 100px;
+  }
+  .ai-box.loading { color: var(--text3); }
+  .ai-box p { margin-bottom: 10px; }
+  .ai-box p:last-child { margin-bottom: 0; }
+  .ai-box strong { font-weight: 600; color: var(--text); }
+
+  /* ── Key facts pills ── */
+  .fact-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .pill {
+    background: var(--accent-bg); color: var(--accent-text);
+    font-size: 11px; font-weight: 500; padding: 3px 10px;
+    border-radius: 20px; border: 0.5px solid rgba(37,99,235,0.2);
+  }
+
+  /* ── Quiz ── */
+  .quiz-progress { font-size: 12px; color: var(--text3); margin-bottom: 12px; }
+  .quiz-q { font-size: 15px; font-weight: 600; margin-bottom: 14px; line-height: 1.5; }
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt {
+    font-size: 13px; padding: 11px 14px; text-align: left;
+    border: 0.5px solid var(--border2); border-radius: var(--radius);
+    cursor: pointer; background: var(--bg);
+    transition: all 0.15s; font-family: inherit;
+  }
+  .quiz-opt:hover:not(:disabled) { background: var(--bg2); border-color: var(--accent); }
+  .quiz-opt.correct { background: var(--success-bg); border-color: var(--success-text); color: var(--success-text); }
+  .quiz-opt.wrong { background: var(--danger-bg); border-color: var(--danger-text); color: var(--danger-text); }
+  .quiz-opt:disabled { cursor: default; }
+  .quiz-feedback {
+    margin-top: 12px; padding: 12px 14px; border-radius: var(--radius);
+    font-size: 13px; line-height: 1.55; display: none;
+    background: var(--bg2); border: 0.5px solid var(--border); color: var(--text);
+  }
+  .quiz-next-btn {
+    margin-top: 12px; padding: 9px 18px;
+    font-size: 13px; font-weight: 500;
+    border: 0.5px solid var(--border2); border-radius: var(--radius);
+    cursor: pointer; background: var(--bg); color: var(--text);
+    display: none; font-family: inherit; transition: background 0.15s;
+  }
+  .quiz-next-btn:hover { background: var(--bg2); }
+  .quiz-score-final {
+    padding: 20px; text-align: center; background: var(--bg2);
+    border-radius: var(--radius-lg); border: 0.5px solid var(--border);
+  }
+  .quiz-score-num { font-size: 36px; font-weight: 700; color: var(--accent); }
+  .quiz-score-label { font-size: 13px; color: var(--text2); margin-bottom: 14px; }
+  .quiz-retry-btn {
+    padding: 9px 20px; font-size: 13px; font-weight: 500;
+    background: var(--accent); color: #fff; border: none;
+    border-radius: var(--radius); cursor: pointer; font-family: inherit;
+  }
+
+  /* ── Cases ── */
+  .case-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .case-label {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--accent-text); margin-bottom: 8px;
+  }
+  .case-vignette { font-size: 14px; line-height: 1.7; color: var(--text); margin-bottom: 14px; }
+  .case-question { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+  .case-opts { display: flex; flex-direction: column; gap: 8px; }
+  .case-opt {
+    font-size: 13px; padding: 10px 14px; text-align: left;
+    border: 0.5px solid var(--border2); border-radius: var(--radius);
+    cursor: pointer; background: var(--bg2);
+    transition: all 0.15s; font-family: inherit;
+  }
+  .case-opt:hover:not(:disabled) { background: var(--bg3); border-color: var(--accent); }
+  .case-opt.correct { background: var(--success-bg); border-color: var(--success-text); color: var(--success-text); }
+  .case-opt.wrong { background: var(--danger-bg); border-color: var(--danger-text); color: var(--danger-text); }
+  .case-opt:disabled { cursor: default; }
+  .case-feedback {
+    margin-top: 14px; padding: 12px 14px; border-radius: var(--radius);
+    font-size: 13px; line-height: 1.6; display: none;
+    background: var(--bg2); border: 0.5px solid var(--border);
+  }
+  .case-next {
+    margin-top: 12px; padding: 9px 18px; font-size: 13px; font-weight: 500;
+    border: 0.5px solid var(--border2); border-radius: var(--radius);
+    cursor: pointer; background: var(--bg); color: var(--text);
+    display: none; font-family: inherit; transition: background 0.15s;
+  }
+  .case-next:hover { background: var(--bg2); }
+
+  /* ── Spinner ── */
+  .spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid var(--border2); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 480px) {
+    .card-grid { grid-template-columns: repeat(2, 1fr); }
+    .tabs { overflow-x: auto; }
+    .disease-title { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Header -->
+  <div id="site-header">
+    <div class="logo">
+      <span class="logo-icon">🩺</span>
+      <div>
+        <div class="logo-text">MedLearn</div>
+        <div class="logo-sub">Medical knowledge for IVTG & beyond</div>
+      </div>
+    </div>
+    <div class="header-meta" id="header-score"></div>
+  </div>
+
+  <!-- Breadcrumb -->
+  <div id="breadcrumb"></div>
+
+  <!-- Views -->
+  <div id="home-view">
+    <div class="mode-switcher">
+      <button class="mode-btn active" onclick="setMode('learn')">📖 Learn</button>
+      <button class="mode-btn" onclick="setMode('cases')">🩻 Clinical cases</button>
+      <button class="mode-btn" onclick="setMode('quiz')">⚡ Quick quiz</button>
+    </div>
+    <div class="section-label">Choose a system</div>
+    <div class="card-grid" id="system-cards"></div>
+  </div>
+
+  <div id="group-view" style="display:none">
+    <button class="back-btn" onclick="goBack('home')">← Back</button>
+    <div class="section-label" id="group-label"></div>
+    <div class="card-grid" id="group-cards"></div>
+  </div>
+
+  <div id="disease-view" style="display:none">
+    <button class="back-btn" id="disease-back-btn">← Back</button>
+    <div class="section-label" id="disease-label"></div>
+    <div class="card-grid" id="disease-cards"></div>
+  </div>
+
+  <div id="detail-view" style="display:none">
+    <button class="back-btn" id="detail-back-btn">← Back</button>
+    <div class="disease-header">
+      <div class="disease-title" id="detail-title"></div>
+      <div class="disease-tags" id="detail-tags"></div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('patho', this)">Pathophysiology</button>
+      <button class="tab-btn" onclick="switchTab('diag', this)">Diagnosis</button>
+      <button class="tab-btn" onclick="switchTab('treat', this)">Treatment</button>
+      <button class="tab-btn" onclick="switchTab('prevent', this)">Prevention</button>
+      <button class="tab-btn" onclick="switchTab('quiz', this)">Test yourself</button>
+      <button class="tab-btn" onclick="switchTab('case', this)">Clinical case</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-patho">
+      <div class="ai-box loading" id="patho-content"><span class="spinner"></span> Loading pathophysiology...</div>
+      <div class="fact-pills" id="patho-pills"></div>
+    </div>
+    <div class="tab-panel" id="tab-diag">
+      <div class="ai-box loading" id="diag-content"><span class="spinner"></span> Loading diagnosis...</div>
+    </div>
+    <div class="tab-panel" id="tab-treat">
+      <div class="ai-box loading" id="treat-content"><span class="spinner"></span> Loading treatment...</div>
+    </div>
+    <div class="tab-panel" id="tab-prevent">
+      <div class="ai-box loading" id="prevent-content"><span class="spinner"></span> Loading prevention...</div>
+    </div>
+    <div class="tab-panel" id="tab-quiz">
+      <div id="quiz-container">
+        <div class="quiz-progress" id="quiz-progress"></div>
+        <div class="quiz-q" id="quiz-q"><span class="spinner"></span> Generating questions...</div>
+        <div class="quiz-options" id="quiz-opts"></div>
+        <div class="quiz-feedback" id="quiz-fb"></div>
+        <button class="quiz-next-btn" id="quiz-next" onclick="nextQuestion()">Next →</button>
+      </div>
+      <div id="quiz-final" style="display:none">
+        <div class="quiz-score-final">
+          <div class="quiz-score-num" id="quiz-score-num"></div>
+          <div class="quiz-score-label" id="quiz-score-label"></div>
+          <button class="quiz-retry-btn" onclick="loadQuiz()">New set of questions</button>
+        </div>
+      </div>
+    </div>
+    <div class="tab-panel" id="tab-case">
+      <div id="case-container"></div>
+    </div>
+  </div>
+
+  <!-- Quick quiz / Cases at system level -->
+  <div id="mode-view" style="display:none">
+    <button class="back-btn" onclick="goBack('home')">← Back</button>
+    <div class="section-label" id="mode-view-label"></div>
+    <div id="mode-view-content"></div>
+  </div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  DATA
+// ─────────────────────────────────────────────
+
+const SYSTEMS = [
+  { id:'neuro',   icon:'🧠', name:'Neurology',        sub:'Brain, spinal cord, nerves',    groups:['neurodegen','demyelinating','neuromuscular','cerebrovascular','epilepsy'] },
+  { id:'cardio',  icon:'❤️',  name:'Cardiology',       sub:'Heart & vessels',               groups:['heartfailure','arrhythmia','ischemic','valvular','pericardial'] },
+  { id:'pulmo',   icon:'🫁', name:'Pulmonology',      sub:'Lungs & airways',               groups:['obstructive','restrictive','infectious_lung','vascular_lung','pleural'] },
+  { id:'gastro',  icon:'🫃', name:'Gastroenterology', sub:'GI tract & liver',              groups:['ibd','liver','pancreas','gastric','colorectal'] },
+  { id:'endo',    icon:'⚗️', name:'Endocrinology',    sub:'Hormones & glands',             groups:['diabetes','thyroid','adrenal','pituitary','parathyroid'] },
+  { id:'nephro',  icon:'🫘', name:'Nephrology',       sub:'Kidneys & urinary tract',       groups:['glomerular','tubular','ckd','renal_vascular','electrolytes'] },
+  { id:'rheum',   icon:'🦴', name:'Rheumatology',     sub:'Joints & connective tissue',    groups:['inflammatory_joint','crystal','connective_tissue','vasculitis','myositis'] },
+  { id:'hemato',  icon:'🩸', name:'Haematology',      sub:'Blood & lymph',                 groups:['anaemia','bleeding','myeloid','lymphoid','coag'] },
+];
+
+const GROUPS = {
+  neurodegen:     { name:'Neurodegenerative',          sub:'Progressive neuron loss',       diseases:['als','parkinsons','alzheimers','huntingtons','msa'] },
+  demyelinating:  { name:'Demyelinating diseases',     sub:'Myelin sheath damage',          diseases:['ms','nmo','gbs','cidp','pml'] },
+  neuromuscular:  { name:'Neuromuscular junction',     sub:'NMJ & primary muscle disease',  diseases:['mg','lambert_eaton','duchenne','myotonic_dystrophy','polymyositis'] },
+  cerebrovascular:{ name:'Cerebrovascular disease',   sub:'Stroke & vascular',             diseases:['ischemic_stroke','hemorrhagic_stroke','tia','sah','cadasil'] },
+  epilepsy:       { name:'Epilepsy & seizures',        sub:'Abnormal electrical activity',  diseases:['focal_seizure','tonic_clonic','absence','status_epilepticus','temporal_lobe'] },
+  heartfailure:   { name:'Heart failure',              sub:'Pump dysfunction',              diseases:['hfref','hfpef','acute_hf','right_hf','cardiac_tamponade'] },
+  arrhythmia:     { name:'Arrhythmias',                sub:'Rhythm disorders',              diseases:['afib','vfib','avblock','wpw','long_qt'] },
+  ischemic:       { name:'Ischemic heart disease',     sub:'Coronary artery disease',       diseases:['stemi','nstemi','unstable_angina','stable_angina','coronary_vasospasm'] },
+  valvular:       { name:'Valvular disease',           sub:'Heart valve disorders',         diseases:['aortic_stenosis','mitral_regurg','mitral_stenosis','aortic_regurg','endocarditis'] },
+  pericardial:    { name:'Pericardial disease',        sub:'Pericardium disorders',         diseases:['acute_pericarditis','pericardial_effusion','constrictive_pericarditis','dressler','myocarditis'] },
+  obstructive:    { name:'Obstructive lung disease',   sub:'Airflow limitation',            diseases:['copd','asthma','bronchiectasis','cf','alpha1at'] },
+  restrictive:    { name:'Restrictive lung disease',   sub:'Reduced lung volume',           diseases:['ipf','sarcoidosis','asbestosis','hypersensitivity_pn','ards'] },
+  infectious_lung:{ name:'Respiratory infections',    sub:'Lung infections',               diseases:['cap','tuberculosis','pneumocystis','legionella','aspergillosis'] },
+  vascular_lung:  { name:'Pulmonary vascular',        sub:'Vascular lung disease',         diseases:['pe','pulmonary_htn','cor_pulmonale','avm','hereditary_htn'] },
+  pleural:        { name:'Pleural disease',            sub:'Pleura & chest wall',           diseases:['pneumothorax','pleural_effusion','empyema','mesothelioma','pleural_fibr'] },
+  ibd:            { name:'Inflammatory bowel disease', sub:'Chronic gut inflammation',      diseases:['crohns','uc','psc','microscopic_colitis','behcet_gut'] },
+  liver:          { name:'Liver disease',              sub:'Hepatic pathology',             diseases:['cirrhosis','hepatitis_b','hepatitis_c','nash','autoimmune_hepatitis'] },
+  pancreas:       { name:'Pancreatic disease',         sub:'Exo- & endocrine pancreas',     diseases:['acute_pancreatitis','chronic_pancreatitis','pancreatic_cancer','insulinoma','glucagonoma'] },
+  gastric:        { name:'Gastric & oesophageal',      sub:'Upper GI disease',              diseases:['peptic_ulcer','gerd','barretts','gastric_cancer','achalasia'] },
+  colorectal:     { name:'Colorectal disease',         sub:'Lower GI disease',              diseases:['colorectal_cancer','diverticulitis','ischemic_colitis','appendicitis','volvulus'] },
+  diabetes:       { name:'Diabetes mellitus',          sub:'Glucose dysregulation',         diseases:['t1dm','t2dm','gestational_dm','mody','dka'] },
+  thyroid:        { name:'Thyroid disease',            sub:'Thyroid gland disorders',       diseases:['hypothyroid','hyperthyroid','hashimotos','graves','thyroid_cancer'] },
+  adrenal:        { name:'Adrenal disease',            sub:'Adrenal cortex & medulla',      diseases:['addisons','cushings','phaeochromocytoma','congenital_ah','aldosteronism'] },
+  pituitary:      { name:'Pituitary disease',          sub:'Pituitary gland disorders',     diseases:['acromegaly','hyperprolactinaemia','craniopharyngioma','pituitary_adenoma','diabetes_insipidus'] },
+  parathyroid:    { name:'Parathyroid & calcium',      sub:'Calcium regulation',            diseases:['hyperparathyroid','hypoparathyroid','pseudohypoparathyroid','hypercalcaemia','hypocalcaemia'] },
+  glomerular:     { name:'Glomerular disease',         sub:'Filtration unit disorders',     diseases:['iga_nephropathy','fsgs','membranous_nephropathy','lupus_nephritis','mpgn'] },
+  tubular:        { name:'Tubular & interstitial',     sub:'Tubular disease',               diseases:['acute_tubular_necrosis','renal_tubular_acidosis','fanconi','polycystic_kidney','medullary_sponge'] },
+  ckd:            { name:'Chronic kidney disease',     sub:'Progressive renal impairment',  diseases:['ckd_stages','renal_osteodystrophy','anaemia_ckd','esrd','renal_artery_stenosis'] },
+  electrolytes:   { name:'Electrolyte disorders',      sub:'Fluid & electrolyte balance',   diseases:['hyponatraemia','hypernatraemia','hypokalaemia','hyperkalaemia','hyperphosphataemia'] },
+  inflammatory_joint: { name:'Inflammatory arthritis', sub:'Joint inflammation',           diseases:['ra','psoriatic_arthritis','as','reactive_arthritis','juvenile_ia'] },
+  crystal:        { name:'Crystal arthropathy',        sub:'Crystal deposition',            diseases:['gout','pseudogout','urate_nephropathy','tophaceous_gout','calcium_pyrophosphate'] },
+  connective_tissue:{ name:'Connective tissue disease',sub:'Systemic autoimmune',           diseases:['sle','sjogrens','systemic_sclerosis','mixed_ctd','polymyalgia'] },
+  vasculitis:     { name:'Vasculitis',                 sub:'Vessel wall inflammation',      diseases:['granulomatosis_polyangiitis','giant_cell','polyarteritis_nodosa','iga_vasculitis','takayasu'] },
+  myositis:       { name:'Inflammatory myopathies',    sub:'Muscle inflammation',           diseases:['polymyositis','dermatomyositis','ibm','antisynthetase','necrotizing_myopathy'] },
+  anaemia:        { name:'Anaemia',                    sub:'Low haemoglobin',               diseases:['iron_deficiency','b12_folate','haemolytic','aplastic','sickle_cell'] },
+  bleeding:       { name:'Bleeding disorders',         sub:'Haemostasis defects',           diseases:['haemophilia_a','haemophilia_b','vwd','itp','ttp'] },
+  myeloid:        { name:'Myeloid malignancies',       sub:'Bone marrow & myeloid cells',   diseases:['aml','cml','mds','pv','essential_thrombocythaemia'] },
+  lymphoid:       { name:'Lymphoid malignancies',      sub:'Lymphocytes & lymph nodes',     diseases:['all','cll','hodgkin','nhl_diffuse','multiple_myeloma'] },
+  coag:           { name:'Coagulation disorders',      sub:'Clotting pathway',              diseases:['dvt','pe_coag','dic','antiphospholipid','inherited_thrombophilia'] },
+  renal_vascular: { name:'Renal vascular disease',     sub:'Renal perfusion',               diseases:['renal_artery_stenosis','renal_vein_thrombosis','atheroembolism','malignant_htn_kidney','scleroderma_kidney'] },
+};
+
+const DISEASE_META = {
+  als:                   { name:'ALS',                         full:'Amyotrophic lateral sclerosis',              tag:'UMN + LMN signs' },
+  parkinsons:            { name:"Parkinson's disease",         full:"Parkinson's disease",                        tag:'α-synuclein, dopaminergic' },
+  alzheimers:            { name:"Alzheimer's disease",         full:"Alzheimer's disease",                        tag:'Amyloid-β plaques, tau tangles' },
+  huntingtons:           { name:"Huntington's disease",        full:"Huntington's disease",                       tag:'CAG repeat, chromosome 4' },
+  msa:                   { name:'MSA',                         full:'Multiple system atrophy',                    tag:'α-synuclein, autonomic + motor' },
+  ms:                    { name:'Multiple sclerosis',          full:'Multiple sclerosis',                         tag:'Relapsing-remitting most common' },
+  nmo:                   { name:'NMO spectrum',                full:'Neuromyelitis optica spectrum disorder',      tag:'AQP4-IgG antibody' },
+  gbs:                   { name:'Guillain-Barré',              full:'Guillain-Barré syndrome',                    tag:'Post-infectious, ascending' },
+  cidp:                  { name:'CIDP',                        full:'Chronic inflammatory demyelinating polyneuropathy', tag:'Chronic GBS equivalent' },
+  pml:                   { name:'PML',                         full:'Progressive multifocal leukoencephalopathy', tag:'JC virus, immunosuppressed' },
+  mg:                    { name:'Myasthenia gravis',           full:'Myasthenia gravis',                          tag:'AChR antibody, fatigable weakness' },
+  lambert_eaton:         { name:'Lambert-Eaton',               full:'Lambert-Eaton myasthenic syndrome',          tag:'VGCC antibody, paraneoplastic' },
+  duchenne:              { name:'Duchenne MD',                 full:'Duchenne muscular dystrophy',                tag:'Dystrophin deficiency, X-linked' },
+  myotonic_dystrophy:    { name:'Myotonic dystrophy',         full:'Myotonic dystrophy type 1',                  tag:'CTG repeat, DMPK gene' },
+  polymyositis:          { name:'Polymyositis',                full:'Polymyositis',                               tag:'Proximal weakness, elevated CK' },
+  ischemic_stroke:       { name:'Ischaemic stroke',           full:'Ischaemic stroke',                           tag:'85% of all strokes' },
+  hemorrhagic_stroke:    { name:'Haemorrhagic stroke',        full:'Intracerebral haemorrhage',                  tag:'HTN most common cause' },
+  tia:                   { name:'TIA',                        full:'Transient ischaemic attack',                 tag:'<24h, ABCD2 score' },
+  sah:                   { name:'SAH',                        full:'Subarachnoid haemorrhage',                   tag:"Berry aneurysm, thunderclap headache" },
+  cadasil:               { name:'CADASIL',                    full:'CADASIL',                                    tag:'NOTCH3 mutation, early strokes' },
+  focal_seizure:         { name:'Focal seizure',              full:'Focal (partial) seizure',                    tag:'Localised cortical origin' },
+  tonic_clonic:          { name:'Tonic-clonic seizure',       full:'Generalised tonic-clonic seizure',           tag:'Grand mal' },
+  absence:               { name:'Absence seizure',            full:'Absence seizure (petit mal)',                tag:'3 Hz spike-wave, childhood' },
+  status_epilepticus:    { name:'Status epilepticus',         full:'Status epilepticus',                         tag:'>5 min, emergency' },
+  temporal_lobe:         { name:'Temporal lobe epilepsy',     full:'Temporal lobe epilepsy',                     tag:'Most common focal epilepsy' },
+  hfref:                 { name:'HFrEF',                      full:'Heart failure with reduced ejection fraction', tag:'EF <40%, systolic dysfunction' },
+  hfpef:                 { name:'HFpEF',                      full:'Heart failure with preserved ejection fraction', tag:'EF ≥50%, diastolic dysfunction' },
+  acute_hf:              { name:'Acute heart failure',        full:'Acute decompensated heart failure',          tag:'Cardiogenic pulmonary oedema' },
+  right_hf:              { name:'Right heart failure',        full:'Right-sided heart failure',                  tag:'Cor pulmonale, JVP raised' },
+  cardiac_tamponade:     { name:'Cardiac tamponade',          full:'Cardiac tamponade',                          tag:"Beck's triad" },
+  afib:                  { name:'Atrial fibrillation',        full:'Atrial fibrillation',                        tag:'Most common arrhythmia' },
+  vfib:                  { name:'Ventricular fibrillation',   full:'Ventricular fibrillation',                   tag:'Immediately life-threatening' },
+  avblock:               { name:'AV block',                   full:'Atrioventricular block',                     tag:'1st, 2nd (Mobitz I/II), 3rd degree' },
+  wpw:                   { name:'WPW syndrome',               full:'Wolff-Parkinson-White syndrome',             tag:'Delta wave, accessory pathway' },
+  long_qt:               { name:'Long QT syndrome',           full:'Long QT syndrome',                           tag:'Torsades de pointes risk' },
+  stemi:                 { name:'STEMI',                      full:'ST-elevation myocardial infarction',         tag:'Complete coronary occlusion' },
+  nstemi:                { name:'NSTEMI',                     full:'Non-ST-elevation MI',                        tag:'Partial/transient occlusion' },
+  unstable_angina:       { name:'Unstable angina',            full:'Unstable angina',                            tag:'ACS without troponin rise' },
+  stable_angina:         { name:'Stable angina',              full:'Stable angina pectoris',                     tag:'Exertional, relieved by rest' },
+  aortic_stenosis:       { name:'Aortic stenosis',            full:'Aortic stenosis',                            tag:'Most common valve disease in West' },
+  mitral_regurg:         { name:'Mitral regurgitation',       full:'Mitral regurgitation',                       tag:'Pansystolic murmur, apex' },
+  mitral_stenosis:       { name:'Mitral stenosis',            full:'Mitral stenosis',                            tag:'Rheumatic fever most common cause' },
+  aortic_regurg:         { name:'Aortic regurgitation',       full:'Aortic regurgitation',                       tag:'Diastolic murmur, collapsing pulse' },
+  endocarditis:          { name:'Infective endocarditis',     full:'Infective endocarditis',                     tag:'Duke criteria, Strep/Staph' },
+  copd:                  { name:'COPD',                       full:'Chronic obstructive pulmonary disease',      tag:'Emphysema + chronic bronchitis' },
+  asthma:                { name:'Asthma',                     full:'Bronchial asthma',                           tag:'Reversible airflow obstruction' },
+  bronchiectasis:        { name:'Bronchiectasis',             full:'Bronchiectasis',                             tag:'Permanent airway dilatation' },
+  cf:                    { name:'Cystic fibrosis',            full:'Cystic fibrosis',                            tag:'CFTR mutation, ΔF508' },
+  alpha1at:              { name:'α1-antitrypsin deficiency',  full:'Alpha-1-antitrypsin deficiency',             tag:'PiZZ genotype, early emphysema' },
+  ipf:                   { name:'IPF',                        full:'Idiopathic pulmonary fibrosis',              tag:'UIP pattern on HRCT, honeycombing' },
+  sarcoidosis:           { name:'Sarcoidosis',                full:'Sarcoidosis',                                tag:'Non-caseating granulomas' },
+  ards:                  { name:'ARDS',                       full:'Acute respiratory distress syndrome',        tag:'Berlin definition, P/F ratio <300' },
+  pe:                    { name:'Pulmonary embolism',         full:'Pulmonary embolism',                         tag:'DVT source, Wells score' },
+  pneumothorax:          { name:'Pneumothorax',               full:'Pneumothorax',                               tag:'Spontaneous or traumatic' },
+  cap:                   { name:'Community-acquired pneumonia', full:'Community-acquired pneumonia',              tag:'CURB-65 score' },
+  tuberculosis:          { name:'Tuberculosis',               full:'Pulmonary tuberculosis',                     tag:'M. tuberculosis, Ghon focus' },
+  crohns:                { name:"Crohn's disease",            full:"Crohn's disease",                            tag:'Transmural, skip lesions' },
+  uc:                    { name:'Ulcerative colitis',         full:'Ulcerative colitis',                         tag:'Mucosal, continuous from rectum' },
+  psc:                   { name:'PSC',                        full:'Primary sclerosing cholangitis',             tag:'Beaded bile ducts, IBD assoc.' },
+  cirrhosis:             { name:'Liver cirrhosis',            full:'Liver cirrhosis',                            tag:'End-stage liver disease' },
+  hepatitis_b:           { name:'Hepatitis B',                full:'Chronic hepatitis B',                        tag:'HBsAg, DNA virus' },
+  hepatitis_c:           { name:'Hepatitis C',                full:'Chronic hepatitis C',                        tag:'RNA virus, DAA curative' },
+  nash:                  { name:'NASH / MASLD',               full:'Metabolic-associated steatohepatitis',       tag:'Fatty liver → fibrosis' },
+  autoimmune_hepatitis:  { name:'Autoimmune hepatitis',       full:'Autoimmune hepatitis',                       tag:'Anti-SMA, ANA, IgG elevated' },
+  peptic_ulcer:          { name:'Peptic ulcer disease',       full:'Peptic ulcer disease',                       tag:'H. pylori, NSAIDs' },
+  acute_pancreatitis:    { name:'Acute pancreatitis',         full:'Acute pancreatitis',                         tag:'Gallstones + alcohol, Ranson criteria' },
+  t1dm:                  { name:'Type 1 DM',                  full:'Type 1 diabetes mellitus',                   tag:'Autoimmune β-cell destruction' },
+  t2dm:                  { name:'Type 2 DM',                  full:'Type 2 diabetes mellitus',                   tag:'Insulin resistance + secretion defect' },
+  dka:                   { name:'DKA',                        full:'Diabetic ketoacidosis',                      tag:'Type 1, anion gap acidosis' },
+  hypothyroid:           { name:'Hypothyroidism',             full:'Hypothyroidism',                             tag:'TSH↑, fT4↓' },
+  hyperthyroid:          { name:'Hyperthyroidism',            full:'Hyperthyroidism',                            tag:'TSH↓, fT4↑' },
+  hashimotos:            { name:"Hashimoto's thyroiditis",    full:"Hashimoto's thyroiditis",                    tag:'Most common hypothyroid cause' },
+  graves:                { name:"Graves' disease",            full:"Graves' disease",                            tag:'TSH-R antibody, exophthalmos' },
+  thyroid_cancer:        { name:'Thyroid cancer',             full:'Thyroid carcinoma',                          tag:'Papillary most common' },
+  addisons:              { name:"Addison's disease",          full:"Addison's disease",                          tag:'Primary adrenal insufficiency' },
+  cushings:              { name:"Cushing's syndrome",         full:"Cushing's syndrome",                         tag:'Cortisol excess' },
+  phaeochromocytoma:     { name:'Phaeochromocytoma',          full:'Phaeochromocytoma / paraganglioma',          tag:'Catecholamine excess, rule of 10s' },
+  iga_nephropathy:       { name:'IgA nephropathy',            full:"IgA nephropathy (Berger's disease)",         tag:'Most common GN worldwide' },
+  fsgs:                  { name:'FSGS',                       full:'Focal segmental glomerulosclerosis',         tag:'Nephrotic, podocyte injury' },
+  membranous_nephropathy:{ name:'Membranous nephropathy',     full:'Membranous nephropathy',                     tag:'PLA2R antibody, nephrotic' },
+  lupus_nephritis:       { name:'Lupus nephritis',            full:'Lupus nephritis',                            tag:'SLE complication, WHO class I–VI' },
+  ckd_stages:            { name:'CKD',                        full:'Chronic kidney disease',                     tag:'eGFR <60 >3 months, G1-G5' },
+  hyponatraemia:         { name:'Hyponatraemia',              full:'Hyponatraemia',                              tag:'Na <135, most common electrolyte disorder' },
+  hyperkalaemia:         { name:'Hyperkalaemia',              full:'Hyperkalaemia',                              tag:'K >5.5, cardiac risk' },
+  ra:                    { name:'Rheumatoid arthritis',       full:'Rheumatoid arthritis',                       tag:'RF/anti-CCP, symmetrical small joints' },
+  psoriatic_arthritis:   { name:'Psoriatic arthritis',        full:'Psoriatic arthritis',                        tag:'Seronegative, DIP joints, dactylitis' },
+  as:                    { name:'Ankylosing spondylitis',     full:'Ankylosing spondylitis',                     tag:'HLA-B27, sacroiliitis, bamboo spine' },
+  sle:                   { name:'SLE',                        full:'Systemic lupus erythematosus',               tag:'Anti-dsDNA, butterfly rash' },
+  sjogrens:              { name:"Sjögren's syndrome",         full:"Sjögren's syndrome",                         tag:'Anti-Ro/La, dry eyes & mouth' },
+  systemic_sclerosis:    { name:'Systemic sclerosis',         full:'Systemic sclerosis (scleroderma)',           tag:'Anti-Scl-70, skin fibrosis' },
+  gout:                  { name:'Gout',                       full:'Gout',                                       tag:'Monosodium urate crystals, negative birefringent' },
+  pseudogout:            { name:'Pseudogout',                 full:'Calcium pyrophosphate deposition (CPPD)',    tag:'Positive birefringent, chondrocalcinosis' },
+  iron_deficiency:       { name:'Iron deficiency anaemia',    full:'Iron deficiency anaemia',                    tag:'Most common anaemia worldwide' },
+  b12_folate:            { name:'B12 / Folate deficiency',    full:'B12 and folate deficiency anaemia',          tag:'Megaloblastic, macrocytic' },
+  haemolytic:            { name:'Haemolytic anaemia',         full:'Haemolytic anaemia',                         tag:'Intravascular vs extravascular' },
+  aplastic:              { name:'Aplastic anaemia',           full:'Aplastic anaemia',                           tag:'Pancytopenia, bone marrow failure' },
+  sickle_cell:           { name:'Sickle cell disease',        full:'Sickle cell disease',                        tag:'HbS, vaso-occlusive crises' },
+  haemophilia_a:         { name:'Haemophilia A',              full:'Haemophilia A',                              tag:'Factor VIII deficiency, X-linked' },
+  haemophilia_b:         { name:'Haemophilia B',              full:'Haemophilia B (Christmas disease)',          tag:'Factor IX deficiency' },
+  vwd:                   { name:'Von Willebrand disease',     full:'Von Willebrand disease',                     tag:'Most common inherited bleeding disorder' },
+  itp:                   { name:'ITP',                        full:'Immune thrombocytopenic purpura',            tag:'Antiplatelet antibodies' },
+  ttp:                   { name:'TTP',                        full:'Thrombotic thrombocytopenic purpura',        tag:'ADAMTS13 deficiency, pentad' },
+  aml:                   { name:'AML',                        full:'Acute myeloid leukaemia',                    tag:'Auer rods, blast crisis' },
+  cml:                   { name:'CML',                        full:'Chronic myeloid leukaemia',                  tag:'BCR-ABL, Philadelphia chromosome' },
+  all:                   { name:'ALL',                        full:'Acute lymphoblastic leukaemia',              tag:'Most common childhood cancer' },
+  cll:                   { name:'CLL',                        full:'Chronic lymphocytic leukaemia',              tag:'Most common adult leukaemia' },
+  hodgkin:               { name:"Hodgkin's lymphoma",         full:"Hodgkin's lymphoma",                         tag:'Reed-Sternberg cells' },
+  multiple_myeloma:      { name:'Multiple myeloma',           full:'Multiple myeloma',                           tag:'CRAB criteria, M protein' },
+  dvt:                   { name:'Deep vein thrombosis',       full:'Deep vein thrombosis',                       tag:'Wells score, D-dimer' },
+};
+
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+
+let state = {
+  view: 'home',
+  mode: 'learn',
+  system: null,
+  group: null,
+  disease: null,
+  currentTab: 'patho',
+  quizQuestions: [],
+  quizIndex: 0,
+  quizScore: 0,
+  totalCorrect: 0,
+  totalAnswered: 0,
+};
+let contentCache = {};
+
+// ─────────────────────────────────────────────
+//  RENDER HOME
+// ─────────────────────────────────────────────
+
+function renderHome() {
+  document.getElementById('system-cards').innerHTML = SYSTEMS.map(s =>
+    `<div class="card" onclick="selectSystem('${s.id}')">
+      <div class="card-icon">${s.icon}</div>
+      <div class="card-name">${s.name}</div>
+      <div class="card-sub">${s.sub}</div>
+      <div class="card-count">${s.groups.filter(g=>GROUPS[g]).length} disease groups</div>
+    </div>`
+  ).join('');
+}
+
+function setMode(m) {
+  state.mode = m;
+  document.querySelectorAll('.mode-btn').forEach((b,i) => b.classList.toggle('active', ['learn','cases','quiz'][i] === m));
+}
+
+// ─────────────────────────────────────────────
+//  NAVIGATION
+// ─────────────────────────────────────────────
+
+function selectSystem(id) {
+  state.system = SYSTEMS.find(s => s.id === id);
+  state.view = 'group';
+  switchView('group-view');
+  document.getElementById('group-label').textContent = state.system.name + ' — disease groups';
+  const groups = state.system.groups.filter(g => GROUPS[g]);
+  document.getElementById('group-cards').innerHTML = groups.map(gid => {
+    const g = GROUPS[gid];
+    return `<div class="card" onclick="selectGroup('${gid}')">
+      <div class="card-name">${g.name}</div>
+      <div class="card-sub">${g.sub}</div>
+      <div class="card-count">${g.diseases.filter(d=>DISEASE_META[d]).length} diseases</div>
+    </div>`;
+  }).join('');
+  updateBreadcrumb();
+}
+
+function selectGroup(gid) {
+  state.group = gid;
+  state.view = 'disease';
+  switchView('disease-view');
+  const g = GROUPS[gid];
+  document.getElementById('disease-label').textContent = g.name + ' — select a disease';
+  document.getElementById('disease-back-btn').onclick = () => goBack('group');
+  const diseases = g.diseases.filter(d => DISEASE_META[d]);
+  document.getElementById('disease-cards').innerHTML = diseases.map(did => {
+    const d = DISEASE_META[did];
+    return `<div class="card" onclick="selectDisease('${did}')">
+      <div class="card-name">${d.name}</div>
+      <div class="card-sub">${d.tag}</div>
+    </div>`;
+  }).join('');
+  updateBreadcrumb();
+}
+
+function selectDisease(did) {
+  state.disease = did;
+  state.view = 'detail';
+  state.currentTab = 'patho';
+  switchView('detail-view');
+
+  const d = DISEASE_META[did];
+  document.getElementById('detail-title').textContent = d.full;
+  document.getElementById('detail-tags').innerHTML =
+    `<span class="tag">${GROUPS[state.group].name}</span><span class="tag">${d.tag}</span>`;
+  document.getElementById('detail-back-btn').onclick = () => goBack('disease');
+
+  // Reset tabs
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.querySelectorAll('.tab-panel').forEach((p,i) => p.classList.toggle('active', i===0));
+
+  // Reset content
+  ['patho','diag','treat','prevent'].forEach(tab => {
+    const el = document.getElementById(tab+'-content');
+    el.className = 'ai-box loading';
+    el.innerHTML = '<span class="spinner"></span> Loading...';
+  });
+  document.getElementById('patho-pills').innerHTML = '';
+  document.getElementById('quiz-final').style.display = 'none';
+  document.getElementById('quiz-container').style.display = 'block';
+
+  // Load all content in parallel
+  loadContent('patho');
+  loadContent('diag');
+  loadContent('treat');
+  loadContent('prevent');
+  loadQuiz();
+  loadCase();
+
+  // Auto-switch to mode tab if not learning
+  if (state.mode === 'cases') switchTabByName('case');
+  else if (state.mode === 'quiz') switchTabByName('quiz');
+
+  updateBreadcrumb();
+}
+
+function switchTabByName(name) {
+  const tabs = ['patho','diag','treat','prevent','quiz','case'];
+  const idx = tabs.indexOf(name);
+  if (idx === -1) return;
+  document.querySelectorAll('.tab-btn')[idx].click();
+}
+
+function goBack(to) {
+  if (to === 'home') { switchView('home-view'); state.view='home'; state.system=null; state.group=null; }
+  else if (to === 'group') { switchView('group-view'); state.view='group'; state.group=null; state.disease=null; }
+  else if (to === 'disease') { switchView('disease-view'); state.view='disease'; state.disease=null; }
+  updateBreadcrumb();
+}
+
+function switchView(id) {
+  ['home-view','group-view','disease-view','detail-view','mode-view'].forEach(v =>
+    document.getElementById(v).style.display = v === id ? '' : 'none'
+  );
+}
+
+function switchTab(name, btn) {
+  state.currentTab = name;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+function updateBreadcrumb() {
+  const bc = document.getElementById('breadcrumb');
+  let parts = [`<span class="bc-link" onclick="goBack('home')">All systems</span>`];
+  if (state.system) parts.push(`<span class="bc-sep">›</span><span class="bc-link" onclick="selectSystem('${state.system.id}')">${state.system.name}</span>`);
+  if (state.group) parts.push(`<span class="bc-sep">›</span><span class="bc-link" onclick="selectGroup('${state.group}')">${GROUPS[state.group].name}</span>`);
+  if (state.disease) parts.push(`<span class="bc-sep">›</span><span>${DISEASE_META[state.disease].name}</span>`);
+  bc.innerHTML = parts.join('');
+  document.getElementById('header-score').innerHTML = state.totalAnswered > 0
+    ? `Score: ${state.totalCorrect}/${state.totalAnswered} correct` : '';
+}
+
+// ─────────────────────────────────────────────
+//  AI CONTENT LOADING
+// ─────────────────────────────────────────────
+
+const PROMPTS = {
+  patho: (d) => `You are a clinical educator for Dutch medical students preparing the IVTG exam.
+Explain the pathophysiology of "${d.full}" in 4-6 clear, well-structured sentences.
+Cover: (1) etiology/risk factors, (2) key molecular/cellular mechanism, (3) how the mechanism leads to the clinical syndrome.
+Be specific — name key proteins, pathways, or genes where relevant.
+After your explanation, on a new line write exactly: FACTS:["Key fact 1 (max 8 words)","Key fact 2","Key fact 3","Key fact 4"]
+Nothing else.`,
+
+  diag: (d) => `You are a clinical educator for Dutch medical students preparing the IVTG exam.
+Explain how "${d.full}" is diagnosed, in 5-7 clear sentences.
+Structure your answer: (1) classic clinical presentation & symptoms, (2) key physical examination findings, (3) essential investigations (bloods, imaging, biopsy, criteria), (4) diagnostic criteria or scoring systems if applicable.
+Use specific values, test names, and clinical signs. Be practical and exam-focused.`,
+
+  treat: (d) => `You are a clinical educator for Dutch medical students preparing the IVTG exam.
+Explain the treatment of "${d.full}" in 5-7 clear sentences.
+Structure: (1) acute/emergency management if relevant, (2) first-line pharmacological treatment with drug classes and mechanism, (3) second-line or adjunct treatments, (4) non-pharmacological management, (5) monitoring and follow-up.
+Name specific drug classes. Mention targets (e.g., HbA1c) and monitoring parameters.`,
+
+  prevent: (d) => `You are a clinical educator for Dutch medical students preparing the IVTG exam.
+Explain how "${d.full}" can be prevented, in 4-6 sentences.
+Cover: (1) primary prevention (preventing the disease from occurring), (2) secondary prevention (screening, early detection), (3) tertiary prevention (preventing complications in those already diagnosed), (4) population-level or lifestyle measures where relevant.
+If the disease has no meaningful primary prevention, state that and focus on secondary/tertiary.`,
+};
+
+async function loadContent(tab) {
+  const d = DISEASE_META[state.disease];
+  const cacheKey = state.disease + '_' + tab;
+  if (contentCache[cacheKey]) { setContent(tab, contentCache[cacheKey]); return; }
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        messages: [{ role: 'user', content: PROMPTS[tab](d) }]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content?.map(c => c.text || '').join('\n') || 'Could not load content.';
+    contentCache[cacheKey] = text;
+    setContent(tab, text);
+  } catch(e) {
+    setContent(tab, 'Error loading content. Check your internet connection or API key.');
+  }
+}
+
+function setContent(tab, text) {
+  const el = document.getElementById(tab + '-content');
+  if (tab === 'patho') {
+    const factsMatch = text.match(/FACTS:\[([^\]]*)\]/);
+    let facts = [], body = text;
+    if (factsMatch) {
+      try { facts = JSON.parse('[' + factsMatch[1] + ']'); } catch(e) {}
+      body = text.replace(/FACTS:\[.*?\]/s, '').trim();
+    }
+    el.className = 'ai-box';
+    el.innerHTML = formatText(body);
+    document.getElementById('patho-pills').innerHTML = facts.map(f => `<span class="pill">${f}</span>`).join('');
+  } else {
+    el.className = 'ai-box';
+    el.innerHTML = formatText(text);
+  }
+}
+
+function formatText(t) {
+  return '<p>' + t.trim()
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\n{2,}/g,'</p><p>')
+    .replace(/\n/g,' ') + '</p>';
+}
+
+// ─────────────────────────────────────────────
+//  QUIZ
+// ─────────────────────────────────────────────
+
+async function loadQuiz() {
+  state.quizQuestions = []; state.quizIndex = 0; state.quizScore = 0;
+  document.getElementById('quiz-final').style.display = 'none';
+  document.getElementById('quiz-container').style.display = 'block';
+  document.getElementById('quiz-q').innerHTML = '<span class="spinner"></span> Generating questions...';
+  document.getElementById('quiz-opts').innerHTML = '';
+  document.getElementById('quiz-fb').style.display = 'none';
+  document.getElementById('quiz-next').style.display = 'none';
+
+  const d = DISEASE_META[state.disease];
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1200,
+        messages: [{ role: 'user', content:
+          `Generate 5 multiple-choice questions about "${d.full}" for a Dutch medical student preparing the IVTG exam.
+Mix topics across: pathophysiology, clinical presentation, diagnosis (including investigations), treatment, and one complication or comorbidity.
+Make distractors plausible but clearly wrong to someone who understands the disease.
+Respond with ONLY valid compact JSON, no markdown fences, no explanation:
+{"questions":[{"q":"Question text?","options":["A text","B text","C text","D text"],"correct":0,"explanation":"1-2 sentence explanation of why correct and why the key distractor is wrong."}]}`
+        }]
+      })
+    });
+    const data = await resp.json();
+    let text = data.content?.map(c => c.text || '').join('') || '';
+    text = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(text);
+    state.quizQuestions = parsed.questions;
+    renderQuestion();
+  } catch(e) {
+    document.getElementById('quiz-q').textContent = 'Could not generate questions. Try switching away and back to this tab.';
+  }
+}
+
+function renderQuestion() {
+  if (state.quizIndex >= state.quizQuestions.length) {
+    document.getElementById('quiz-container').style.display = 'none';
+    document.getElementById('quiz-final').style.display = 'block';
+    const pct = Math.round((state.quizScore / state.quizQuestions.length) * 100);
+    document.getElementById('quiz-score-num').textContent = `${state.quizScore}/${state.quizQuestions.length}`;
+    document.getElementById('quiz-score-label').textContent = pct >= 80 ? '🎉 Excellent! ' + pct + '%' : pct >= 60 ? '👍 Good. ' + pct + '%' : '📖 Keep studying. ' + pct + '%';
+    return;
+  }
+  const q = state.quizQuestions[state.quizIndex];
+  document.getElementById('quiz-progress').textContent = `Question ${state.quizIndex + 1} of ${state.quizQuestions.length}`;
+  document.getElementById('quiz-q').textContent = q.q;
+  document.getElementById('quiz-opts').innerHTML = q.options.map((o, i) =>
+    `<button class="quiz-opt" onclick="answerQuiz(${i})">${o}</button>`
+  ).join('');
+  document.getElementById('quiz-fb').style.display = 'none';
+  document.getElementById('quiz-next').style.display = 'none';
+}
+
+function answerQuiz(chosen) {
+  const q = state.quizQuestions[state.quizIndex];
+  document.querySelectorAll('.quiz-opt').forEach((o, i) => {
+    o.disabled = true;
+    if (i === q.correct) o.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) o.classList.add('wrong');
+  });
+  if (chosen === q.correct) { state.quizScore++; state.totalCorrect++; }
+  state.totalAnswered++;
+  const fb = document.getElementById('quiz-fb');
+  fb.textContent = (chosen === q.correct ? '✓ Correct. ' : '✗ Incorrect. ') + q.explanation;
+  fb.style.display = 'block';
+  document.getElementById('quiz-next').style.display = 'inline-block';
+  updateBreadcrumb();
+}
+
+function nextQuestion() { state.quizIndex++; renderQuestion(); }
+
+// ─────────────────────────────────────────────
+//  CLINICAL CASES
+// ─────────────────────────────────────────────
+
+async function loadCase() {
+  const container = document.getElementById('case-container');
+  container.innerHTML = '<div class="case-card"><div class="ai-box loading"><span class="spinner"></span> Generating clinical case...</div></div>';
+
+  const d = DISEASE_META[state.disease];
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1400,
+        messages: [{ role: 'user', content:
+          `Create a realistic clinical vignette for a Dutch medical student about "${d.full}".
+The case should present with a realistic patient (age, sex, occupation, presenting complaint, history, relevant exam findings, and key investigation results).
+Then ask 3 sequential clinical reasoning questions — each question should build on the previous answer (first: most likely diagnosis; second: key investigation or mechanism; third: treatment or management).
+Each question has 4 options, one correct, with plausible distractors.
+Respond ONLY with valid compact JSON, no markdown:
+{"vignette":"Full patient case text here (4-6 sentences)","questions":[{"q":"Question text?","options":["A","B","C","D"],"correct":0,"explanation":"Brief explanation."}]}`
+        }]
+      })
+    });
+    const data = await resp.json();
+    let text = data.content?.map(c => c.text || '').join('') || '';
+    text = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(text);
+    renderCase(parsed);
+  } catch(e) {
+    container.innerHTML = '<div class="case-card"><p style="color:var(--text2);font-size:13px">Could not generate case. Try switching away and back to this tab.</p></div>';
+  }
+}
+
+function renderCase(caseData) {
+  const container = document.getElementById('case-container');
+  let caseState = { index: 0, score: 0 };
+
+  function render() {
+    const q = caseData.questions[caseState.index];
+    const done = caseState.index >= caseData.questions.length;
+
+    container.innerHTML = `
+      <div class="case-card">
+        <div class="case-label">Clinical vignette</div>
+        <div class="case-vignette">${escHtml(caseData.vignette)}</div>
+      </div>
+      ${done ? `
+        <div class="case-card">
+          <div class="quiz-score-final">
+            <div class="quiz-score-num">${caseState.score}/${caseData.questions.length}</div>
+            <div class="quiz-score-label">Case complete — ${Math.round(caseState.score/caseData.questions.length*100)}%</div>
+            <button class="quiz-retry-btn" onclick="loadCase()">New case →</button>
+          </div>
+        </div>
+      ` : `
+        <div class="case-card" id="case-q-card">
+          <div class="case-label">Question ${caseState.index + 1} of ${caseData.questions.length}</div>
+          <div class="case-question">${escHtml(q.q)}</div>
+          <div class="case-opts">
+            ${q.options.map((o,i) => `<button class="case-opt" id="case-opt-${i}" onclick="answerCase(${i}, ${q.correct}, ${JSON.stringify(q.explanation).replace(/</g,'&lt;')})">${escHtml(o)}</button>`).join('')}
+          </div>
+          <div class="case-feedback" id="case-fb"></div>
+          <button class="case-next" id="case-next" onclick="nextCase()">Next question →</button>
+        </div>
+      `}`;
+
+    window._caseState = caseState;
+    window._caseData = caseData;
+  }
+
+  window.answerCase = function(chosen, correct, explanation) {
+    document.querySelectorAll('.case-opt').forEach((o,i) => {
+      o.disabled = true;
+      if (i === correct) o.classList.add('correct');
+      else if (i === chosen && chosen !== correct) o.classList.add('wrong');
+    });
+    if (chosen === correct) { caseState.score++; state.totalCorrect++; }
+    state.totalAnswered++;
+    const fb = document.getElementById('case-fb');
+    fb.textContent = (chosen === correct ? '✓ Correct. ' : '✗ Incorrect. ') + explanation;
+    fb.style.display = 'block';
+    document.getElementById('case-next').style.display = 'inline-block';
+    updateBreadcrumb();
+  };
+
+  window.nextCase = function() {
+    caseState.index++;
+    render();
+  };
+
+  render();
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+
+renderHome();
+updateBreadcrumb();
+</script>
+</body>
+</html>
