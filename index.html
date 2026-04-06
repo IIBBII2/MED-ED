@@ -3,1115 +3,988 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MedLearn — Medical Knowledge Game</title>
+<title>MED-ED — Medical Knowledge</title>
 <style>
-  /* ── Reset & base ── */
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #ffffff;
-    --bg2: #f5f5f3;
-    --bg3: #eeecea;
-    --text: #1a1a18;
-    --text2: #6b6b66;
-    --text3: #9b9b94;
-    --border: rgba(0,0,0,0.10);
-    --border2: rgba(0,0,0,0.18);
-    --accent: #2563eb;
-    --accent-bg: #eff6ff;
-    --accent-text: #1d4ed8;
-    --success-bg: #f0fdf4;
-    --success-text: #166534;
-    --danger-bg: #fef2f2;
-    --danger-text: #991b1b;
-    --warning-bg: #fffbeb;
-    --warning-text: #92400e;
-    --radius: 10px;
-    --radius-lg: 14px;
-    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#fff;--bg2:#f5f5f3;--bg3:#eeecea;
+  --text:#1a1a18;--text2:#6b6b66;--text3:#9b9b94;
+  --border:rgba(0,0,0,.09);--border2:rgba(0,0,0,.16);
+  --accent:#2563eb;--accent-bg:#eff6ff;--accent-text:#1d4ed8;
+  --success-bg:#f0fdf4;--success-text:#166534;--success-border:#bbf7d0;
+  --danger-bg:#fef2f2;--danger-text:#991b1b;--danger-border:#fecaca;
+  --warn-bg:#fffbeb;--warn-text:#92400e;--warn-border:#fde68a;
+  --info-bg:#eff6ff;--info-text:#1d4ed8;--info-border:#bfdbfe;
+  --r:10px;--rl:14px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1c1c1a;--bg2:#252523;--bg3:#2e2e2b;
+    --text:#e8e8e2;--text2:#a0a09a;--text3:#6b6b66;
+    --border:rgba(255,255,255,.09);--border2:rgba(255,255,255,.16);
+    --accent:#3b82f6;--accent-bg:#1e3a5f;--accent-text:#93c5fd;
+    --success-bg:#14261a;--success-text:#4ade80;--success-border:#166534;
+    --danger-bg:#2d1515;--danger-text:#f87171;--danger-border:#991b1b;
+    --warn-bg:#2a1f0a;--warn-text:#fbbf24;--warn-border:#92400e;
+    --info-bg:#1e3a5f;--info-text:#93c5fd;--info-border:#1d4ed8;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1c1c1a;
-      --bg2: #252523;
-      --bg3: #2e2e2b;
-      --text: #e8e8e2;
-      --text2: #a0a09a;
-      --text3: #6b6b66;
-      --border: rgba(255,255,255,0.10);
-      --border2: rgba(255,255,255,0.18);
-      --accent: #3b82f6;
-      --accent-bg: #1e3a5f;
-      --accent-text: #93c5fd;
-      --success-bg: #14261a;
-      --success-text: #4ade80;
-      --danger-bg: #2d1515;
-      --danger-text: #f87171;
-      --warning-bg: #2a1f0a;
-      --warning-text: #fbbf24;
-      --shadow: 0 1px 3px rgba(0,0,0,0.3);
-    }
-  }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-    min-height: 100vh;
-  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;}
+#app{max-width:800px;margin:0 auto;padding:20px 16px 60px;}
 
-  /* ── Layout ── */
-  #app { max-width: 780px; margin: 0 auto; padding: 24px 16px 48px; }
+/* Header */
+#hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:0.5px solid var(--border);}
+.logo{font-size:18px;font-weight:700;letter-spacing:-.02em;cursor:pointer;}
+.logo span{color:var(--accent);}
+#hdr-score{font-size:11px;color:var(--text3);}
 
-  /* ── Header ── */
-  #site-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 28px; padding-bottom: 16px;
-    border-bottom: 0.5px solid var(--border);
-  }
-  .logo { display: flex; align-items: center; gap: 10px; }
-  .logo-icon { font-size: 22px; }
-  .logo-text { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
-  .logo-sub { font-size: 12px; color: var(--text2); }
-  .header-meta { font-size: 12px; color: var(--text3); text-align: right; }
+/* Breadcrumb */
+#bc{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin-bottom:18px;min-height:16px;}
+.bcl{cursor:pointer;color:var(--accent);}
+.bcl:hover{text-decoration:underline;}
+.bcs{color:var(--text3);}
 
-  /* ── Breadcrumb ── */
-  #breadcrumb {
-    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-    font-size: 12px; color: var(--text2); margin-bottom: 20px; min-height: 18px;
-  }
-  .bc-link { cursor: pointer; color: var(--accent); }
-  .bc-link:hover { text-decoration: underline; }
-  .bc-sep { color: var(--text3); }
+/* Section label */
+.slbl{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;}
 
-  /* ── Mode switcher ── */
-  .mode-switcher {
-    display: flex; gap: 4px; background: var(--bg2);
-    border: 0.5px solid var(--border); border-radius: var(--radius-lg);
-    padding: 4px; margin-bottom: 20px;
-  }
-  .mode-btn {
-    flex: 1; padding: 7px 12px; border: none; background: none;
-    font-size: 13px; font-weight: 500; color: var(--text2);
-    border-radius: 8px; cursor: pointer; transition: all 0.15s;
-  }
-  .mode-btn.active {
-    background: var(--bg); color: var(--text);
-    box-shadow: var(--shadow); border: 0.5px solid var(--border);
-  }
+/* Cards */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:9px;margin-bottom:20px;}
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);padding:13px;cursor:pointer;transition:border-color .15s,transform .1s;display:flex;flex-direction:column;gap:4px;}
+.card:hover{border-color:var(--border2);transform:translateY(-1px);}
+.card-icon{font-size:18px;line-height:1;margin-bottom:2px;}
+.card-name{font-size:13px;font-weight:600;color:var(--text);}
+.card-sub{font-size:11px;color:var(--text2);line-height:1.4;}
+.card-count{font-size:10px;color:var(--text3);margin-top:2px;}
+.card.locked{opacity:.5;cursor:default;}
+.card.locked:hover{transform:none;border-color:var(--border);}
 
-  /* ── Section label ── */
-  .section-label {
-    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
-    text-transform: uppercase; color: var(--text3); margin-bottom: 12px;
-  }
+/* Back btn */
+.back{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:5px 11px;margin-bottom:16px;border:0.5px solid var(--border2);border-radius:var(--r);cursor:pointer;background:var(--bg);color:var(--text2);transition:background .15s;font-family:inherit;}
+.back:hover{background:var(--bg2);color:var(--text);}
 
-  /* ── Cards ── */
-  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 10px; margin-bottom: 24px; }
-  .card {
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 14px;
-    cursor: pointer;
-    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
-    display: flex; flex-direction: column; gap: 5px;
-    box-shadow: var(--shadow);
-  }
-  .card:hover { border-color: var(--border2); box-shadow: 0 4px 12px rgba(0,0,0,0.10); transform: translateY(-1px); }
-  .card:active { transform: translateY(0); }
-  .card-icon { font-size: 20px; line-height: 1; margin-bottom: 2px; }
-  .card-name { font-size: 14px; font-weight: 600; }
-  .card-sub { font-size: 12px; color: var(--text2); line-height: 1.4; }
-  .card-count { font-size: 11px; color: var(--text3); margin-top: 4px; }
+/* Coming soon badge */
+.badge-soon{font-size:10px;font-weight:500;padding:2px 7px;border-radius:20px;background:var(--bg3);color:var(--text3);border:0.5px solid var(--border);}
 
-  /* ── Back button ── */
-  .back-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 13px; padding: 6px 12px; margin-bottom: 20px;
-    border: 0.5px solid var(--border2); border-radius: var(--radius);
-    cursor: pointer; background: var(--bg); color: var(--text2);
-    transition: background 0.15s, color 0.15s;
-  }
-  .back-btn:hover { background: var(--bg2); color: var(--text); }
+/* Views */
+.view{display:none;}.view.on{display:block;}
 
-  /* ── Disease header ── */
-  .disease-header { margin-bottom: 20px; }
-  .disease-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
-  .disease-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-  .tag {
-    font-size: 11px; font-weight: 500; padding: 2px 8px;
-    border-radius: 20px; background: var(--accent-bg); color: var(--accent-text);
-  }
+/* ── DISEASE DETAIL ── */
+.disease-hero{border-radius:0 var(--rl) var(--rl) 0;padding:20px 20px 16px;margin-bottom:18px;background:var(--bg2);border-left:3px solid var(--info-border);border-top:0.5px solid var(--border);border-right:0.5px solid var(--border);border-bottom:0.5px solid var(--border);}
+.dh-tag{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-text);margin-bottom:6px;}
+.dh-title{font-size:21px;font-weight:600;color:var(--text);margin-bottom:8px;letter-spacing:-.02em;}
+.dh-hook{font-size:13px;line-height:1.8;color:var(--text2);}
+.dh-hook strong{font-weight:500;color:var(--text);}
 
-  /* ── Tabs ── */
-  .tabs {
-    display: flex; gap: 0; margin-bottom: 20px;
-    border-bottom: 0.5px solid var(--border);
-  }
-  .tab-btn {
-    font-size: 13px; font-weight: 500; padding: 8px 16px;
-    border: none; background: none; color: var(--text2);
-    border-bottom: 2px solid transparent; margin-bottom: -1px;
-    cursor: pointer; transition: all 0.15s; white-space: nowrap;
-  }
-  .tab-btn:hover { color: var(--text); }
-  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
+.pill-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:18px;}
+.pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;}
+.p-b{background:var(--info-bg);color:var(--info-text);}
+.p-r{background:var(--danger-bg);color:var(--danger-text);}
+.p-g{background:var(--success-bg);color:var(--success-text);}
+.p-a{background:var(--warn-bg);color:var(--warn-text);}
 
-  /* ── AI content box ── */
-  .ai-box {
-    background: var(--bg2);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 18px 20px;
-    font-size: 14px; line-height: 1.75;
-    color: var(--text);
-    min-height: 100px;
-  }
-  .ai-box.loading { color: var(--text3); }
-  .ai-box p { margin-bottom: 10px; }
-  .ai-box p:last-child { margin-bottom: 0; }
-  .ai-box strong { font-weight: 600; color: var(--text); }
+/* Tab bar */
+.tab-bar{display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:16px;overflow-x:auto;}
+.tb{font-size:12px;font-weight:500;padding:8px 13px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--text2);white-space:nowrap;transition:all .15s;user-select:none;}
+.tb:hover{color:var(--text);}
+.tb.on{color:var(--accent-text);border-bottom-color:var(--accent);}
+.tpanel{display:none;}.tpanel.on{display:block;}
 
-  /* ── Key facts pills ── */
-  .fact-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-  .pill {
-    background: var(--accent-bg); color: var(--accent-text);
-    font-size: 11px; font-weight: 500; padding: 3px 10px;
-    border-radius: 20px; border: 0.5px solid rgba(37,99,235,0.2);
-  }
+/* Accordion */
+.acc{border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:7px;overflow:hidden;transition:border-color .2s;}
+.acc.open{border-color:var(--border2);}
+.atrig{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;background:var(--bg);gap:10px;user-select:none;transition:background .15s;}
+.atrig:hover{background:var(--bg2);}
+.atrig-l{display:flex;align-items:flex-start;gap:10px;}
+.aico{width:24px;height:24px;border-radius:50%;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.ic-b{background:var(--info-bg);color:var(--info-text);}
+.ic-r{background:var(--danger-bg);color:var(--danger-text);}
+.ic-a{background:var(--warn-bg);color:var(--warn-text);}
+.ic-g{background:var(--success-bg);color:var(--success-text);}
+.a-title{font-size:13px;font-weight:500;color:var(--text);line-height:1.3;}
+.a-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.a-arr{font-size:10px;color:var(--text3);transition:transform .2s;flex-shrink:0;}
+.acc.open .a-arr{transform:rotate(180deg);}
+.abody{display:none;border-top:0.5px solid var(--border);padding:15px 15px 13px;}
+.acc.open .abody{display:block;}
 
-  /* ── Quiz ── */
-  .quiz-progress { font-size: 12px; color: var(--text3); margin-bottom: 12px; }
-  .quiz-q { font-size: 15px; font-weight: 600; margin-bottom: 14px; line-height: 1.5; }
-  .quiz-options { display: flex; flex-direction: column; gap: 8px; }
-  .quiz-opt {
-    font-size: 13px; padding: 11px 14px; text-align: left;
-    border: 0.5px solid var(--border2); border-radius: var(--radius);
-    cursor: pointer; background: var(--bg);
-    transition: all 0.15s; font-family: inherit;
-  }
-  .quiz-opt:hover:not(:disabled) { background: var(--bg2); border-color: var(--accent); }
-  .quiz-opt.correct { background: var(--success-bg); border-color: var(--success-text); color: var(--success-text); }
-  .quiz-opt.wrong { background: var(--danger-bg); border-color: var(--danger-text); color: var(--danger-text); }
-  .quiz-opt:disabled { cursor: default; }
-  .quiz-feedback {
-    margin-top: 12px; padding: 12px 14px; border-radius: var(--radius);
-    font-size: 13px; line-height: 1.55; display: none;
-    background: var(--bg2); border: 0.5px solid var(--border); color: var(--text);
-  }
-  .quiz-next-btn {
-    margin-top: 12px; padding: 9px 18px;
-    font-size: 13px; font-weight: 500;
-    border: 0.5px solid var(--border2); border-radius: var(--radius);
-    cursor: pointer; background: var(--bg); color: var(--text);
-    display: none; font-family: inherit; transition: background 0.15s;
-  }
-  .quiz-next-btn:hover { background: var(--bg2); }
-  .quiz-score-final {
-    padding: 20px; text-align: center; background: var(--bg2);
-    border-radius: var(--radius-lg); border: 0.5px solid var(--border);
-  }
-  .quiz-score-num { font-size: 36px; font-weight: 700; color: var(--accent); }
-  .quiz-score-label { font-size: 13px; color: var(--text2); margin-bottom: 14px; }
-  .quiz-retry-btn {
-    padding: 9px 20px; font-size: 13px; font-weight: 500;
-    background: var(--accent); color: #fff; border: none;
-    border-radius: var(--radius); cursor: pointer; font-family: inherit;
-  }
+/* Text */
+.txt{font-size:13px;line-height:1.8;color:var(--text2);margin-bottom:10px;}
+.txt:last-child{margin-bottom:0;}
+.txt strong{font-weight:500;color:var(--text);}
+.txt em{font-style:italic;}
 
-  /* ── Cases ── */
-  .case-card {
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 18px 20px;
-    margin-bottom: 16px;
-    box-shadow: var(--shadow);
-  }
-  .case-label {
-    font-size: 11px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 0.06em; color: var(--accent-text); margin-bottom: 8px;
-  }
-  .case-vignette { font-size: 14px; line-height: 1.7; color: var(--text); margin-bottom: 14px; }
-  .case-question { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
-  .case-opts { display: flex; flex-direction: column; gap: 8px; }
-  .case-opt {
-    font-size: 13px; padding: 10px 14px; text-align: left;
-    border: 0.5px solid var(--border2); border-radius: var(--radius);
-    cursor: pointer; background: var(--bg2);
-    transition: all 0.15s; font-family: inherit;
-  }
-  .case-opt:hover:not(:disabled) { background: var(--bg3); border-color: var(--accent); }
-  .case-opt.correct { background: var(--success-bg); border-color: var(--success-text); color: var(--success-text); }
-  .case-opt.wrong { background: var(--danger-bg); border-color: var(--danger-text); color: var(--danger-text); }
-  .case-opt:disabled { cursor: default; }
-  .case-feedback {
-    margin-top: 14px; padding: 12px 14px; border-radius: var(--radius);
-    font-size: 13px; line-height: 1.6; display: none;
-    background: var(--bg2); border: 0.5px solid var(--border);
-  }
-  .case-next {
-    margin-top: 12px; padding: 9px 18px; font-size: 13px; font-weight: 500;
-    border: 0.5px solid var(--border2); border-radius: var(--radius);
-    cursor: pointer; background: var(--bg); color: var(--text);
-    display: none; font-family: inherit; transition: background 0.15s;
-  }
-  .case-next:hover { background: var(--bg2); }
+/* Callouts */
+.co{border-radius:var(--r);padding:11px 13px;margin:10px 0;display:flex;gap:9px;align-items:flex-start;}
+.co-a{background:var(--warn-bg);}.co-a .ctx{color:var(--warn-text);}
+.co-b{background:var(--info-bg);}.co-b .ctx{color:var(--info-text);}
+.co-g{background:var(--success-bg);}.co-g .ctx{color:var(--success-text);}
+.co-r{background:var(--danger-bg);}.co-r .ctx{color:var(--danger-text);}
+.coi{font-size:14px;flex-shrink:0;margin-top:1px;}
+.ctx{font-size:13px;line-height:1.65;}
+.ctx strong{font-weight:500;}
 
-  /* ── Spinner ── */
-  .spinner {
-    display: inline-block; width: 14px; height: 14px;
-    border: 2px solid var(--border2); border-top-color: var(--accent);
-    border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+/* Mnemonic */
+.mnem{border:0.5px solid var(--success-border);border-radius:var(--r);background:var(--success-bg);padding:13px 14px;margin:12px 0;}
+.mnem-lbl{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--success-text);margin-bottom:7px;}
+.mnem-word{font-size:17px;font-weight:600;color:var(--success-text);letter-spacing:.05em;margin-bottom:7px;}
+.mnem-rows{display:flex;flex-direction:column;gap:4px;}
+.mnem-row{display:flex;gap:9px;align-items:baseline;}
+.mnem-L{font-size:15px;font-weight:600;color:var(--success-text);width:18px;flex-shrink:0;}
+.mnem-m{font-size:13px;color:var(--success-text);opacity:.9;}
 
-  /* ── API Key setup screen ── */
-  #setup-screen {
-    position: fixed; inset: 0; background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 1000; padding: 24px;
-  }
-  .setup-box {
-    max-width: 480px; width: 100%;
-    background: var(--bg);
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius-lg);
-    padding: 32px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-  }
-  .setup-logo { font-size: 32px; margin-bottom: 12px; }
-  .setup-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.02em; }
-  .setup-desc { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 24px; }
-  .setup-steps { margin-bottom: 24px; }
-  .setup-step {
-    display: flex; gap: 12px; align-items: flex-start;
-    margin-bottom: 12px; font-size: 13px; color: var(--text2); line-height: 1.5;
-  }
-  .setup-step-num {
-    min-width: 22px; height: 22px; border-radius: 50%;
-    background: var(--accent-bg); color: var(--accent-text);
-    font-size: 11px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center; margin-top: 1px;
-  }
-  .setup-step a { color: var(--accent); text-decoration: none; }
-  .setup-step a:hover { text-decoration: underline; }
-  .setup-input-row { display: flex; gap: 8px; margin-bottom: 10px; }
-  .setup-input {
-    flex: 1; padding: 10px 12px; font-size: 14px; font-family: monospace;
-    border: 0.5px solid var(--border2); border-radius: var(--radius);
-    background: var(--bg2); color: var(--text);
-    outline: none; transition: border-color 0.15s;
-  }
-  .setup-input:focus { border-color: var(--accent); }
-  .setup-input::placeholder { color: var(--text3); font-family: -apple-system, sans-serif; font-size: 13px; }
-  .setup-btn {
-    padding: 10px 18px; font-size: 13px; font-weight: 600;
-    background: var(--accent); color: #fff; border: none;
-    border-radius: var(--radius); cursor: pointer; font-family: inherit;
-    transition: opacity 0.15s; white-space: nowrap;
-  }
-  .setup-btn:hover { opacity: 0.9; }
-  .setup-error { font-size: 12px; color: var(--danger-text); margin-bottom: 10px; display: none; }
-  .setup-note { font-size: 11px; color: var(--text3); line-height: 1.5; }
-  .key-indicator {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 11px; color: var(--text3); cursor: pointer;
-    padding: 3px 8px; border-radius: 20px; border: 0.5px solid var(--border);
-    transition: background 0.15s;
-  }
-  .key-indicator:hover { background: var(--bg2); }
-  .key-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success-text); }
+/* Compare */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:10px 0;}
+.cmp-col{border-radius:var(--r);overflow:hidden;border:0.5px solid var(--border);}
+.cmp-h{padding:7px 11px;font-size:12px;font-weight:500;}
+.ch-r{background:var(--danger-bg);color:var(--danger-text);}
+.ch-b{background:var(--info-bg);color:var(--info-text);}
+.ch-g{background:var(--success-bg);color:var(--success-text);}
+.ch-a{background:var(--warn-bg);color:var(--warn-text);}
+.cmp-row{padding:6px 11px;font-size:12px;color:var(--text2);border-top:0.5px solid var(--border);line-height:1.5;}
+.cmp-row:nth-child(even){background:var(--bg2);}
+.cmp-row .def{font-size:11px;color:var(--text3);font-style:italic;}
 
-  /* ── Scrollbar ── */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+/* Steps */
+.steps{margin:10px 0;}
+.step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;}
+.sn{width:24px;height:24px;border-radius:50%;background:var(--bg2);border:0.5px solid var(--border2);font-size:11px;font-weight:500;color:var(--text2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.stitle{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;}
+.sdesc{font-size:12px;color:var(--text2);line-height:1.65;}
+.sdesc strong{font-weight:500;color:var(--text);}
+.sarr{text-align:center;font-size:11px;color:var(--text3);margin:1px 0 3px 34px;}
 
-  /* ── Responsive ── */
-  @media (max-width: 480px) {
-    .card-grid { grid-template-columns: repeat(2, 1fr); }
-    .tabs { overflow-x: auto; }
-    .disease-title { font-size: 18px; }
-  }
+/* Two col */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:10px 0;}
+.mini{background:var(--bg2);border-radius:var(--r);padding:10px 12px;}
+.mini-lbl{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;}
+.mini-val{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;}
+.mini-sub{font-size:11px;color:var(--text2);line-height:1.5;}
+
+/* Gene bars */
+.gbr{display:flex;align-items:center;gap:9px;margin-bottom:7px;}
+.gn{font-size:12px;font-weight:500;color:var(--text);width:68px;flex-shrink:0;}
+.gtrack{flex:1;height:7px;background:var(--bg2);border-radius:4px;overflow:hidden;}
+.gfill{height:100%;border-radius:4px;background:var(--accent);}
+.gpct{font-size:12px;font-weight:500;color:var(--accent-text);width:34px;flex-shrink:0;text-align:right;}
+.gnote{font-size:11px;color:var(--text3);margin:-3px 0 9px 77px;line-height:1.5;}
+
+/* Drug cards */
+.drug{border:0.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:9px;}
+.drug-h{padding:9px 13px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border);}
+.drug-name{font-size:14px;font-weight:500;color:var(--text);}
+.dbadge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;}
+.db-1{background:var(--success-bg);color:var(--success-text);}
+.db-2{background:var(--info-bg);color:var(--info-text);}
+.db-p{background:var(--warn-bg);color:var(--warn-text);}
+.drug-b{padding:10px 13px;}
+.drug-mech{font-size:12px;color:var(--text2);line-height:1.65;margin-bottom:7px;}
+.dstats{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.ds{background:var(--bg2);border-radius:var(--r);padding:6px 9px;}
+.ds-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;}
+.ds-val{font-size:12px;font-weight:500;color:var(--text);}
+
+/* Timeline */
+.tl{padding-left:20px;position:relative;}
+.tl::before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:0.5px;background:var(--border2);}
+.tl-item{position:relative;margin-bottom:13px;}
+.tl-dot{position:absolute;left:-16px;top:5px;width:9px;height:9px;border-radius:50%;border:0.5px solid var(--border2);background:var(--bg);}
+.tl-dot.i{border-color:var(--accent);background:var(--info-bg);}
+.tl-dot.w{border-color:var(--warn-text);background:var(--warn-bg);}
+.tl-dot.d{border-color:var(--danger-text);background:var(--danger-bg);}
+.tl-lbl{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:1px;}
+.tl-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;}
+.tl-desc{font-size:12px;color:var(--text2);line-height:1.6;}
+
+/* Symptom grid */
+.sym-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:10px 0;}
+.sym-card{border:0.5px solid var(--border);border-radius:var(--r);padding:9px 11px;}
+.sym-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px;}
+.sym-tx{font-size:11px;color:var(--text2);line-height:1.5;}
+
+/* ── SUMMARY TAB ── */
+.summary-section{margin-bottom:18px;}
+.sum-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:10px;padding-bottom:6px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:8px;}
+.sum-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.si-b{background:var(--info-bg);}
+.si-r{background:var(--danger-bg);}
+.si-g{background:var(--success-bg);}
+.si-a{background:var(--warn-bg);}
+.sum-items{display:flex;flex-direction:column;gap:6px;}
+.sum-item{display:flex;gap:9px;align-items:flex-start;}
+.sum-bullet{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+.sb-b{background:var(--accent);}
+.sb-r{background:var(--danger-text);}
+.sb-g{background:var(--success-text);}
+.sb-a{background:var(--warn-text);}
+.sum-text{font-size:13px;color:var(--text2);line-height:1.65;}
+.sum-text strong{font-weight:500;color:var(--text);}
+.sum-text .def{font-size:11px;color:var(--text3);font-style:italic;margin-left:4px;}
+.must-know{background:var(--danger-bg);border:0.5px solid var(--danger-border);border-radius:var(--r);padding:12px 14px;margin-bottom:14px;}
+.must-title{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--danger-text);margin-bottom:8px;}
+.must-item{font-size:13px;color:var(--danger-text);line-height:1.7;padding-left:14px;position:relative;}
+.must-item::before{content:'→';position:absolute;left:0;font-weight:600;}
+
+/* Quiz */
+.qwrap{padding:2px 0;}
+.qprog{font-size:11px;color:var(--text3);margin-bottom:9px;}
+.qq{font-size:14px;font-weight:500;color:var(--text);line-height:1.5;margin-bottom:13px;}
+.qopts{display:flex;flex-direction:column;gap:6px;margin-bottom:11px;}
+.qopt{font-size:13px;padding:10px 13px;text-align:left;border:0.5px solid var(--border2);border-radius:var(--r);cursor:pointer;background:var(--bg);color:var(--text);font-family:inherit;transition:all .15s;}
+.qopt:hover:not(:disabled){background:var(--bg2);border-color:var(--accent);}
+.qopt.correct{background:var(--success-bg);border-color:var(--success-text);color:var(--success-text);}
+.qopt.wrong{background:var(--danger-bg);border-color:var(--danger-text);color:var(--danger-text);}
+.qfb{font-size:13px;line-height:1.65;padding:10px 13px;border-radius:var(--r);background:var(--bg2);border:0.5px solid var(--border);color:var(--text2);display:none;margin-bottom:9px;}
+.qnext{font-size:12px;padding:8px 15px;border:0.5px solid var(--border2);border-radius:var(--r);cursor:pointer;background:var(--bg);color:var(--text);font-family:inherit;transition:background .15s;display:none;}
+.qnext:hover{background:var(--bg2);}
+.qscore{text-align:center;padding:22px;background:var(--bg2);border-radius:var(--rl);border:0.5px solid var(--border);display:none;}
+.qsnum{font-size:38px;font-weight:600;color:var(--accent-text);}
+.qslbl{font-size:13px;color:var(--text2);margin-bottom:13px;}
+.qsbtn{font-size:13px;font-weight:500;padding:9px 19px;background:var(--info-bg);color:var(--info-text);border:0.5px solid var(--info-border);border-radius:var(--r);cursor:pointer;font-family:inherit;}
+
+/* Case */
+.case-vig{background:var(--bg2);border-radius:var(--rl);padding:15px 17px;margin-bottom:13px;border:0.5px solid var(--border);}
+.case-lbl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-text);margin-bottom:7px;}
+.case-text{font-size:13px;line-height:1.8;color:var(--text2);}
+.case-text strong{font-weight:500;color:var(--text);}
+.cqcard{border:0.5px solid var(--border);border-radius:var(--rl);padding:15px 17px;margin-bottom:11px;}
+.cqlbl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:7px;}
+.cqtxt{font-size:14px;font-weight:500;color:var(--text);margin-bottom:11px;line-height:1.5;}
+.copts{display:flex;flex-direction:column;gap:6px;}
+.copt{font-size:13px;padding:10px 13px;text-align:left;border:0.5px solid var(--border2);border-radius:var(--r);cursor:pointer;background:var(--bg2);color:var(--text);font-family:inherit;transition:all .15s;}
+.copt:hover:not(:disabled){background:var(--bg);border-color:var(--accent);}
+.copt.correct{background:var(--success-bg);border-color:var(--success-text);color:var(--success-text);}
+.copt.wrong{background:var(--danger-bg);border-color:var(--danger-text);color:var(--danger-text);}
+.cfb{font-size:12px;line-height:1.65;padding:10px 13px;border-radius:var(--r);background:var(--bg2);border:0.5px solid var(--border);color:var(--text2);display:none;margin-top:9px;}
+.cnext{font-size:12px;padding:8px 15px;border:0.5px solid var(--border2);border-radius:var(--r);cursor:pointer;background:var(--bg);color:var(--text);font-family:inherit;margin-top:9px;display:none;}
+.cnext:hover{background:var(--bg2);}
+.cscore{text-align:center;padding:20px;background:var(--bg2);border-radius:var(--rl);border:0.5px solid var(--border);}
+.csnum{font-size:34px;font-weight:600;color:var(--accent-text);}
+.cslbl{font-size:13px;color:var(--text2);margin-bottom:13px;}
+.csbtn{font-size:13px;font-weight:500;padding:9px 19px;background:var(--info-bg);color:var(--info-text);border:0.5px solid var(--info-border);border-radius:var(--r);cursor:pointer;font-family:inherit;}
 </style>
 </head>
 <body>
-<!-- API Key Setup Screen -->
-<div id="setup-screen" style="display:none">
-  <div class="setup-box">
-    <div class="setup-logo">🩺</div>
-    <div class="setup-title">Welcome to MedLearn</div>
-    <div class="setup-desc">This app uses Claude AI to generate content. You need a free Anthropic API key to get started. It takes about 2 minutes to set up.</div>
-    <div class="setup-steps">
-      <div class="setup-step">
-        <div class="setup-step-num">1</div>
-        <div>Go to <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> and create a free account</div>
-      </div>
-      <div class="setup-step">
-        <div class="setup-step-num">2</div>
-        <div>Click <strong>API Keys</strong> in the left menu → <strong>Create Key</strong> → copy it</div>
-      </div>
-      <div class="setup-step">
-        <div class="setup-step-num">3</div>
-        <div>Paste it below. It's saved only in your browser — never sent anywhere except Anthropic.</div>
-      </div>
-    </div>
-    <div class="setup-input-row">
-      <input class="setup-input" id="key-input" type="password" placeholder="sk-ant-api03-..." autocomplete="off" />
-      <button class="setup-btn" onclick="saveKey()">Start →</button>
-    </div>
-    <div class="setup-error" id="setup-error"></div>
-    <div class="setup-note">💡 Cost estimate: a full study session (opening 5–10 diseases with quiz + case each) costs roughly €0.05–0.20 total. You can set spend limits on the Anthropic console.</div>
-  </div>
+<div id="app">
+<div id="hdr">
+  <div class="logo" onclick="goHome()">MED<span>-ED</span></div>
+  <div id="hdr-score"></div>
+</div>
+<div id="bc"></div>
+
+<!-- HOME -->
+<div class="view on" id="v-home">
+  <div class="slbl">Choose a system</div>
+  <div class="card-grid" id="sys-cards"></div>
 </div>
 
-<div id="app">
+<!-- GROUP -->
+<div class="view" id="v-group">
+  <button class="back" onclick="goHome()">← All systems</button>
+  <div class="slbl" id="grp-lbl"></div>
+  <div class="card-grid" id="grp-cards"></div>
+</div>
 
-  <!-- Header -->
-  <div id="site-header">
-    <div class="logo">
-      <span class="logo-icon">🩺</span>
-      <div>
-        <div class="logo-text">MedLearn</div>
-        <div class="logo-sub">Medical knowledge for IVTG & beyond</div>
-      </div>
-    </div>
-    <div class="header-meta" id="header-score">
-    <span id="score-display" style="font-size:12px;color:var(--text3);margin-right:8px;"></span>
-    <span class="key-indicator" onclick="showKeySettings()" title="Change API key">
-      <span class="key-dot"></span> API key set
-    </span>
+<!-- DISEASE LIST -->
+<div class="view" id="v-disease">
+  <button class="back" id="dis-back">← Back</button>
+  <div class="slbl" id="dis-lbl"></div>
+  <div class="card-grid" id="dis-cards"></div>
+</div>
+
+<!-- DISEASE DETAIL -->
+<div class="view" id="v-detail">
+  <button class="back" id="det-back">← Back</button>
+  <div class="disease-hero">
+    <div class="dh-tag" id="det-tag"></div>
+    <div class="dh-title" id="det-title"></div>
+    <div class="dh-hook" id="det-hook"></div>
   </div>
-  </div>
-
-  <!-- Breadcrumb -->
-  <div id="breadcrumb"></div>
-
-  <!-- Views -->
-  <div id="home-view">
-    <div class="mode-switcher">
-      <button class="mode-btn active" onclick="setMode('learn')">📖 Learn</button>
-      <button class="mode-btn" onclick="setMode('cases')">🩻 Clinical cases</button>
-      <button class="mode-btn" onclick="setMode('quiz')">⚡ Quick quiz</button>
-    </div>
-    <div class="section-label">Choose a system</div>
-    <div class="card-grid" id="system-cards"></div>
-  </div>
-
-  <div id="group-view" style="display:none">
-    <button class="back-btn" onclick="goBack('home')">← Back</button>
-    <div class="section-label" id="group-label"></div>
-    <div class="card-grid" id="group-cards"></div>
-  </div>
-
-  <div id="disease-view" style="display:none">
-    <button class="back-btn" id="disease-back-btn">← Back</button>
-    <div class="section-label" id="disease-label"></div>
-    <div class="card-grid" id="disease-cards"></div>
-  </div>
-
-  <div id="detail-view" style="display:none">
-    <button class="back-btn" id="detail-back-btn">← Back</button>
-    <div class="disease-header">
-      <div class="disease-title" id="detail-title"></div>
-      <div class="disease-tags" id="detail-tags"></div>
-    </div>
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('patho', this)">Pathophysiology</button>
-      <button class="tab-btn" onclick="switchTab('diag', this)">Diagnosis</button>
-      <button class="tab-btn" onclick="switchTab('treat', this)">Treatment</button>
-      <button class="tab-btn" onclick="switchTab('prevent', this)">Prevention</button>
-      <button class="tab-btn" onclick="switchTab('quiz', this)">Test yourself</button>
-      <button class="tab-btn" onclick="switchTab('case', this)">Clinical case</button>
-    </div>
-
-    <div class="tab-panel active" id="tab-patho">
-      <div class="ai-box loading" id="patho-content"><span class="spinner"></span> Loading pathophysiology...</div>
-      <div class="fact-pills" id="patho-pills"></div>
-    </div>
-    <div class="tab-panel" id="tab-diag">
-      <div class="ai-box loading" id="diag-content"><span class="spinner"></span> Loading diagnosis...</div>
-    </div>
-    <div class="tab-panel" id="tab-treat">
-      <div class="ai-box loading" id="treat-content"><span class="spinner"></span> Loading treatment...</div>
-    </div>
-    <div class="tab-panel" id="tab-prevent">
-      <div class="ai-box loading" id="prevent-content"><span class="spinner"></span> Loading prevention...</div>
-    </div>
-    <div class="tab-panel" id="tab-quiz">
-      <div id="quiz-container">
-        <div class="quiz-progress" id="quiz-progress"></div>
-        <div class="quiz-q" id="quiz-q"><span class="spinner"></span> Generating questions...</div>
-        <div class="quiz-options" id="quiz-opts"></div>
-        <div class="quiz-feedback" id="quiz-fb"></div>
-        <button class="quiz-next-btn" id="quiz-next" onclick="nextQuestion()">Next →</button>
-      </div>
-      <div id="quiz-final" style="display:none">
-        <div class="quiz-score-final">
-          <div class="quiz-score-num" id="quiz-score-num"></div>
-          <div class="quiz-score-label" id="quiz-score-label"></div>
-          <button class="quiz-retry-btn" onclick="loadQuiz()">New set of questions</button>
-        </div>
-      </div>
-    </div>
-    <div class="tab-panel" id="tab-case">
-      <div id="case-container"></div>
-    </div>
-  </div>
-
-  <!-- Quick quiz / Cases at system level -->
-  <div id="mode-view" style="display:none">
-    <button class="back-btn" onclick="goBack('home')">← Back</button>
-    <div class="section-label" id="mode-view-label"></div>
-    <div id="mode-view-content"></div>
-  </div>
-
+  <div class="pill-row" id="det-pills"></div>
+  <div class="tab-bar" id="det-tabs"></div>
+  <div id="det-content"></div>
+</div>
 </div>
 
 <script>
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
 //  DATA
-// ─────────────────────────────────────────────
-
-const SYSTEMS = [
-  { id:'neuro',   icon:'🧠', name:'Neurology',        sub:'Brain, spinal cord, nerves',    groups:['neurodegen','demyelinating','neuromuscular','cerebrovascular','epilepsy'] },
-  { id:'cardio',  icon:'❤️',  name:'Cardiology',       sub:'Heart & vessels',               groups:['heartfailure','arrhythmia','ischemic','valvular','pericardial'] },
-  { id:'pulmo',   icon:'🫁', name:'Pulmonology',      sub:'Lungs & airways',               groups:['obstructive','restrictive','infectious_lung','vascular_lung','pleural'] },
-  { id:'gastro',  icon:'🫃', name:'Gastroenterology', sub:'GI tract & liver',              groups:['ibd','liver','pancreas','gastric','colorectal'] },
-  { id:'endo',    icon:'⚗️', name:'Endocrinology',    sub:'Hormones & glands',             groups:['diabetes','thyroid','adrenal','pituitary','parathyroid'] },
-  { id:'nephro',  icon:'🫘', name:'Nephrology',       sub:'Kidneys & urinary tract',       groups:['glomerular','tubular','ckd','renal_vascular','electrolytes'] },
-  { id:'rheum',   icon:'🦴', name:'Rheumatology',     sub:'Joints & connective tissue',    groups:['inflammatory_joint','crystal','connective_tissue','vasculitis','myositis'] },
-  { id:'hemato',  icon:'🩸', name:'Haematology',      sub:'Blood & lymph',                 groups:['anaemia','bleeding','myeloid','lymphoid','coag'] },
+// ═══════════════════════════════════════════════════════
+const SYSTEMS=[
+  {id:'neuro',icon:'🧠',name:'Neurology',sub:'Brain, spinal cord, nerves',groups:['neurodegen','demyelinating','neuromuscular','cerebrovascular','epilepsy']},
+  {id:'cardio',icon:'❤️',name:'Cardiology',sub:'Heart & vessels',groups:['heartfailure','arrhythmia','ischemic','valvular','pericardial']},
+  {id:'pulmo',icon:'🫁',name:'Pulmonology',sub:'Lungs & airways',groups:['obstructive','restrictive','infectious_lung','vascular_lung','pleural']},
+  {id:'gastro',icon:'🫃',name:'Gastroenterology',sub:'GI tract & liver',groups:['ibd','liver','pancreas','gastric','colorectal']},
+  {id:'endo',icon:'⚗️',name:'Endocrinology',sub:'Hormones & glands',groups:['diabetes','thyroid','adrenal','pituitary','parathyroid']},
+  {id:'nephro',icon:'🫘',name:'Nephrology',sub:'Kidneys & urinary tract',groups:['glomerular','tubular','ckd','renal_vascular','electrolytes']},
+  {id:'rheum',icon:'🦴',name:'Rheumatology',sub:'Joints & connective tissue',groups:['inflammatory_joint','crystal','connective_tissue','vasculitis','myositis']},
+  {id:'hemato',icon:'🩸',name:'Haematology',sub:'Blood & lymph',groups:['anaemia','bleeding','myeloid','lymphoid','coag']},
 ];
 
-const GROUPS = {
-  neurodegen:     { name:'Neurodegenerative',          sub:'Progressive neuron loss',       diseases:['als','parkinsons','alzheimers','huntingtons','msa'] },
-  demyelinating:  { name:'Demyelinating diseases',     sub:'Myelin sheath damage',          diseases:['ms','nmo','gbs','cidp','pml'] },
-  neuromuscular:  { name:'Neuromuscular junction',     sub:'NMJ & primary muscle disease',  diseases:['mg','lambert_eaton','duchenne','myotonic_dystrophy','polymyositis'] },
-  cerebrovascular:{ name:'Cerebrovascular disease',   sub:'Stroke & vascular',             diseases:['ischemic_stroke','hemorrhagic_stroke','tia','sah','cadasil'] },
-  epilepsy:       { name:'Epilepsy & seizures',        sub:'Abnormal electrical activity',  diseases:['focal_seizure','tonic_clonic','absence','status_epilepticus','temporal_lobe'] },
-  heartfailure:   { name:'Heart failure',              sub:'Pump dysfunction',              diseases:['hfref','hfpef','acute_hf','right_hf','cardiac_tamponade'] },
-  arrhythmia:     { name:'Arrhythmias',                sub:'Rhythm disorders',              diseases:['afib','vfib','avblock','wpw','long_qt'] },
-  ischemic:       { name:'Ischemic heart disease',     sub:'Coronary artery disease',       diseases:['stemi','nstemi','unstable_angina','stable_angina','coronary_vasospasm'] },
-  valvular:       { name:'Valvular disease',           sub:'Heart valve disorders',         diseases:['aortic_stenosis','mitral_regurg','mitral_stenosis','aortic_regurg','endocarditis'] },
-  pericardial:    { name:'Pericardial disease',        sub:'Pericardium disorders',         diseases:['acute_pericarditis','pericardial_effusion','constrictive_pericarditis','dressler','myocarditis'] },
-  obstructive:    { name:'Obstructive lung disease',   sub:'Airflow limitation',            diseases:['copd','asthma','bronchiectasis','cf','alpha1at'] },
-  restrictive:    { name:'Restrictive lung disease',   sub:'Reduced lung volume',           diseases:['ipf','sarcoidosis','asbestosis','hypersensitivity_pn','ards'] },
-  infectious_lung:{ name:'Respiratory infections',    sub:'Lung infections',               diseases:['cap','tuberculosis','pneumocystis','legionella','aspergillosis'] },
-  vascular_lung:  { name:'Pulmonary vascular',        sub:'Vascular lung disease',         diseases:['pe','pulmonary_htn','cor_pulmonale','avm','hereditary_htn'] },
-  pleural:        { name:'Pleural disease',            sub:'Pleura & chest wall',           diseases:['pneumothorax','pleural_effusion','empyema','mesothelioma','pleural_fibr'] },
-  ibd:            { name:'Inflammatory bowel disease', sub:'Chronic gut inflammation',      diseases:['crohns','uc','psc','microscopic_colitis','behcet_gut'] },
-  liver:          { name:'Liver disease',              sub:'Hepatic pathology',             diseases:['cirrhosis','hepatitis_b','hepatitis_c','nash','autoimmune_hepatitis'] },
-  pancreas:       { name:'Pancreatic disease',         sub:'Exo- & endocrine pancreas',     diseases:['acute_pancreatitis','chronic_pancreatitis','pancreatic_cancer','insulinoma','glucagonoma'] },
-  gastric:        { name:'Gastric & oesophageal',      sub:'Upper GI disease',              diseases:['peptic_ulcer','gerd','barretts','gastric_cancer','achalasia'] },
-  colorectal:     { name:'Colorectal disease',         sub:'Lower GI disease',              diseases:['colorectal_cancer','diverticulitis','ischemic_colitis','appendicitis','volvulus'] },
-  diabetes:       { name:'Diabetes mellitus',          sub:'Glucose dysregulation',         diseases:['t1dm','t2dm','gestational_dm','mody','dka'] },
-  thyroid:        { name:'Thyroid disease',            sub:'Thyroid gland disorders',       diseases:['hypothyroid','hyperthyroid','hashimotos','graves','thyroid_cancer'] },
-  adrenal:        { name:'Adrenal disease',            sub:'Adrenal cortex & medulla',      diseases:['addisons','cushings','phaeochromocytoma','congenital_ah','aldosteronism'] },
-  pituitary:      { name:'Pituitary disease',          sub:'Pituitary gland disorders',     diseases:['acromegaly','hyperprolactinaemia','craniopharyngioma','pituitary_adenoma','diabetes_insipidus'] },
-  parathyroid:    { name:'Parathyroid & calcium',      sub:'Calcium regulation',            diseases:['hyperparathyroid','hypoparathyroid','pseudohypoparathyroid','hypercalcaemia','hypocalcaemia'] },
-  glomerular:     { name:'Glomerular disease',         sub:'Filtration unit disorders',     diseases:['iga_nephropathy','fsgs','membranous_nephropathy','lupus_nephritis','mpgn'] },
-  tubular:        { name:'Tubular & interstitial',     sub:'Tubular disease',               diseases:['acute_tubular_necrosis','renal_tubular_acidosis','fanconi','polycystic_kidney','medullary_sponge'] },
-  ckd:            { name:'Chronic kidney disease',     sub:'Progressive renal impairment',  diseases:['ckd_stages','renal_osteodystrophy','anaemia_ckd','esrd','renal_artery_stenosis'] },
-  electrolytes:   { name:'Electrolyte disorders',      sub:'Fluid & electrolyte balance',   diseases:['hyponatraemia','hypernatraemia','hypokalaemia','hyperkalaemia','hyperphosphataemia'] },
-  inflammatory_joint: { name:'Inflammatory arthritis', sub:'Joint inflammation',           diseases:['ra','psoriatic_arthritis','as','reactive_arthritis','juvenile_ia'] },
-  crystal:        { name:'Crystal arthropathy',        sub:'Crystal deposition',            diseases:['gout','pseudogout','urate_nephropathy','tophaceous_gout','calcium_pyrophosphate'] },
-  connective_tissue:{ name:'Connective tissue disease',sub:'Systemic autoimmune',           diseases:['sle','sjogrens','systemic_sclerosis','mixed_ctd','polymyalgia'] },
-  vasculitis:     { name:'Vasculitis',                 sub:'Vessel wall inflammation',      diseases:['granulomatosis_polyangiitis','giant_cell','polyarteritis_nodosa','iga_vasculitis','takayasu'] },
-  myositis:       { name:'Inflammatory myopathies',    sub:'Muscle inflammation',           diseases:['polymyositis','dermatomyositis','ibm','antisynthetase','necrotizing_myopathy'] },
-  anaemia:        { name:'Anaemia',                    sub:'Low haemoglobin',               diseases:['iron_deficiency','b12_folate','haemolytic','aplastic','sickle_cell'] },
-  bleeding:       { name:'Bleeding disorders',         sub:'Haemostasis defects',           diseases:['haemophilia_a','haemophilia_b','vwd','itp','ttp'] },
-  myeloid:        { name:'Myeloid malignancies',       sub:'Bone marrow & myeloid cells',   diseases:['aml','cml','mds','pv','essential_thrombocythaemia'] },
-  lymphoid:       { name:'Lymphoid malignancies',      sub:'Lymphocytes & lymph nodes',     diseases:['all','cll','hodgkin','nhl_diffuse','multiple_myeloma'] },
-  coag:           { name:'Coagulation disorders',      sub:'Clotting pathway',              diseases:['dvt','pe_coag','dic','antiphospholipid','inherited_thrombophilia'] },
-  renal_vascular: { name:'Renal vascular disease',     sub:'Renal perfusion',               diseases:['renal_artery_stenosis','renal_vein_thrombosis','atheroembolism','malignant_htn_kidney','scleroderma_kidney'] },
+const GROUPS={
+  neurodegen:{name:'Neurodegenerative',sub:'Progressive neuron loss',diseases:['als','parkinsons','alzheimers','huntingtons','msa']},
+  demyelinating:{name:'Demyelinating diseases',sub:'Myelin sheath damage',diseases:['ms','nmo','gbs','cidp','pml']},
+  neuromuscular:{name:'Neuromuscular junction',sub:'NMJ & primary muscle disease',diseases:['mg','lambert_eaton','duchenne','myotonic_dystrophy','polymyositis']},
+  cerebrovascular:{name:'Cerebrovascular disease',sub:'Stroke & vascular',diseases:['ischemic_stroke','hemorrhagic_stroke','tia','sah','cadasil']},
+  epilepsy:{name:'Epilepsy & seizures',sub:'Abnormal electrical activity',diseases:['focal_seizure','tonic_clonic','absence','status_epilepticus','temporal_lobe']},
+  heartfailure:{name:'Heart failure',sub:'Pump dysfunction',diseases:['hfref','hfpef','acute_hf','right_hf','cardiac_tamponade']},
+  arrhythmia:{name:'Arrhythmias',sub:'Rhythm disorders',diseases:['afib','vfib','avblock','wpw','long_qt']},
+  ischemic:{name:'Ischemic heart disease',sub:'Coronary artery disease',diseases:['stemi','nstemi','unstable_angina','stable_angina','coronary_vasospasm']},
+  valvular:{name:'Valvular disease',sub:'Heart valve disorders',diseases:['aortic_stenosis','mitral_regurg','mitral_stenosis','aortic_regurg','endocarditis']},
+  pericardial:{name:'Pericardial disease',sub:'Pericardium disorders',diseases:['acute_pericarditis','pericardial_effusion','constrictive_pericarditis','dressler','myocarditis']},
+  obstructive:{name:'Obstructive lung disease',sub:'Airflow limitation',diseases:['copd','asthma','bronchiectasis','cf','alpha1at']},
+  restrictive:{name:'Restrictive lung disease',sub:'Reduced lung volume',diseases:['ipf','sarcoidosis','asbestosis','hypersensitivity_pn','ards']},
+  infectious_lung:{name:'Respiratory infections',sub:'Lung infections',diseases:['cap','tuberculosis','pneumocystis','legionella','aspergillosis']},
+  vascular_lung:{name:'Pulmonary vascular',sub:'Vascular lung disease',diseases:['pe','pulmonary_htn','cor_pulmonale','avm','hereditary_htn']},
+  pleural:{name:'Pleural disease',sub:'Pleura & chest wall',diseases:['pneumothorax','pleural_effusion','empyema','mesothelioma','pleural_fibr']},
+  ibd:{name:'Inflammatory bowel disease',sub:'Chronic gut inflammation',diseases:['crohns','uc','psc','microscopic_colitis','behcet_gut']},
+  liver:{name:'Liver disease',sub:'Hepatic pathology',diseases:['cirrhosis','hepatitis_b','hepatitis_c','nash','autoimmune_hepatitis']},
+  pancreas:{name:'Pancreatic disease',sub:'Exo- & endocrine pancreas',diseases:['acute_pancreatitis','chronic_pancreatitis','pancreatic_cancer','insulinoma','glucagonoma']},
+  gastric:{name:'Gastric & oesophageal',sub:'Upper GI disease',diseases:['peptic_ulcer','gerd','barretts','gastric_cancer','achalasia']},
+  colorectal:{name:'Colorectal disease',sub:'Lower GI disease',diseases:['colorectal_cancer','diverticulitis','ischemic_colitis','appendicitis','volvulus']},
+  diabetes:{name:'Diabetes mellitus',sub:'Glucose dysregulation',diseases:['t1dm','t2dm','gestational_dm','mody','dka']},
+  thyroid:{name:'Thyroid disease',sub:'Thyroid gland disorders',diseases:['hypothyroid','hyperthyroid','hashimotos','graves','thyroid_cancer']},
+  adrenal:{name:'Adrenal disease',sub:'Adrenal cortex & medulla',diseases:['addisons','cushings','phaeochromocytoma','congenital_ah','aldosteronism']},
+  pituitary:{name:'Pituitary disease',sub:'Pituitary gland disorders',diseases:['acromegaly','hyperprolactinaemia','craniopharyngioma','pituitary_adenoma','diabetes_insipidus']},
+  parathyroid:{name:'Parathyroid & calcium',sub:'Calcium regulation',diseases:['hyperparathyroid','hypoparathyroid','pseudohypoparathyroid','hypercalcaemia','hypocalcaemia']},
+  glomerular:{name:'Glomerular disease',sub:'Filtration unit disorders',diseases:['iga_nephropathy','fsgs','membranous_nephropathy','lupus_nephritis','mpgn']},
+  tubular:{name:'Tubular & interstitial',sub:'Tubular disease',diseases:['acute_tubular_necrosis','renal_tubular_acidosis','fanconi','polycystic_kidney','medullary_sponge']},
+  ckd:{name:'Chronic kidney disease',sub:'Progressive renal impairment',diseases:['ckd_stages','renal_osteodystrophy','anaemia_ckd','esrd','renal_artery_stenosis']},
+  electrolytes:{name:'Electrolyte disorders',sub:'Fluid & electrolyte balance',diseases:['hyponatraemia','hypernatraemia','hypokalaemia','hyperkalaemia','hyperphosphataemia']},
+  inflammatory_joint:{name:'Inflammatory arthritis',sub:'Joint inflammation',diseases:['ra','psoriatic_arthritis','as','reactive_arthritis','juvenile_ia']},
+  crystal:{name:'Crystal arthropathy',sub:'Crystal deposition',diseases:['gout','pseudogout','urate_nephropathy','tophaceous_gout','calcium_pyrophosphate']},
+  connective_tissue:{name:'Connective tissue disease',sub:'Systemic autoimmune',diseases:['sle','sjogrens','systemic_sclerosis','mixed_ctd','polymyalgia']},
+  vasculitis:{name:'Vasculitis',sub:'Vessel wall inflammation',diseases:['granulomatosis_polyangiitis','giant_cell','polyarteritis_nodosa','iga_vasculitis','takayasu']},
+  myositis:{name:'Inflammatory myopathies',sub:'Muscle inflammation',diseases:['polymyositis','dermatomyositis','ibm','antisynthetase','necrotizing_myopathy']},
+  anaemia:{name:'Anaemia',sub:'Low haemoglobin',diseases:['iron_deficiency','b12_folate','haemolytic','aplastic','sickle_cell']},
+  bleeding:{name:'Bleeding disorders',sub:'Haemostasis defects',diseases:['haemophilia_a','haemophilia_b','vwd','itp','ttp']},
+  myeloid:{name:'Myeloid malignancies',sub:'Bone marrow & myeloid cells',diseases:['aml','cml','mds','pv','essential_thrombocythaemia']},
+  lymphoid:{name:'Lymphoid malignancies',sub:'Lymphocytes & lymph nodes',diseases:['all','cll','hodgkin','nhl_diffuse','multiple_myeloma']},
+  coag:{name:'Coagulation disorders',sub:'Clotting pathway',diseases:['dvt','pe_coag','dic','antiphospholipid','inherited_thrombophilia']},
+  renal_vascular:{name:'Renal vascular disease',sub:'Renal perfusion',diseases:['renal_artery_stenosis','renal_vein_thrombosis','atheroembolism','malignant_htn_kidney','scleroderma_kidney']},
 };
 
-const DISEASE_META = {
-  als:                   { name:'ALS',                         full:'Amyotrophic lateral sclerosis',              tag:'UMN + LMN signs' },
-  parkinsons:            { name:"Parkinson's disease",         full:"Parkinson's disease",                        tag:'α-synuclein, dopaminergic' },
-  alzheimers:            { name:"Alzheimer's disease",         full:"Alzheimer's disease",                        tag:'Amyloid-β plaques, tau tangles' },
-  huntingtons:           { name:"Huntington's disease",        full:"Huntington's disease",                       tag:'CAG repeat, chromosome 4' },
-  msa:                   { name:'MSA',                         full:'Multiple system atrophy',                    tag:'α-synuclein, autonomic + motor' },
-  ms:                    { name:'Multiple sclerosis',          full:'Multiple sclerosis',                         tag:'Relapsing-remitting most common' },
-  nmo:                   { name:'NMO spectrum',                full:'Neuromyelitis optica spectrum disorder',      tag:'AQP4-IgG antibody' },
-  gbs:                   { name:'Guillain-Barré',              full:'Guillain-Barré syndrome',                    tag:'Post-infectious, ascending' },
-  cidp:                  { name:'CIDP',                        full:'Chronic inflammatory demyelinating polyneuropathy', tag:'Chronic GBS equivalent' },
-  pml:                   { name:'PML',                         full:'Progressive multifocal leukoencephalopathy', tag:'JC virus, immunosuppressed' },
-  mg:                    { name:'Myasthenia gravis',           full:'Myasthenia gravis',                          tag:'AChR antibody, fatigable weakness' },
-  lambert_eaton:         { name:'Lambert-Eaton',               full:'Lambert-Eaton myasthenic syndrome',          tag:'VGCC antibody, paraneoplastic' },
-  duchenne:              { name:'Duchenne MD',                 full:'Duchenne muscular dystrophy',                tag:'Dystrophin deficiency, X-linked' },
-  myotonic_dystrophy:    { name:'Myotonic dystrophy',         full:'Myotonic dystrophy type 1',                  tag:'CTG repeat, DMPK gene' },
-  polymyositis:          { name:'Polymyositis',                full:'Polymyositis',                               tag:'Proximal weakness, elevated CK' },
-  ischemic_stroke:       { name:'Ischaemic stroke',           full:'Ischaemic stroke',                           tag:'85% of all strokes' },
-  hemorrhagic_stroke:    { name:'Haemorrhagic stroke',        full:'Intracerebral haemorrhage',                  tag:'HTN most common cause' },
-  tia:                   { name:'TIA',                        full:'Transient ischaemic attack',                 tag:'<24h, ABCD2 score' },
-  sah:                   { name:'SAH',                        full:'Subarachnoid haemorrhage',                   tag:"Berry aneurysm, thunderclap headache" },
-  cadasil:               { name:'CADASIL',                    full:'CADASIL',                                    tag:'NOTCH3 mutation, early strokes' },
-  focal_seizure:         { name:'Focal seizure',              full:'Focal (partial) seizure',                    tag:'Localised cortical origin' },
-  tonic_clonic:          { name:'Tonic-clonic seizure',       full:'Generalised tonic-clonic seizure',           tag:'Grand mal' },
-  absence:               { name:'Absence seizure',            full:'Absence seizure (petit mal)',                tag:'3 Hz spike-wave, childhood' },
-  status_epilepticus:    { name:'Status epilepticus',         full:'Status epilepticus',                         tag:'>5 min, emergency' },
-  temporal_lobe:         { name:'Temporal lobe epilepsy',     full:'Temporal lobe epilepsy',                     tag:'Most common focal epilepsy' },
-  hfref:                 { name:'HFrEF',                      full:'Heart failure with reduced ejection fraction', tag:'EF <40%, systolic dysfunction' },
-  hfpef:                 { name:'HFpEF',                      full:'Heart failure with preserved ejection fraction', tag:'EF ≥50%, diastolic dysfunction' },
-  acute_hf:              { name:'Acute heart failure',        full:'Acute decompensated heart failure',          tag:'Cardiogenic pulmonary oedema' },
-  right_hf:              { name:'Right heart failure',        full:'Right-sided heart failure',                  tag:'Cor pulmonale, JVP raised' },
-  cardiac_tamponade:     { name:'Cardiac tamponade',          full:'Cardiac tamponade',                          tag:"Beck's triad" },
-  afib:                  { name:'Atrial fibrillation',        full:'Atrial fibrillation',                        tag:'Most common arrhythmia' },
-  vfib:                  { name:'Ventricular fibrillation',   full:'Ventricular fibrillation',                   tag:'Immediately life-threatening' },
-  avblock:               { name:'AV block',                   full:'Atrioventricular block',                     tag:'1st, 2nd (Mobitz I/II), 3rd degree' },
-  wpw:                   { name:'WPW syndrome',               full:'Wolff-Parkinson-White syndrome',             tag:'Delta wave, accessory pathway' },
-  long_qt:               { name:'Long QT syndrome',           full:'Long QT syndrome',                           tag:'Torsades de pointes risk' },
-  stemi:                 { name:'STEMI',                      full:'ST-elevation myocardial infarction',         tag:'Complete coronary occlusion' },
-  nstemi:                { name:'NSTEMI',                     full:'Non-ST-elevation MI',                        tag:'Partial/transient occlusion' },
-  unstable_angina:       { name:'Unstable angina',            full:'Unstable angina',                            tag:'ACS without troponin rise' },
-  stable_angina:         { name:'Stable angina',              full:'Stable angina pectoris',                     tag:'Exertional, relieved by rest' },
-  aortic_stenosis:       { name:'Aortic stenosis',            full:'Aortic stenosis',                            tag:'Most common valve disease in West' },
-  mitral_regurg:         { name:'Mitral regurgitation',       full:'Mitral regurgitation',                       tag:'Pansystolic murmur, apex' },
-  mitral_stenosis:       { name:'Mitral stenosis',            full:'Mitral stenosis',                            tag:'Rheumatic fever most common cause' },
-  aortic_regurg:         { name:'Aortic regurgitation',       full:'Aortic regurgitation',                       tag:'Diastolic murmur, collapsing pulse' },
-  endocarditis:          { name:'Infective endocarditis',     full:'Infective endocarditis',                     tag:'Duke criteria, Strep/Staph' },
-  copd:                  { name:'COPD',                       full:'Chronic obstructive pulmonary disease',      tag:'Emphysema + chronic bronchitis' },
-  asthma:                { name:'Asthma',                     full:'Bronchial asthma',                           tag:'Reversible airflow obstruction' },
-  bronchiectasis:        { name:'Bronchiectasis',             full:'Bronchiectasis',                             tag:'Permanent airway dilatation' },
-  cf:                    { name:'Cystic fibrosis',            full:'Cystic fibrosis',                            tag:'CFTR mutation, ΔF508' },
-  alpha1at:              { name:'α1-antitrypsin deficiency',  full:'Alpha-1-antitrypsin deficiency',             tag:'PiZZ genotype, early emphysema' },
-  ipf:                   { name:'IPF',                        full:'Idiopathic pulmonary fibrosis',              tag:'UIP pattern on HRCT, honeycombing' },
-  sarcoidosis:           { name:'Sarcoidosis',                full:'Sarcoidosis',                                tag:'Non-caseating granulomas' },
-  ards:                  { name:'ARDS',                       full:'Acute respiratory distress syndrome',        tag:'Berlin definition, P/F ratio <300' },
-  pe:                    { name:'Pulmonary embolism',         full:'Pulmonary embolism',                         tag:'DVT source, Wells score' },
-  pneumothorax:          { name:'Pneumothorax',               full:'Pneumothorax',                               tag:'Spontaneous or traumatic' },
-  cap:                   { name:'Community-acquired pneumonia', full:'Community-acquired pneumonia',              tag:'CURB-65 score' },
-  tuberculosis:          { name:'Tuberculosis',               full:'Pulmonary tuberculosis',                     tag:'M. tuberculosis, Ghon focus' },
-  crohns:                { name:"Crohn's disease",            full:"Crohn's disease",                            tag:'Transmural, skip lesions' },
-  uc:                    { name:'Ulcerative colitis',         full:'Ulcerative colitis',                         tag:'Mucosal, continuous from rectum' },
-  psc:                   { name:'PSC',                        full:'Primary sclerosing cholangitis',             tag:'Beaded bile ducts, IBD assoc.' },
-  cirrhosis:             { name:'Liver cirrhosis',            full:'Liver cirrhosis',                            tag:'End-stage liver disease' },
-  hepatitis_b:           { name:'Hepatitis B',                full:'Chronic hepatitis B',                        tag:'HBsAg, DNA virus' },
-  hepatitis_c:           { name:'Hepatitis C',                full:'Chronic hepatitis C',                        tag:'RNA virus, DAA curative' },
-  nash:                  { name:'NASH / MASLD',               full:'Metabolic-associated steatohepatitis',       tag:'Fatty liver → fibrosis' },
-  autoimmune_hepatitis:  { name:'Autoimmune hepatitis',       full:'Autoimmune hepatitis',                       tag:'Anti-SMA, ANA, IgG elevated' },
-  peptic_ulcer:          { name:'Peptic ulcer disease',       full:'Peptic ulcer disease',                       tag:'H. pylori, NSAIDs' },
-  acute_pancreatitis:    { name:'Acute pancreatitis',         full:'Acute pancreatitis',                         tag:'Gallstones + alcohol, Ranson criteria' },
-  t1dm:                  { name:'Type 1 DM',                  full:'Type 1 diabetes mellitus',                   tag:'Autoimmune β-cell destruction' },
-  t2dm:                  { name:'Type 2 DM',                  full:'Type 2 diabetes mellitus',                   tag:'Insulin resistance + secretion defect' },
-  dka:                   { name:'DKA',                        full:'Diabetic ketoacidosis',                      tag:'Type 1, anion gap acidosis' },
-  hypothyroid:           { name:'Hypothyroidism',             full:'Hypothyroidism',                             tag:'TSH↑, fT4↓' },
-  hyperthyroid:          { name:'Hyperthyroidism',            full:'Hyperthyroidism',                            tag:'TSH↓, fT4↑' },
-  hashimotos:            { name:"Hashimoto's thyroiditis",    full:"Hashimoto's thyroiditis",                    tag:'Most common hypothyroid cause' },
-  graves:                { name:"Graves' disease",            full:"Graves' disease",                            tag:'TSH-R antibody, exophthalmos' },
-  thyroid_cancer:        { name:'Thyroid cancer',             full:'Thyroid carcinoma',                          tag:'Papillary most common' },
-  addisons:              { name:"Addison's disease",          full:"Addison's disease",                          tag:'Primary adrenal insufficiency' },
-  cushings:              { name:"Cushing's syndrome",         full:"Cushing's syndrome",                         tag:'Cortisol excess' },
-  phaeochromocytoma:     { name:'Phaeochromocytoma',          full:'Phaeochromocytoma / paraganglioma',          tag:'Catecholamine excess, rule of 10s' },
-  iga_nephropathy:       { name:'IgA nephropathy',            full:"IgA nephropathy (Berger's disease)",         tag:'Most common GN worldwide' },
-  fsgs:                  { name:'FSGS',                       full:'Focal segmental glomerulosclerosis',         tag:'Nephrotic, podocyte injury' },
-  membranous_nephropathy:{ name:'Membranous nephropathy',     full:'Membranous nephropathy',                     tag:'PLA2R antibody, nephrotic' },
-  lupus_nephritis:       { name:'Lupus nephritis',            full:'Lupus nephritis',                            tag:'SLE complication, WHO class I–VI' },
-  ckd_stages:            { name:'CKD',                        full:'Chronic kidney disease',                     tag:'eGFR <60 >3 months, G1-G5' },
-  hyponatraemia:         { name:'Hyponatraemia',              full:'Hyponatraemia',                              tag:'Na <135, most common electrolyte disorder' },
-  hyperkalaemia:         { name:'Hyperkalaemia',              full:'Hyperkalaemia',                              tag:'K >5.5, cardiac risk' },
-  ra:                    { name:'Rheumatoid arthritis',       full:'Rheumatoid arthritis',                       tag:'RF/anti-CCP, symmetrical small joints' },
-  psoriatic_arthritis:   { name:'Psoriatic arthritis',        full:'Psoriatic arthritis',                        tag:'Seronegative, DIP joints, dactylitis' },
-  as:                    { name:'Ankylosing spondylitis',     full:'Ankylosing spondylitis',                     tag:'HLA-B27, sacroiliitis, bamboo spine' },
-  sle:                   { name:'SLE',                        full:'Systemic lupus erythematosus',               tag:'Anti-dsDNA, butterfly rash' },
-  sjogrens:              { name:"Sjögren's syndrome",         full:"Sjögren's syndrome",                         tag:'Anti-Ro/La, dry eyes & mouth' },
-  systemic_sclerosis:    { name:'Systemic sclerosis',         full:'Systemic sclerosis (scleroderma)',           tag:'Anti-Scl-70, skin fibrosis' },
-  gout:                  { name:'Gout',                       full:'Gout',                                       tag:'Monosodium urate crystals, negative birefringent' },
-  pseudogout:            { name:'Pseudogout',                 full:'Calcium pyrophosphate deposition (CPPD)',    tag:'Positive birefringent, chondrocalcinosis' },
-  iron_deficiency:       { name:'Iron deficiency anaemia',    full:'Iron deficiency anaemia',                    tag:'Most common anaemia worldwide' },
-  b12_folate:            { name:'B12 / Folate deficiency',    full:'B12 and folate deficiency anaemia',          tag:'Megaloblastic, macrocytic' },
-  haemolytic:            { name:'Haemolytic anaemia',         full:'Haemolytic anaemia',                         tag:'Intravascular vs extravascular' },
-  aplastic:              { name:'Aplastic anaemia',           full:'Aplastic anaemia',                           tag:'Pancytopenia, bone marrow failure' },
-  sickle_cell:           { name:'Sickle cell disease',        full:'Sickle cell disease',                        tag:'HbS, vaso-occlusive crises' },
-  haemophilia_a:         { name:'Haemophilia A',              full:'Haemophilia A',                              tag:'Factor VIII deficiency, X-linked' },
-  haemophilia_b:         { name:'Haemophilia B',              full:'Haemophilia B (Christmas disease)',          tag:'Factor IX deficiency' },
-  vwd:                   { name:'Von Willebrand disease',     full:'Von Willebrand disease',                     tag:'Most common inherited bleeding disorder' },
-  itp:                   { name:'ITP',                        full:'Immune thrombocytopenic purpura',            tag:'Antiplatelet antibodies' },
-  ttp:                   { name:'TTP',                        full:'Thrombotic thrombocytopenic purpura',        tag:'ADAMTS13 deficiency, pentad' },
-  aml:                   { name:'AML',                        full:'Acute myeloid leukaemia',                    tag:'Auer rods, blast crisis' },
-  cml:                   { name:'CML',                        full:'Chronic myeloid leukaemia',                  tag:'BCR-ABL, Philadelphia chromosome' },
-  all:                   { name:'ALL',                        full:'Acute lymphoblastic leukaemia',              tag:'Most common childhood cancer' },
-  cll:                   { name:'CLL',                        full:'Chronic lymphocytic leukaemia',              tag:'Most common adult leukaemia' },
-  hodgkin:               { name:"Hodgkin's lymphoma",         full:"Hodgkin's lymphoma",                         tag:'Reed-Sternberg cells' },
-  multiple_myeloma:      { name:'Multiple myeloma',           full:'Multiple myeloma',                           tag:'CRAB criteria, M protein' },
-  dvt:                   { name:'Deep vein thrombosis',       full:'Deep vein thrombosis',                       tag:'Wells score, D-dimer' },
+const DISEASE_META={
+  als:{name:'ALS',full:'Amyotrophic lateral sclerosis',tag:'UMN + LMN signs',ready:true},
+  parkinsons:{name:"Parkinson's disease",full:"Parkinson's disease",tag:'α-synuclein, dopaminergic',ready:false},
+  alzheimers:{name:"Alzheimer's disease",full:"Alzheimer's disease",tag:'Amyloid-β, tau tangles',ready:false},
+  huntingtons:{name:"Huntington's disease",full:"Huntington's disease",tag:'CAG repeat, chromosome 4',ready:false},
+  msa:{name:'MSA',full:'Multiple system atrophy',tag:'α-synuclein, autonomic + motor',ready:false},
+  ms:{name:'Multiple sclerosis',full:'Multiple sclerosis',tag:'Relapsing-remitting most common',ready:false},
+  nmo:{name:'NMO spectrum',full:'Neuromyelitis optica spectrum disorder',tag:'AQP4-IgG antibody',ready:false},
+  gbs:{name:'Guillain-Barré',full:'Guillain-Barré syndrome',tag:'Post-infectious, ascending',ready:false},
+  cidp:{name:'CIDP',full:'Chronic inflammatory demyelinating polyneuropathy',tag:'Chronic GBS equivalent',ready:false},
+  pml:{name:'PML',full:'Progressive multifocal leukoencephalopathy',tag:'JC virus, immunosuppressed',ready:false},
+  mg:{name:'Myasthenia gravis',full:'Myasthenia gravis',tag:'AChR antibody, fatigable weakness',ready:false},
+  lambert_eaton:{name:'Lambert-Eaton',full:'Lambert-Eaton myasthenic syndrome',tag:'VGCC antibody, paraneoplastic',ready:false},
+  duchenne:{name:'Duchenne MD',full:'Duchenne muscular dystrophy',tag:'Dystrophin deficiency, X-linked',ready:false},
+  myotonic_dystrophy:{name:'Myotonic dystrophy',full:'Myotonic dystrophy type 1',tag:'CTG repeat, DMPK gene',ready:false},
+  polymyositis:{name:'Polymyositis',full:'Polymyositis',tag:'Proximal weakness, elevated CK',ready:false},
+  ischemic_stroke:{name:'Ischaemic stroke',full:'Ischaemic stroke',tag:'85% of all strokes',ready:false},
+  hemorrhagic_stroke:{name:'Haemorrhagic stroke',full:'Intracerebral haemorrhage',tag:'HTN most common cause',ready:false},
+  tia:{name:'TIA',full:'Transient ischaemic attack',tag:'<24h, ABCD2 score',ready:false},
+  sah:{name:'SAH',full:'Subarachnoid haemorrhage',tag:'Berry aneurysm, thunderclap headache',ready:false},
+  cadasil:{name:'CADASIL',full:'CADASIL',tag:'NOTCH3 mutation, early strokes',ready:false},
+  afib:{name:'Atrial fibrillation',full:'Atrial fibrillation',tag:'Most common arrhythmia',ready:false},
+  stemi:{name:'STEMI',full:'ST-elevation MI',tag:'Complete coronary occlusion',ready:false},
+  nstemi:{name:'NSTEMI',full:'Non-ST-elevation MI',tag:'Partial occlusion',ready:false},
+  copd:{name:'COPD',full:'Chronic obstructive pulmonary disease',tag:'Emphysema + chronic bronchitis',ready:false},
+  asthma:{name:'Asthma',full:'Bronchial asthma',tag:'Reversible airflow obstruction',ready:false},
+  ipf:{name:'IPF',full:'Idiopathic pulmonary fibrosis',tag:'UIP pattern, honeycombing',ready:false},
+  crohns:{name:"Crohn's disease",full:"Crohn's disease",tag:'Transmural, skip lesions',ready:false},
+  uc:{name:'Ulcerative colitis',full:'Ulcerative colitis',tag:'Mucosal, continuous from rectum',ready:false},
+  cirrhosis:{name:'Liver cirrhosis',full:'Liver cirrhosis',tag:'End-stage liver disease',ready:false},
+  t1dm:{name:'Type 1 DM',full:'Type 1 diabetes mellitus',tag:'Autoimmune β-cell destruction',ready:false},
+  t2dm:{name:'Type 2 DM',full:'Type 2 diabetes mellitus',tag:'Insulin resistance + secretion defect',ready:false},
+  graves:{name:"Graves' disease",full:"Graves' disease",tag:'TSH-R antibody, exophthalmos',ready:false},
+  hashimotos:{name:"Hashimoto's thyroiditis",full:"Hashimoto's thyroiditis",tag:'Most common hypothyroid cause',ready:false},
+  iga_nephropathy:{name:'IgA nephropathy',full:"IgA nephropathy (Berger's disease)",tag:'Most common GN worldwide',ready:false},
+  ra:{name:'Rheumatoid arthritis',full:'Rheumatoid arthritis',tag:'RF/anti-CCP, symmetrical small joints',ready:false},
+  gout:{name:'Gout',full:'Gout',tag:'Monosodium urate crystals',ready:false},
+  sle:{name:'SLE',full:'Systemic lupus erythematosus',tag:'Anti-dsDNA, butterfly rash',ready:false},
+  iron_deficiency:{name:'Iron deficiency anaemia',full:'Iron deficiency anaemia',tag:'Most common anaemia worldwide',ready:false},
+  sickle_cell:{name:'Sickle cell disease',full:'Sickle cell disease',tag:'HbS, vaso-occlusive crises',ready:false},
+  aml:{name:'AML',full:'Acute myeloid leukaemia',tag:'Auer rods, blast crisis',ready:false},
+  cml:{name:'CML',full:'Chronic myeloid leukaemia',tag:'BCR-ABL, Philadelphia chromosome',ready:false},
+  multiple_myeloma:{name:'Multiple myeloma',full:'Multiple myeloma',tag:'CRAB criteria, M protein',ready:false},
 };
 
-// ─────────────────────────────────────────────
-//  STATE
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+//  ALS CONTENT
+// ═══════════════════════════════════════════════════════
+const ALS={
+  hook:'ALS simultaneously destroys two completely separate levels of your motor system. Understanding <strong>why that dual hit is so devastating</strong> — and why motor neurons specifically — makes everything else click into place.',
+  pills:[
+    {t:'Motor neuron disease',c:'p-b'},{t:'UMN + LMN simultaneously',c:'p-a'},
+    {t:'90% sporadic · 10% familial',c:'p-b'},{t:'Median survival 3–5 years',c:'p-r'},
+    {t:'Riluzole · Edaravone · Tofersen',c:'p-g'}
+  ],
+  tabs:['Summary','Pathophysiology','Diagnosis','Treatment','Prevention','Quiz','Clinical case'],
 
-let state = {
-  view: 'home',
-  mode: 'learn',
-  system: null,
-  group: null,
-  disease: null,
-  currentTab: 'patho',
-  quizQuestions: [],
-  quizIndex: 0,
-  quizScore: 0,
-  totalCorrect: 0,
-  totalAnswered: 0,
+  summary:`
+  <div class="must-know">
+    <div class="must-title">Must know before anything else</div>
+    <div class="must-item">ALS = simultaneous loss of UMN (motor cortex) + LMN (spinal cord anterior horn) — this dual involvement is pathognomonic</div>
+    <div class="must-item">Finding hyperreflexia in a wasted, fasciculating muscle in the same region = ALS until proven otherwise</div>
+    <div class="must-item">TDP-43 cytoplasmic aggregates found in 97% of all ALS — the unifying molecular hallmark</div>
+    <div class="must-item">Diagnosis of exclusion — no single confirmatory test; EMG is the most important investigation</div>
+    <div class="must-item">Three approved drugs: Riluzole (glutamate ↓), Edaravone (free radicals ↓), Tofersen (SOD1 mRNA ↓, SOD1-ALS only)</div>
+    <div class="must-item">Respiratory failure is the leading cause of death — FVC &lt;50% = start NIV (BiPAP)</div>
+  </div>
+
+  <div class="summary-section">
+    <div class="sum-title"><div class="sum-icon si-b">🔬</div>Pathophysiology — core points</div>
+    <div class="sum-items">
+      <div class="sum-item"><div class="sum-bullet sb-b"></div><div class="sum-text"><strong>Two-neuron relay collapses:</strong> UMN (motor cortex → corticospinal tract) hands off to LMN (anterior horn → muscle). ALS kills both simultaneously.</div></div>
+      <div class="sum-item"><div class="sum-bullet sb-b"></div><div class="sum-text"><strong>TDP-43 is the central player:</strong> normally in the nucleus managing RNA; in ALS it escapes to the cytoplasm, clumps up, and stops working. Found in 97% of all cases.</div></div>
+      <div class="sum-item"><div class="sum-bullet sb-b"></div><div class="sum-text"><strong>Excitotoxicity:</strong> glutamate floods the synapse (astrocytes lose EAAT2 transporters) → AMPA/NMDA receptors overstimulated → massive Ca²⁺ floods into motor neurons which have almost zero calcium-buffering proteins to handle it.</div></div>
+      <div class="sum-item"><div class="sum-bullet sb-b"></div><div class="sum-text"><strong>Why motor neurons specifically:</strong> enormous size (axons &gt;1m), no Ca²⁺ buffers, Ca²⁺-permeable AMPA receptors (low GluR2), and transport blockage by neurofilament pileup.</div></div>
+      <div class="sum-item"><div class="sum-bullet sb-b"></div><div class="sum-text"><strong>Top familial genes:</strong> C9orf72 (~40%), SOD1 (~20%), FUS and TDP-43 (~5% each).</div></div>
+    </div>
+  </div>
+
+  <div class="summary-section">
+    <div class="sum-title"><div class="sum-icon si-r">🩺</div>Diagnosis — core points</div>
+    <div class="sum-items">
+      <div class="sum-item"><div class="sum-bullet sb-r"></div><div class="sum-text"><strong>UMN signs:</strong> Spasticity <span class="def">(muscles feel stiff and resist movement, like a clasp-knife snapping shut)</span>, hyperreflexia <span class="def">(tap the tendon → exaggerated jerk response)</span>, <strong>Babinski positive</strong> <span class="def">(stroke the sole → big toe extends upward — normally it curls down)</span>, clonus <span class="def">(rapid rhythmic jerking when you hold the foot in dorsiflexion)</span>.</div></div>
+      <div class="sum-item"><div class="sum-bullet sb-r"></div><div class="sum-text"><strong>LMN signs:</strong> Muscle wasting <span class="def">(visible shrinkage of muscle bulk from denervation)</span>, fasciculations <span class="def">(small spontaneous twitches under the skin — dying neurons firing randomly)</span>, flaccidity <span class="def">(floppy, reduced tone)</span>, hyporeflexia.</div></div>
+      <div class="sum-item"><div class="sum-bullet sb-r"></div><div class="sum-text"><strong>Onset patterns:</strong> Limb 60% (hand/foot, better prognosis), Bulbar 25% (slurred speech + swallowing, worse prognosis), Respiratory 5% (breathless lying flat, morning headache).</div></div>
+      <div class="sum-item"><div class="sum-bullet sb-r"></div><div class="sum-text"><strong>El Escorial:</strong> Definite = UMN + LMN in 3+ regions (Bulbar, Cervical, Thoracic, Lumbosacral). EMG is the key investigation.</div></div>
+      <div class="sum-item"><div class="sum-bullet sb-r"></div><div class="sum-text"><strong>Must exclude treatable mimics:</strong> MMN (GM1 Ab+, responds to IVIG), cervical myelopathy (MRI), Kennedy disease (CAG repeat in androgen receptor).</div></div>
+    </div>
+  </div>
+
+  <div class="summary-section">
+    <div class="sum-title"><div class="sum-icon si-g">💊</div>Treatment — core points</div>
+    <div class="sum-items">
+      <div class="sum-item"><div class="sum-bullet sb-g"></div><div class="sum-text"><strong>Riluzole</strong> (50mg twice daily) — blocks glutamate release → reduces excitotoxicity. Extends survival ~3 months. Monitor LFTs monthly ×3 then 3-monthly.</div></div>
+      <div class="sum-item"><div class="sum-bullet sb-g"></div><div class="sum-text"><strong>Edaravone</strong> (IV, selected early patients) — free radical scavenger. Slows functional decline ~33%. FVC must be &gt;80%.</div></div>
+      <div class="sum-item"><div class="sum-bullet sb-g"></div><div class="sum-text"><strong>Tofersen</strong> (intrathecal, SOD1-ALS only) — antisense oligonucleotide reducing toxic SOD1 protein. FDA approved 2023. First precision medicine in ALS.</div></div>
+      <div class="sum-item"><div class="sum-bullet sb-g"></div><div class="sum-text"><strong>NIV (BiPAP):</strong> Start at FVC &lt;50% or when symptomatic. Extends survival 7–13 months. Morning headache = nocturnal CO₂ retention = act now.</div></div>
+      <div class="sum-item"><div class="sum-bullet sb-g"></div><div class="sum-text"><strong>Symptomatic (SCREAM):</strong> Sialorrhoea (amitriptyline), Communication (voice bank early), Respiratory (NIV), Eating/dysphagia (PEG), Affect/pseudobulbar (dextromethorphan/quinidine), Muscle cramps/spasticity (mexiletine, baclofen).</div></div>
+    </div>
+  </div>
+
+  <div class="summary-section">
+    <div class="sum-title"><div class="sum-icon si-a">🛡️</div>Prevention — core points</div>
+    <div class="sum-items">
+      <div class="sum-item"><div class="sum-bullet sb-a"></div><div class="sum-text"><strong>Primary prevention:</strong> No proven intervention. Sporadic ALS has no reliable preventable cause. Avoid smoking, heavy metal exposure (weak evidence).</div></div>
+      <div class="sum-item"><div class="sum-bullet sb-a"></div><div class="sum-text"><strong>Secondary:</strong> Genetic counselling + pre-symptomatic testing for relatives with known familial mutation. ATLAS trial: giving tofersen to pre-symptomatic SOD1 carriers to delay onset.</div></div>
+      <div class="sum-item"><div class="sum-bullet sb-a"></div><div class="sum-text"><strong>Tertiary:</strong> Early NIV prevents respiratory crisis. PEG tube before FVC drops &lt;50%. Flu + pneumococcal vaccines. Physiotherapy prevents contractures. MDT care extends survival independently of drugs.</div></div>
+    </div>
+  </div>`,
+
+  patho:`
+  <div class="slbl">Click a section to explore</div>
+
+  <div class="acc" id="pa0">
+    <div class="atrig" onclick="tog('pa0')"><div class="atrig-l"><div class="aico ic-b">1</div><div><div class="a-title">The paradox at the heart of ALS</div><div class="a-sub">Why UMN + LMN signs together is almost unique to this disease</div></div></div><div class="a-arr">▼</div></div>
+    <div class="abody">
+      <p class="txt">ALS kills two completely separate populations of neurons <strong>at the same time</strong>. The <strong>upper motor neuron (UMN)</strong> starts in the motor cortex — specifically the giant Betz cells in layer V — and runs down the corticospinal tract. It doesn't touch muscle directly. It hands off to the <strong>lower motor neuron (LMN)</strong> in the spinal cord anterior horn, which then runs its axon all the way out to the muscle fibre itself.</p>
+      <div class="co co-a"><div class="coi">💡</div><div class="ctx"><strong>Think of it as a two-neuron relay.</strong> The UMN is the general giving orders from headquarters. The LMN is the soldier on the ground. Most neurological diseases hit one or the other. ALS eliminates both simultaneously — which is why the clinical picture looks paradoxical.</div></div>
+      <div class="cmp">
+        <div class="cmp-col"><div class="cmp-h ch-r">UMN dying → loss of inhibition</div>
+          <div class="cmp-row">Spasticity <span class="def">(muscles stiffen, resist passive movement like a clasp-knife)</span></div>
+          <div class="cmp-row">Hyperreflexia <span class="def">(tendon tap → exaggerated jerk)</span></div>
+          <div class="cmp-row">Babinski + <span class="def">(stroke sole → big toe extends UP instead of curling)</span></div>
+          <div class="cmp-row">Clonus <span class="def">(rapid rhythmic jerks when holding foot bent upward)</span></div>
+          <div class="cmp-row">Hoffman sign <span class="def">(flick middle fingernail → thumb and index finger flex involuntarily)</span></div>
+        </div>
+        <div class="cmp-col"><div class="cmp-h ch-b">LMN dying → loss of drive to muscle</div>
+          <div class="cmp-row">Wasting <span class="def">(muscle visibly shrinks from lack of nerve input)</span></div>
+          <div class="cmp-row">Fasciculations <span class="def">(tiny visible twitches under skin — dying neurons firing randomly)</span></div>
+          <div class="cmp-row">Hyporeflexia <span class="def">(tap tendon → barely any response)</span></div>
+          <div class="cmp-row">Flaccidity <span class="def">(muscle feels floppy, no resistance)</span></div>
+          <div class="cmp-row">Cramps <span class="def">(painful sustained muscle contractions)</span></div>
+        </div>
+      </div>
+      <div class="co co-b"><div class="coi">🔑</div><div class="ctx"><strong>The pearl:</strong> finding hyperreflexia (UMN) in a wasted, fasciculating muscle (LMN) in the <em>same region</em> = ALS until proven otherwise. This paradoxical combination is almost unique to ALS.</div></div>
+    </div>
+  </div>
+
+  <div class="acc" id="pa1">
+    <div class="atrig" onclick="tog('pa1')"><div class="atrig-l"><div class="aico ic-g">2</div><div><div class="a-title">Genetics — familial ALS and why it matters for everyone</div><div class="a-sub">C9orf72, SOD1, TDP-43 and the unifying hallmark</div></div></div><div class="a-arr">▼</div></div>
+    <div class="abody">
+      <p class="txt">10% of ALS is familial, 90% sporadic — but studying the familial genes revealed the exact pathways that also go wrong in sporadic ALS. Finding a mutation matters for family counselling and precision treatments.</p>
+      <div class="gbr"><div class="gn">C9orf72</div><div class="gtrack"><div class="gfill" style="width:100%"></div></div><div class="gpct">~40%</div></div>
+      <div class="gnote">A GGGGCC repeat that normally appears 2–8 times expands to hundreds of repeats. Also causes frontotemporal dementia — ALS and FTD are one spectrum.</div>
+      <div class="gbr"><div class="gn">SOD1</div><div class="gtrack"><div class="gfill" style="width:50%"></div></div><div class="gpct">~20%</div></div>
+      <div class="gnote">Mutant SOD1 doesn't just fail at clearing free radicals — it gains new toxic functions. Target of tofersen (2023), the first precision ALS medicine.</div>
+      <div class="gbr"><div class="gn">FUS</div><div class="gtrack"><div class="gfill" style="width:14%"></div></div><div class="gpct">~5%</div></div>
+      <div class="gnote">RNA-binding protein that escapes the nucleus and clumps in the cytoplasm. Often young-onset and aggressive.</div>
+      <div class="gbr"><div class="gn">TDP-43</div><div class="gtrack"><div class="gfill" style="width:14%"></div></div><div class="gpct">~5%</div></div>
+      <div class="gnote">Only 5% of familial cases, but TDP-43 aggregates are found in 97% of ALL ALS. The unifying hallmark of the disease.</div>
+      <div class="co co-b"><div class="coi">🔑</div><div class="ctx"><strong>Why TDP-43 matters so much:</strong> regardless of what starts ALS — genetics, environment, ageing — the cascade converges on TDP-43 misbehaving. That's why it's the central drug development target.</div></div>
+    </div>
+  </div>
+
+  <div class="acc" id="pa2">
+    <div class="atrig" onclick="tog('pa2')"><div class="atrig-l"><div class="aico ic-a">3</div><div><div class="a-title">How the neuron actually dies — the full cascade</div><div class="a-sub">From one misfolded protein to a silent muscle — 6 steps</div></div></div><div class="a-arr">▼</div></div>
+    <div class="abody">
+      <p class="txt">This is why ALS is so hard to treat — there's no single cause. It's a self-amplifying cascade where each step makes the next worse. By the time symptoms appear, multiple mechanisms are already running simultaneously.</p>
+      <div class="steps">
+        <div class="step"><div class="sn">1</div><div><div class="stitle">Protein misfolding — the starting gun</div><div class="sdesc">TDP-43 (normally in the nucleus managing RNA splicing) gets cleaved, migrates to the cytoplasm, and forms sticky insoluble aggregates. These aggregates are toxic — and they simultaneously rob the nucleus of a critical worker.</div></div></div>
+        <div class="sarr">↓</div>
+        <div class="step"><div class="sn">2</div><div><div class="stitle">RNA processing collapses</div><div class="sdesc">Without TDP-43, hundreds of neuronal genes get mis-spliced. Motor neurons are especially sensitive because they have axons over 1 metre long — demanding constant perfectly-regulated protein synthesis just to stay alive.</div></div></div>
+        <div class="sarr">↓</div>
+        <div class="step"><div class="sn">3</div><div><div class="stitle">Excitotoxicity — glutamate floods the synapse</div><div class="sdesc">Astrocytes lose EAAT2 glutamate transporters, so glutamate accumulates. Motor neurons get chronically over-stimulated via AMPA and NMDA receptors → massive Ca²⁺ influx. Motor neurons have almost zero Ca²⁺ buffering proteins — they're completely unprotected. <strong>This is where riluzole acts.</strong></div></div></div>
+        <div class="sarr">↓</div>
+        <div class="step"><div class="sn">4</div><div><div class="stitle">Mitochondrial failure + oxidative storm</div><div class="sdesc">Ca²⁺ overload overwhelms mitochondria → electron transport chain leaks reactive oxygen species (ROS) — essentially sparks flying inside the cell. Mutant SOD1, which should neutralise these sparks, is broken and actively makes things worse. <strong>This is where edaravone acts.</strong></div></div></div>
+        <div class="sarr">↓</div>
+        <div class="step"><div class="sn">5</div><div><div class="stitle">Neuroinflammation amplifies everything</div><div class="sdesc">Microglia <span style="font-size:11px;color:var(--text3)">(the brain's immune cells)</span> flip from neuroprotective (M2) to pro-inflammatory (M1) — releasing TNF-α, IL-1β, and more glutamate. Reactive astrocytes join. A local problem becomes a self-amplifying loop.</div></div></div>
+        <div class="sarr">↓</div>
+        <div class="step"><div class="sn">6</div><div><div class="stitle">Axon retraction → silent muscle</div><div class="sdesc">Motor axons retract from the NMJ <span style="font-size:11px;color:var(--text3)">(neuromuscular junction — the connection point between nerve and muscle)</span> before the cell body dies ("dying-back"). Surviving neurons compensate by sprouting new connections, masking weakness early on. <strong>Fasciculations</strong> are dying neurons firing chaotically before going permanently silent.</div></div></div>
+      </div>
+      <div class="co co-a"><div class="coi">💡</div><div class="ctx"><strong>Why single drugs barely work:</strong> excitotoxicity worsens mitochondria, mitochondria worsen oxidative stress, oxidative stress inflames microglia, inflamed microglia release more glutamate. Blocking one pathway (riluzole) barely slows the others — which is why the survival benefit is only ~3 months.</div></div>
+    </div>
+  </div>
+
+  <div class="acc" id="pa3">
+    <div class="atrig" onclick="tog('pa3')"><div class="atrig-l"><div class="aico ic-r">4</div><div><div class="a-title">Why motor neurons specifically?</div><div class="a-sub">Four biological quirks that make these cells uniquely fragile</div></div></div><div class="a-arr">▼</div></div>
+    <div class="abody">
+      <div class="two-col">
+        <div class="mini"><div class="mini-lbl">Reason 1</div><div class="mini-val">Extreme size</div><div class="mini-sub">Axons >1 metre. Maintaining ion gradients across this distance demands extraordinary energy — any mitochondrial failure is catastrophic.</div></div>
+        <div class="mini"><div class="mini-lbl">Reason 2</div><div class="mini-val">No Ca²⁺ buffering</div><div class="mini-sub">Almost no calbindin-D28k or parvalbumin (proteins that mop up excess calcium). Purkinje cells express both and are relatively spared in ALS.</div></div>
+        <div class="mini"><div class="mini-lbl">Reason 3</div><div class="mini-val">Ca²⁺-permeable AMPA</div><div class="mini-sub">Low GluR2 subunit content = calcium enters with every glutamate signal. Most neurons block this. Motor neurons don't.</div></div>
+        <div class="mini"><div class="mini-lbl">Reason 4</div><div class="mini-val">Axonal transport blockage</div><div class="mini-sub">Neurofilaments pile up in the cell body, physically blocking survival signals from reaching the neuron from its muscle target.</div></div>
+      </div>
+      <div class="co co-a"><div class="coi">💡</div><div class="ctx"><strong>Think of motor neurons as a skyscraper with no fire sprinklers, no backup generator, and no emergency exits.</strong> Other neurons have at least some of these protective systems. Motor neurons have almost none.</div></div>
+    </div>
+  </div>`,
+
+  diag:`
+  <div class="slbl">Click a section to explore</div>
+
+  <div class="acc" id="da0">
+    <div class="atrig" onclick="tog('da0')"><div class="atrig-l"><div class="aico ic-b">1</div><div><div class="a-title">How ALS presents — the three onset patterns</div><div class="a-sub">Limb, bulbar, or respiratory — and why it changes prognosis</div></div></div><div class="a-arr">▼</div></div>
+    <div class="abody">
+      <p class="txt">ALS almost always starts asymmetrically — one hand, one foot, one side of the face. The progression is relentless and spreading: symptoms never improve, they only accumulate.</p>
+      <div class="cmp">
+        <div class="cmp-col"><div class="cmp-h ch-b">Limb onset (~60%)</div>
+          <div class="cmp-row">Asymmetric hand or foot weakness</div>
+          <div class="cmp-row"><strong>Split hand sign</strong> <span class="def">(thenar + 1st DI wasted but hypothenar spared — like the thumb side of the hand shrinks but pinky side stays)</span></div>
+          <div class="cmp-row">Dropping things, stumbling, tripping</div>
+          <div class="cmp-row">Relatively better prognosis</div>
+        </div>
+        <div class="cmp-col"><div class="cmp-h ch-a">Bulbar onset (~25%)</div>
+          <div class="cmp-row">Dysarthria <span class="def">(slurred, effortful speech like talking through gravel)</span> — first sign</div>
+          <div class="cmp-row">Dysphagia <span class="def">(difficulty swallowing — choking on liquids first)</span></div>
+          <div class="cmp-row">More common in older women</div>
+          <div class="cmp-row">Faster respiratory involvement → worse prognosis</div>
+        </div>
+      </div>
+      <div class="mnem">
+        <div class="mnem-lbl">Mnemonic — onset patterns</div>
+        <div class="mnem-word">L · B · R</div>
+        <div class="mnem-rows">
+          <div class="mnem-row"><div class="mnem-L">L</div><div class="mnem-m">Limb — 60%, hands and feet, best prognosis</div></div>
+          <div class="mnem-row"><div class="mnem-L">B</div><div class="mnem-m">Bulbar — 25%, speech + swallow, worse prognosis</div></div>
+          <div class="mnem-row"><div class="mnem-L">R</div><div class="mnem-m">Respiratory — 5%, orthopnoea + morning headache</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="acc" id="da1">
+    <div class="atrig" onclick="tog('da1')"><div class="atrig-l"><div class="aico ic-r">2</div><div><div class="a-title">What to find on examination</div><div class="a-sub">Signs that make the diagnosis — and what tells you it's NOT ALS</div></div></div><div class="a-arr">▼</div></div>
+    <div class="abody">
+      <div class="cmp">
+        <div class="cmp-col"><div class="cmp-h ch-r">UMN signs — find these</div>
+          <div class="cmp-row">Spasticity <span class="def">(clasp-knife: resists then suddenly gives)</span></div>
+          <div class="cmp-row">Hyperreflexia <span class="def">(brisk, exaggerated tendon jerk)</span></div>
+          <div class="cmp-row"><strong>Babinski +</strong> <span class="def">(big toe extends UP when you stroke the sole with a key — should curl down)</span></div>
+          <div class="cmp-row">Clonus <span class="def">(hold foot bent up → rhythmic uncontrolled shaking starts)</span></div>
+          <div class="cmp-row"><strong>Hoffman sign</strong> <span class="def">(flick the middle fingernail → index + thumb flex involuntarily)</span></div>
+          <div class="cmp-row">Jaw jerk brisk <span class="def">(tap chin → brisk jaw snap = UMN above pons)</span></div>
+        </div>
+        <div class="cmp-col"><div class="cmp-h ch-b">LMN signs — find these</div>
+          <div class="cmp-row">Wasting <span class="def">(visibly hollowed muscles, especially thenar eminence — the thumb pad)</span></div>
+          <div class="cmp-row">Fasciculations <span class="def">(tiny spontaneous twitches visible under skin — dying neurons firing)</span></div>
+          <div class="cmp-row">Flaccidity <span class="def">(muscle feels floppy like wet noodle)</span></div>
+          <div class="cmp-row">Hyporeflexia <span class="def">(weak or absent tendon jerk)</span></div>
+          <div class="cmp-row"><strong>Tongue fasciculations</strong> <span class="def">(ask patient to rest tongue — it ripples and twitches — highly specific for bulbar LMN involvement)</span></div>
+        </div>
+      </div>
+      <div class="co co-g"><div class="coi">✓</div><div class="ctx"><strong>What is typically PRESERVED — if these are absent early, consider ALS.</strong> If they're prominent early, reconsider diagnosis: eye movements, bladder/bowel control, sensation, cognition (85% of patients).</div></div>
+      <div class="mnem">
+        <div class="mnem-lbl">Mnemonic — UMN signs "SHBACH"</div>
+        <div class="mnem-word">SHBACH</div>
+        <div class="mnem-rows">
+          <div class="mnem-row"><div class="mnem-L">S</div><div class="mnem-m">Spasticity</div></div>
+          <div class="mnem-row"><div class="mnem-L">H</div><div class="mnem-m">Hyperreflexia</div></div>
+          <div class="mnem-row"><div class="mnem-L">B</div><div class="mnem-m">Babinski positive (big toe goes UP)</div></div>
+          <div class="mnem-row"><div class="mnem-L">A</div><div class="mnem-m">Absent superficial reflexes</div></div>
+          <div class="mnem-row"><div class="mnem-L">C</div><div class="mnem-m">Clonus</div></div>
+          <div class="mnem-row"><div class="mnem-L">H</div><div class="mnem-m">Hoffman sign (fingernail flick → thumb flexes)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="acc" id="da2">
+    <div class="atrig" onclick="tog('da2')"><div class="atrig-l"><div class="aico ic-a">3</div><div><div class="a-title">El Escorial criteria — 4 regions, 3 levels of certainty</div><div class="a-sub">How many body regions are involved determines how certain the diagnosis is</div></div></div><div class="a-arr">▼</div></div>
+    <div class="abody">
+      <p class="txt">The body is divided into 4 regions. In each you look for both UMN and LMN signs. More regions = more certain diagnosis.</p>
+      <div class="mnem">
+        <div class="mnem-lbl">Mnemonic — the 4 regions "Big Cats Take Leaps"</div>
+        <div class="mnem-word">BCTL</div>
+        <div class="mnem-rows">
+          <div class="mnem-row"><div class="mnem-L">B</div><div class="mnem-m">Bulbar — tongue, face, speech, swallowing</div></div>
+          <div class="mnem-row"><div class="mnem-L">C</div><div class="mnem-m">Cervical — arms, neck, diaphragm</div></div>
+          <div class="mnem-row"><div class="mnem-L">T</div><div class="mnem-m">Thoracic — back, abdomen</div></div>
+          <div class="mnem-row"><div class="mnem-L">L</div><div class="mnem-m">Lumbosacral — legs, bladder (late)</div></div>
+        </div>
+      </div>
+      <div class="cmp">
+        <div class="cmp-col"><div class="cmp-h ch-r">Definite ALS</div><div class="cmp-row">UMN + LMN signs in 3+ regions</div><div class="cmp-row">OR bulbar + 2 spinal regions</div></div>
+        <div class="cmp-col"><div class="cmp-h ch-a">Probable ALS</div><div class="cmp-row">UMN + LMN signs in 2 regions</div><div class="cmp-row">UMN signs must be rostral to LMN</div></div>
+      </div>
+      <div class="co co-b"><div class="coi">🔑</div><div class="ctx"><strong>Awaji criteria (2008)</strong> allow EMG findings to count as LMN signs — making diagnosis earlier and more sensitive. Now preferred in specialist centres.</div></div>
+    </div>
+  </div>
+
+  <div class="acc" id="da3">
+    <div class="atrig" onclick="tog('da3')"><div class="atrig-l"><div class="aico ic-g">4</div><div><div class="a-title">Key investigations</div><div class="a-sub">EMG is central — everything else mainly excludes mimics</div></div></div><div class="a-arr">▼</div></div>
+    <div class="abody">
+      <div class="steps">
+        <div class="step"><div class="sn">1</div><div><div class="stitle">EMG / nerve conduction — the most important test</div><div class="sdesc">Shows fibrillations <span style="font-size:11px;color:var(--text3)">(spontaneous firing of single muscle fibres — sign of denervation)</span>, fasciculation potentials, and positive sharp waves across multiple myotomes and regions. Normal nerve conduction velocities exclude peripheral neuropathy. EMG detects subclinical denervation before the patient notices weakness.</div></div></div>
+        <div class="step"><div class="sn">2</div><div><div class="stitle">MRI brain + spinal cord</div><div class="sdesc">Usually normal. May show T2 hyperintensity <span style="font-size:11px;color:var(--text3)">(white signal on MRI = damaged tissue)</span> along the corticospinal tract. Main purpose: exclude structural mimics — cervical myelopathy, tumour, syrinx <span style="font-size:11px;color:var(--text3)">(fluid-filled cavity in spinal cord)</span>.</div></div></div>
+        <div class="step"><div class="sn">3</div><div><div class="stitle">Bloods — mainly to exclude treatable conditions</div><div class="sdesc">CK mildly elevated (denervation). Must exclude: thyroid disease, B12 deficiency, heavy metals, <strong>GM1 ganglioside antibodies</strong> <span style="font-size:11px;color:var(--text3)">(if positive = MMN, a treatable disease that looks like ALS)</span>, paraneoplastic antibodies.</div></div></div>
+        <div class="step"><div class="sn">4</div><div><div class="stitle">Spirometry + overnight oximetry</div><div class="sdesc">FVC <span style="font-size:11px;color:var(--text3)">(Forced Vital Capacity — how much air you can breathe out forcefully)</span>, MIP/MEP <span style="font-size:11px;color:var(--text3)">(measures how strong your breathing muscles are)</span>. FVC &lt;50% = strong indication for NIV. Monitors disease progression.</div></div></div>
+        <div class="step"><div class="sn">5</div><div><div class="stitle">Genetic testing</div><div class="sdesc">C9orf72 first (most common), then SOD1, FUS, TARDBP. Now offered to all patients — knowing the gene opens precision treatment options (tofersen for SOD1) and allows family counselling.</div></div></div>
+      </div>
+      <div class="mnem">
+        <div class="mnem-lbl">Mnemonic — treatable mimics not to miss "MM CK"</div>
+        <div class="mnem-word">MM CK</div>
+        <div class="mnem-rows">
+          <div class="mnem-row"><div class="mnem-L">M</div><div class="mnem-m">MMN — GM1 Ab+, LMN only, responds to IVIG. Always exclude this first.</div></div>
+          <div class="mnem-row"><div class="mnem-L">M</div><div class="mnem-m">Myasthenia gravis — fatigable weakness, AChR Ab+, no wasting, no UMN</div></div>
+          <div class="mnem-row"><div class="mnem-L">C</div><div class="mnem-m">Cervical myelopathy — MRI excludes, incredibly common pitfall</div></div>
+          <div class="mnem-row"><div class="mnem-L">K</div><div class="mnem-m">Kennedy disease (SBMA) — X-linked, LMN only, CAG repeat in androgen receptor gene</div></div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  treat:`
+  <div class="slbl">Click a section to explore</div>
+
+  <div class="acc" id="ta0">
+    <div class="atrig" onclick="tog('ta0')"><div class="atrig-l"><div class="aico ic-b">1</div><div><div class="a-title">The big picture — why treatment is so hard</div><div class="a-sub">No cure. But multidisciplinary care matters more than any drug.</div></div></div><div class="a-arr">▼</div></div>
+    <div class="abody">
+      <p class="txt">ALS has no cure. The goal is <strong>disease-modifying</strong> (slowing progression) and <strong>symptomatic</strong> (managing the consequences). The single most impactful intervention isn't a drug — it's a coordinated multidisciplinary team. Studies show MDT care independently extends survival.</p>
+      <div class="co co-a"><div class="coi">💡</div><div class="ctx"><strong>Why drugs barely help:</strong> by the time symptoms appear, ~80% of motor neurons in the affected region may already be dead. You're trying to protect the survivors — while a multi-mechanism cascade keeps running. This is why combining approaches (riluzole + edaravone) makes more biological sense than monotherapy.</div></div>
+    </div>
+  </div>
+
+  <div class="acc" id="ta1">
+    <div class="atrig" onclick="tog('ta1')"><div class="atrig-l"><div class="aico ic-g">2</div><div><div class="a-title">Disease-modifying drugs — RET</div><div class="a-sub">Riluzole, Edaravone, Tofersen — who gets what and why</div></div></div><div class="a-arr">▼</div></div>
+    <div class="abody">
+      <div class="drug">
+        <div class="drug-h"><div class="drug-name">Riluzole</div><span class="dbadge db-1">First-line · Everyone</span></div>
+        <div class="drug-b">
+          <div class="drug-mech">Blocks presynaptic voltage-gated Na⁺ channels → reduces glutamate release from motor neurons → reduces excitotoxicity. The only drug proven in two RCTs to extend survival.</div>
+          <div class="dstats">
+            <div class="ds"><div class="ds-lbl">Survival benefit</div><div class="ds-val">~3 months median</div></div>
+            <div class="ds"><div class="ds-lbl">Dose</div><div class="ds-val">50 mg twice daily</div></div>
+            <div class="ds"><div class="ds-lbl">Side effects</div><div class="ds-val">Elevated LFTs, nausea</div></div>
+            <div class="ds"><div class="ds-lbl">Monitor</div><div class="ds-val">LFTs monthly ×3, then 3-monthly</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="drug">
+        <div class="drug-h"><div class="drug-name">Edaravone (Radicava)</div><span class="dbadge db-2">Second-line · Selected patients</span></div>
+        <div class="drug-b">
+          <div class="drug-mech">Free radical scavenger — neutralises reactive oxygen species (ROS) and reduces oxidative stress. IV infusion in 28-day cycles. Best evidence in early, rapidly progressing ALS with FVC &gt;80%.</div>
+          <div class="dstats">
+            <div class="ds"><div class="ds-lbl">Benefit</div><div class="ds-val">Slows ALSFRS-R ~33%</div></div>
+            <div class="ds"><div class="ds-lbl">Route</div><div class="ds-val">IV (oral in development)</div></div>
+            <div class="ds"><div class="ds-lbl">Patient selection</div><div class="ds-val">Early ALS, FVC &gt;80%</div></div>
+            <div class="ds"><div class="ds-lbl">Limitation</div><div class="ds-val">Cost, access varies by country</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="drug">
+        <div class="drug-h"><div class="drug-name">Tofersen (Qalsody)</div><span class="dbadge db-p">Precision · SOD1-ALS only</span></div>
+        <div class="drug-b">
+          <div class="drug-mech">Antisense oligonucleotide (ASO) <span style="font-size:11px;color:var(--text3)">(a strand of synthetic DNA that binds to mRNA to block it)</span> — binds SOD1 mRNA → prevents toxic SOD1 protein from being made. Intrathecal injection <span style="font-size:11px;color:var(--text3)">(injected into the spinal fluid)</span> every 4 weeks. FDA-approved 2023. First precision medicine in ALS.</div>
+          <div class="dstats">
+            <div class="ds"><div class="ds-lbl">Target</div><div class="ds-val">SOD1 mutation carriers only</div></div>
+            <div class="ds"><div class="ds-lbl">Route</div><div class="ds-val">Intrathecal injection</div></div>
+            <div class="ds"><div class="ds-lbl">Biomarker</div><div class="ds-val">↓ plasma neurofilament light</div></div>
+            <div class="ds"><div class="ds-lbl">Significance</div><div class="ds-val">First targeted therapy in ALS</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="mnem">
+        <div class="mnem-lbl">Mnemonic — the 3 ALS drugs "RET"</div>
+        <div class="mnem-word">RET</div>
+        <div class="mnem-rows">
+          <div class="mnem-row"><div class="mnem-L">R</div><div class="mnem-m">Riluzole — Reduces glutamate, first-line, everyone</div></div>
+          <div class="mnem-row"><div class="mnem-L">E</div><div class="mnem-m">Edaravone — Eliminates free radicals, early selected cases</div></div>
+          <div class="mnem-row"><div class="mnem-L">T</div><div class="mnem-m">Tofersen — Targets SOD1 mRNA, precision medicine only</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="acc" id="ta2">
+    <div class="atrig" onclick="tog('ta2')"><div class="atrig-l"><div class="aico ic-r">3</div><div><div class="a-title">Respiratory management — the critical timeline</div><div class="a-sub">FVC thresholds that trigger each intervention</div></div></div><div class="a-arr">▼</div></div>
+    <div class="abody">
+      <p class="txt">Respiratory failure is the leading cause of death in ALS. Managing it well — and having the conversation early — is the most impactful clinical intervention. NIV (BiPAP) extends survival by 7–13 months.</p>
+      <div class="tl">
+        <div class="tl-item"><div class="tl-dot i"></div><div class="tl-lbl">FVC &gt;80%</div><div class="tl-title">Establish baseline, begin the conversation</div><div class="tl-desc">3-monthly spirometry. Educate about NIV. Start advance care planning while full capacity and time to think remain.</div></div>
+        <div class="tl-item"><div class="tl-dot i"></div><div class="tl-lbl">FVC 50–80% or symptomatic</div><div class="tl-title">Consider starting NIV (BiPAP)</div><div class="tl-desc">Especially if: orthopnoea <span style="font-size:11px;color:var(--text3)">(breathless lying flat — needs 2+ pillows to sleep)</span>, morning headache <span style="font-size:11px;color:var(--text3)">(CO₂ builds up overnight → headache on waking)</span>, or poor sleep. Overnight oximetry helps.</div></div>
+        <div class="tl-item"><div class="tl-dot w"></div><div class="tl-lbl">FVC &lt;50% or MIP &lt;60 cmH₂O</div><div class="tl-title">NIV strongly recommended — act now</div><div class="tl-desc">Compensatory hyperventilation may mask symptoms — don't wait for ABG deterioration. Add cough-assist (MI-E) <span style="font-size:11px;color:var(--text3)">(a machine that helps clear secretions from airways that the patient can no longer cough out)</span> if bulbar function preserved.</div></div>
+        <div class="tl-item"><div class="tl-dot d"></div><div class="tl-lbl">Advanced disease</div><div class="tl-title">Tracheostomy ventilation vs palliative care</div><div class="tl-desc">Invasive ventilation can prolong life for years but doesn't stop bulbar or cognitive decline. Palliative opioids for dyspnoea <span style="font-size:11px;color:var(--text3)">(difficulty breathing)</span> are equally valid. This decision must be made with the patient while they can still express their wishes.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="acc" id="ta3">
+    <div class="atrig" onclick="tog('ta3')"><div class="atrig-l"><div class="aico ic-a">4</div><div><div class="a-title">Symptomatic management — SCREAM</div><div class="a-sub">Six symptom domains, six interventions</div></div></div><div class="a-arr">▼</div></div>
+    <div class="abody">
+      <div class="sym-grid">
+        <div class="sym-card"><div class="sym-title">Sialorrhoea <span style="font-size:10px;color:var(--text3);font-weight:400">(drooling — overproduction of saliva)</span></div><div class="sym-tx">Amitriptyline (anticholinergic, 1st-line), hyoscine patch, glycopyrrolate. Botulinum toxin to salivary glands if severe.</div></div>
+        <div class="sym-card"><div class="sym-title">Communication</div><div class="sym-tx">Voice bank early <span style="font-size:10px;color:var(--text3)">(record your voice while speech is still clear)</span>. AAC devices, eye-tracking tech. Refer to SLT before speech deteriorates.</div></div>
+        <div class="sym-card"><div class="sym-title">Respiratory</div><div class="sym-tx">NIV (BiPAP) at FVC &lt;50%. Cough-assist device. Regular spirometry. Flu + pneumococcal vaccines.</div></div>
+        <div class="sym-card"><div class="sym-title">Eating / dysphagia <span style="font-size:10px;color:var(--text3);font-weight:400">(difficulty swallowing)</span></div><div class="sym-tx">SLT review, texture-modified diet. PEG tube <span style="font-size:10px;color:var(--text3)">(feeding tube directly into stomach)</span> when FVC &gt;50% (safer anaesthetic). Plan before FVC drops further.</div></div>
+        <div class="sym-card"><div class="sym-title">Affect — pseudobulbar <span style="font-size:10px;color:var(--text3);font-weight:400">(involuntary laughing/crying)</span></div><div class="sym-tx">Dextromethorphan/quinidine (Nuedexta) — RCT evidence. Amitriptyline as alternative. This is a UMN sign, not depression.</div></div>
+        <div class="sym-card"><div class="sym-title">Muscle cramps + spasticity</div><div class="sym-tx">Mexiletine (Na⁺ blocker, RCT evidence for cramps), baclofen (GABA-B agonist for spasticity). Physiotherapy and stretching.</div></div>
+      </div>
+      <div class="mnem">
+        <div class="mnem-lbl">Mnemonic — symptomatic management "SCREAM"</div>
+        <div class="mnem-word">SCREAM</div>
+        <div class="mnem-rows">
+          <div class="mnem-row"><div class="mnem-L">S</div><div class="mnem-m">Sialorrhoea → amitriptyline / botox</div></div>
+          <div class="mnem-row"><div class="mnem-L">C</div><div class="mnem-m">Communication → voice bank, AAC devices</div></div>
+          <div class="mnem-row"><div class="mnem-L">R</div><div class="mnem-m">Respiratory → NIV BiPAP at FVC &lt;50%</div></div>
+          <div class="mnem-row"><div class="mnem-L">E</div><div class="mnem-m">Eating/dysphagia → SLT, PEG tube</div></div>
+          <div class="mnem-row"><div class="mnem-L">A</div><div class="mnem-m">Affect (pseudobulbar) → dextromethorphan/quinidine</div></div>
+          <div class="mnem-row"><div class="mnem-L">M</div><div class="mnem-m">Muscle cramps/spasticity → mexiletine, baclofen</div></div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  prev:`
+  <div class="slbl">Click a section to explore</div>
+
+  <div class="acc" id="pra0">
+    <div class="atrig" onclick="tog('pra0')"><div class="atrig-l"><div class="aico ic-r">1</div><div><div class="a-title">Primary prevention — honest answer: barely possible</div><div class="a-sub">Why ALS is so hard to prevent, and what little we know</div></div></div><div class="a-arr">▼</div></div>
+    <div class="abody">
+      <p class="txt">No proven primary prevention for ALS exists. 90% of cases are sporadic with no identifiable cause. Unlike cardiovascular disease, there are no reliable lifestyle changes that dramatically reduce risk.</p>
+      <div class="two-col">
+        <div class="mini"><div class="mini-lbl">Weak evidence</div><div class="mini-val">Smoking</div><div class="mini-sub">Consistently associated in epidemiological studies. Plausible via oxidative stress. Modest relative risk increase — but not a clear causal link.</div></div>
+        <div class="mini"><div class="mini-lbl">Paradox</div><div class="mini-val">Higher BMI = better prognosis</div><div class="mini-sub">Patients with higher BMI at diagnosis have better survival — likely reflects metabolic reserve, not protection. ALS causes hypermetabolism.</div></div>
+      </div>
+      <div class="co co-a"><div class="coi">💡</div><div class="ctx"><strong>Don't over-sell prevention here.</strong> Telling an ALS patient that lifestyle caused their disease is usually inaccurate and always unhelpful. The disease is overwhelmingly driven by biology we don't yet understand.</div></div>
+    </div>
+  </div>
+
+  <div class="acc" id="pra1">
+    <div class="atrig" onclick="tog('pra1')"><div class="atrig-l"><div class="aico ic-b">2</div><div><div class="a-title">Secondary prevention — genetic counselling and the ATLAS trial</div><div class="a-sub">Pre-symptomatic testing and intercepting ALS before it starts</div></div></div><div class="a-arr">▼</div></div>
+    <div class="abody">
+      <p class="txt">For the 10% with familial ALS, secondary prevention is becoming a real clinical possibility. This is one of the most exciting frontiers in neurology.</p>
+      <div class="steps">
+        <div class="step"><div class="sn">1</div><div><div class="stitle">Genetic counselling for families</div><div class="sdesc">Relatives of patients with identified pathogenic variants — especially C9orf72 and SOD1 — can be offered pre-symptomatic testing. This allows informed decisions about family planning and enrolment in prevention trials.</div></div></div>
+        <div class="step"><div class="sn">2</div><div><div class="stitle">The ATLAS trial — the paradigm shift</div><div class="sdesc">Giving tofersen to SOD1 mutation carriers who don't yet have symptoms. If successful, it would be the first disease-prevention trial in a neurodegenerative condition ever. Pre-symptomatic NfL <span style="font-size:11px;color:var(--text3)">(neurofilament light chain — a protein released into blood when neurons are stressed)</span> rises before symptoms — being validated as a biomarker to identify who is about to convert.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="acc" id="pra2">
+    <div class="atrig" onclick="tog('pra2')"><div class="atrig-l"><div class="aico ic-g">3</div><div><div class="a-title">Tertiary prevention — where clinical care has real impact</div><div class="a-sub">Stopping complications from compounding the decline</div></div></div><div class="a-arr">▼</div></div>
+    <div class="abody">
+      <div class="cmp">
+        <div class="cmp-col"><div class="cmp-h ch-r">Complication to prevent</div><div class="cmp-row">Respiratory failure</div><div class="cmp-row">Malnutrition</div><div class="cmp-row">Aspiration pneumonia <span class="def">(food/liquid inhaled into lungs)</span></div><div class="cmp-row">Contractures <span class="def">(joints freeze in fixed position from disuse)</span></div><div class="cmp-row">Sudden respiratory crisis</div></div>
+        <div class="cmp-col"><div class="cmp-h ch-g">How to prevent it</div><div class="cmp-row">Early NIV, 3-monthly FVC</div><div class="cmp-row">PEG tube, dietitian, high-calorie diet</div><div class="cmp-row">SLT, texture modification, flu + pneumococcal vaccines</div><div class="cmp-row">Physiotherapy, positioning, splints</div><div class="cmp-row">Advance care planning early, document wishes</div></div>
+      </div>
+    </div>
+  </div>`,
+
+  quiz_questions:[
+    {q:"A 58-year-old man has wasting of his right thenar eminence and brisk reflexes in the same hand. What is the most likely diagnosis?",opts:["Cervical radiculopathy C8","Carpal tunnel syndrome","ALS","Multifocal motor neuropathy"],c:2,exp:"Wasting (LMN sign) + hyperreflexia (UMN sign) in the same region = ALS. The split hand pattern with thenar > hypothenar wasting is characteristic. Cervical radiculopathy and MMN give LMN signs only. CTS causes sensory symptoms and no wasting."},
+    {q:"What is the molecular hallmark found in 97% of all ALS cases — both sporadic and familial?",opts:["SOD1 protein aggregates","TDP-43 cytoplasmic aggregates","C9orf72 repeat expansion","Alpha-synuclein Lewy bodies"],c:1,exp:"TDP-43 cytoplasmic aggregates are found in 97% of all ALS — making them the unifying pathological hallmark regardless of genetic cause. SOD1 aggregates are specific to SOD1-ALS. Alpha-synuclein is Parkinson's disease."},
+    {q:"Which mechanism does riluzole target in ALS?",opts:["Free radical scavenging","Presynaptic glutamate release inhibition","SOD1 mRNA translation blockade","Microglial M1 activation"],c:1,exp:"Riluzole blocks voltage-gated Na⁺ channels on presynaptic motor neuron terminals → reduces glutamate release → reduces excitotoxicity. Edaravone is the free radical scavenger. Tofersen targets SOD1 mRNA. No approved drug directly targets microglial activation."},
+    {q:"At what FVC threshold is NIV (BiPAP) strongly recommended in ALS?",opts:["FVC <80%","FVC <65%","FVC <50%","FVC <30%"],c:2,exp:"FVC <50% predicted (especially with symptoms like orthopnoea or morning headache) is the threshold for strong NIV recommendation. Earlier initiation (50–80%) can be considered if symptomatic. NIV at this stage extends survival by 7–13 months."},
+    {q:"What combination of findings is required for 'Definite ALS' by the El Escorial criteria?",opts:["UMN signs in 2 body regions","LMN signs in 3 body regions","UMN + LMN signs in 3 or more regions","UMN + LMN signs in 2 regions, UMN signs rostral to LMN"],c:2,exp:"Definite ALS = UMN + LMN signs in 3 or more of the 4 body regions (Bulbar, Cervical, Thoracic, Lumbosacral). Two regions with UMN rostral to LMN = Probable ALS."},
+    {q:"Which gene is targeted by tofersen, the first precision medicine approved for ALS?",opts:["C9orf72","TDP-43 (TARDBP)","SOD1","FUS"],c:2,exp:"Tofersen is an antisense oligonucleotide that binds SOD1 mRNA to reduce production of toxic SOD1 protein. FDA-approved 2023 specifically for SOD1-mutation ALS. C9orf72 and FUS are targets of other drugs in development."},
+    {q:"A patient with ALS develops uncontrollable laughing and crying that is disproportionate to their emotional state. What is this, and what is the first-line treatment?",opts:["Depression — start SSRI","Pseudobulbar affect — dextromethorphan/quinidine","Anxiety — benzodiazepine","Bulbar ALS — increase riluzole dose"],c:1,exp:"Pseudobulbar affect = involuntary emotional expression from UMN loss of cortical inhibition over the brainstem's emotional response circuits. Dextromethorphan/quinidine (Nuedexta) has RCT evidence. Amitriptyline is an alternative. This is distinct from depression — the affect is disproportionate and involuntary, not a mood disorder."},
+    {q:"Why are motor neurons uniquely vulnerable in ALS compared to most other neuron types?",opts:["They have excess calbindin and parvalbumin for calcium buffering","They have high GluR2 content making AMPA receptors calcium-impermeable","They have low calcium buffering capacity and enormous metabolic demands due to axon length","They lack NMDA receptors entirely"],c:2,exp:"Motor neurons are uniquely vulnerable due to: (1) enormous axon length >1m requiring huge metabolic demand, (2) almost no calbindin or parvalbumin for Ca²⁺ buffering, (3) low GluR2 → Ca²⁺-permeable AMPA receptors, (4) neurofilament transport blockage. High GluR2 would be PROTECTIVE — motor neurons have LOW GluR2."},
+  ],
+
+  case:{
+    vignette:`<strong>Mr. Jan de Vries, 54, civil engineer from Rotterdam</strong>, comes to his GP after noticing his right hand has become progressively "clumsy" over 8 months. He initially blamed work stress but it keeps worsening — he can no longer button his shirt, dropped a coffee mug last week, and notices occasional twitching in his right forearm that wakes him at night.<br><br>His wife adds that his speech sounds slightly slurred when tired, and he has laughed inappropriately at things that aren't funny — which is very unlike him.<br><br><strong>Examination:</strong> Marked wasting of the right thenar eminence <span style="font-size:11px;color:var(--text3)">(thumb pad is visibly shrunken)</span> and first dorsal interosseous. Visible fasciculations in right forearm and right calf. Tone increased in both arms (clasp-knife). Reflexes brisk throughout — 3+ at biceps, triceps, both knees. Right plantar response extensor (Babinski positive). Tongue shows mild fasciculations on left side. Sensation completely normal. No family history of neurological disease.`,
+    questions:[
+      {q:"What is the most likely diagnosis, and what single examination finding is most important in confirming it?",opts:["Cervical myelopathy — cord compression on MRI is the key finding","ALS — finding UMN and LMN signs simultaneously in the same region (hyperreflexia + wasting + fasciculations together)","Multifocal motor neuropathy — absent reflexes with wasting is the key finding","Myasthenia gravis — fatigable ptosis and proximal weakness is the key finding"],c:1,exp:"This is ALS. The defining finding is UMN signs (hyperreflexia, Babinski+, spasticity) combined with LMN signs (wasting, fasciculations) in multiple regions simultaneously — this paradox is almost pathognomonic. The split hand pattern and tongue fasciculations add certainty. MMN gives LMN signs only. Cervical myelopathy wouldn't explain tongue fasciculations. MG doesn't cause wasting or fasciculations."},
+      {q:"What is the single most important investigation to order first?",opts:["MRI brain — expect bilateral T2 changes in motor cortex","EMG / nerve conduction study — expect fibrillations, fasciculation potentials, positive sharp waves in multiple myotomes with normal nerve conduction velocities","Serum CK — expect markedly elevated CK >10,000 IU/L","GM1 ganglioside antibodies — expect strongly positive result"],c:1,exp:"EMG is the most important test. It will show active denervation (fibrillations, positive sharp waves) and chronic reinnervation across multiple myotomes — confirming LMN involvement beyond what's clinically visible. Normal nerve conduction velocities exclude peripheral neuropathy and MMN. MRI is important to exclude structural mimics but won't confirm ALS. CK is only mildly elevated in ALS. GM1 antibodies should be checked, but their value is in being NEGATIVE (to exclude MMN)."},
+      {q:"Three months later, his wife calls worried — he's waking breathless at night and has morning headaches every day. What do you do next?",opts:["Increase riluzole dose — disease is progressing and needs stronger glutamate blockade","Arrange urgent spirometry (FVC, MIP, MEP) and overnight oximetry — morning headache = nocturnal CO₂ retention, may need NIV immediately","Order a CT pulmonary angiogram to exclude pulmonary embolism","Reassure — morning headaches and nocturnal breathlessness are expected in ALS and require no acute action"],c:1,exp:"Morning headache = nocturnal CO₂ retention until proven otherwise in ALS. This is a respiratory emergency. Arrange urgent spirometry and overnight oximetry immediately. If FVC <50% or oximetry shows desaturations/hypercapnia, initiate NIV (BiPAP) immediately — it extends survival 7–13 months and dramatically improves quality of life. Riluzole dose has no effect on respiratory function. PE is possible but the clinical context points strongly to hypoventilation."},
+    ]
+  }
 };
-let contentCache = {};
 
-// ─────────────────────────────────────────────
-//  RENDER HOME
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+//  STATE & NAVIGATION
+// ═══════════════════════════════════════════════════════
+let S={sys:null,grp:null,dis:null};
+let totalCorrect=0,totalAnswered=0;
 
-function renderHome() {
-  document.getElementById('system-cards').innerHTML = SYSTEMS.map(s =>
-    `<div class="card" onclick="selectSystem('${s.id}')">
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+function updateBC(){
+  const bc=document.getElementById('bc');
+  let p=[`<span class="bcl" onclick="goHome()">All systems</span>`];
+  if(S.sys)p.push(`<span class="bcs">›</span><span class="bcl" onclick="goToSys('${S.sys.id}')">${S.sys.name}</span>`);
+  if(S.grp)p.push(`<span class="bcs">›</span><span class="bcl" onclick="goToGrp('${S.grp}')">${GROUPS[S.grp].name}</span>`);
+  if(S.dis)p.push(`<span class="bcs">›</span><span>${DISEASE_META[S.dis]?.name||''}</span>`);
+  bc.innerHTML=p.join('');
+  document.getElementById('hdr-score').textContent=totalAnswered>0?`${totalCorrect}/${totalAnswered} correct`:'';
+}
+
+function goHome(){S={sys:null,grp:null,dis:null};showView('v-home');updateBC();}
+function goToSys(id){S.sys=SYSTEMS.find(s=>s.id===id);S.grp=null;S.dis=null;renderGroups();showView('v-group');updateBC();}
+function goToGrp(gid){S.grp=gid;S.dis=null;renderDiseases();showView('v-disease');updateBC();}
+
+function renderHome(){
+  document.getElementById('sys-cards').innerHTML=SYSTEMS.map(s=>
+    `<div class="card" onclick="goToSys('${s.id}')">
       <div class="card-icon">${s.icon}</div>
       <div class="card-name">${s.name}</div>
       <div class="card-sub">${s.sub}</div>
-      <div class="card-count">${s.groups.filter(g=>GROUPS[g]).length} disease groups</div>
-    </div>`
-  ).join('');
+      <div class="card-count">${s.groups.filter(g=>GROUPS[g]).length} groups</div>
+    </div>`).join('');
 }
 
-function setMode(m) {
-  state.mode = m;
-  document.querySelectorAll('.mode-btn').forEach((b,i) => b.classList.toggle('active', ['learn','cases','quiz'][i] === m));
-}
-
-// ─────────────────────────────────────────────
-//  NAVIGATION
-// ─────────────────────────────────────────────
-
-function selectSystem(id) {
-  state.system = SYSTEMS.find(s => s.id === id);
-  state.view = 'group';
-  switchView('group-view');
-  document.getElementById('group-label').textContent = state.system.name + ' — disease groups';
-  const groups = state.system.groups.filter(g => GROUPS[g]);
-  document.getElementById('group-cards').innerHTML = groups.map(gid => {
-    const g = GROUPS[gid];
-    return `<div class="card" onclick="selectGroup('${gid}')">
-      <div class="card-name">${g.name}</div>
+function renderGroups(){
+  document.getElementById('grp-lbl').textContent=S.sys.name+' — disease groups';
+  document.getElementById('grp-cards').innerHTML=S.sys.groups.filter(g=>GROUPS[g]).map(gid=>{
+    const g=GROUPS[gid];
+    const hasReady=g.diseases.some(d=>DISEASE_META[d]?.ready);
+    return `<div class="card" onclick="goToGrp('${gid}')">
+      <div class="card-name">${g.name}${hasReady?` <span class="badge-soon" style="background:var(--success-bg);color:var(--success-text);border-color:var(--success-border)">✓ ALS ready</span>`:''}</div>
       <div class="card-sub">${g.sub}</div>
       <div class="card-count">${g.diseases.filter(d=>DISEASE_META[d]).length} diseases</div>
     </div>`;
   }).join('');
-  updateBreadcrumb();
 }
 
-function selectGroup(gid) {
-  state.group = gid;
-  state.view = 'disease';
-  switchView('disease-view');
-  const g = GROUPS[gid];
-  document.getElementById('disease-label').textContent = g.name + ' — select a disease';
-  document.getElementById('disease-back-btn').onclick = () => goBack('group');
-  const diseases = g.diseases.filter(d => DISEASE_META[d]);
-  document.getElementById('disease-cards').innerHTML = diseases.map(did => {
-    const d = DISEASE_META[did];
-    return `<div class="card" onclick="selectDisease('${did}')">
-      <div class="card-name">${d.name}</div>
+function renderDiseases(){
+  const g=GROUPS[S.grp];
+  document.getElementById('dis-lbl').textContent=g.name+' — select a disease';
+  document.getElementById('dis-back').onclick=()=>goToSys(S.sys.id);
+  document.getElementById('dis-cards').innerHTML=g.diseases.filter(d=>DISEASE_META[d]).map(did=>{
+    const d=DISEASE_META[did];
+    if(d.ready){
+      return `<div class="card" onclick="openDisease('${did}')">
+        <div class="card-name">${d.name}</div>
+        <div class="card-sub">${d.tag}</div>
+        <div class="card-count" style="color:var(--success-text)">✓ Full module ready</div>
+      </div>`;
+    }
+    return `<div class="card locked" title="Coming soon">
+      <div class="card-name">${d.name} <span class="badge-soon">Soon</span></div>
       <div class="card-sub">${d.tag}</div>
     </div>`;
   }).join('');
-  updateBreadcrumb();
 }
 
-function selectDisease(did) {
-  state.disease = did;
-  state.view = 'detail';
-  state.currentTab = 'patho';
-  switchView('detail-view');
-
-  const d = DISEASE_META[did];
-  document.getElementById('detail-title').textContent = d.full;
-  document.getElementById('detail-tags').innerHTML =
-    `<span class="tag">${GROUPS[state.group].name}</span><span class="tag">${d.tag}</span>`;
-  document.getElementById('detail-back-btn').onclick = () => goBack('disease');
-
-  // Reset tabs
-  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===0));
-  document.querySelectorAll('.tab-panel').forEach((p,i) => p.classList.toggle('active', i===0));
-
-  // Reset content
-  ['patho','diag','treat','prevent'].forEach(tab => {
-    const el = document.getElementById(tab+'-content');
-    el.className = 'ai-box loading';
-    el.innerHTML = '<span class="spinner"></span> Loading...';
-  });
-  document.getElementById('patho-pills').innerHTML = '';
-  document.getElementById('quiz-final').style.display = 'none';
-  document.getElementById('quiz-container').style.display = 'block';
-
-  // Load all content in parallel
-  loadContent('patho');
-  loadContent('diag');
-  loadContent('treat');
-  loadContent('prevent');
-  loadQuiz();
-  loadCase();
-
-  // Auto-switch to mode tab if not learning
-  if (state.mode === 'cases') switchTabByName('case');
-  else if (state.mode === 'quiz') switchTabByName('quiz');
-
-  updateBreadcrumb();
+function openDisease(did){
+  S.dis=did;
+  const d=DISEASE_META[did];
+  const data=ALS;
+  document.getElementById('det-tag').textContent=GROUPS[S.grp].name;
+  document.getElementById('det-title').textContent=d.full;
+  document.getElementById('det-hook').innerHTML=data.hook;
+  document.getElementById('det-pills').innerHTML=data.pills.map(p=>`<span class="pill ${p.c}">${p.t}</span>`).join('');
+  // Tabs
+  const tabBar=document.getElementById('det-tabs');
+  tabBar.innerHTML=data.tabs.map((t,i)=>`<div class="tb${i===0?' on':''}" onclick="showDTab(${i},this)">${t}</div>`).join('');
+  renderDTab(0);
+  document.getElementById('det-back').onclick=()=>{S.dis=null;renderDiseases();showView('v-disease');updateBC();};
+  showView('v-detail');
+  updateBC();
 }
 
-function switchTabByName(name) {
-  const tabs = ['patho','diag','treat','prevent','quiz','case'];
-  const idx = tabs.indexOf(name);
-  if (idx === -1) return;
-  document.querySelectorAll('.tab-btn')[idx].click();
+let qIdx=0,qScore=0,cIdx=0,cScore=0;
+
+function renderDTab(n){
+  const data=ALS;
+  const content=document.getElementById('det-content');
+  if(n===0) content.innerHTML=data.summary;
+  else if(n===1) content.innerHTML=data.patho;
+  else if(n===2) content.innerHTML=data.diag;
+  else if(n===3) content.innerHTML=data.treat;
+  else if(n===4) content.innerHTML=data.prev;
+  else if(n===5){content.innerHTML=`<div class="qwrap"><div id="qm"><div class="qprog" id="qprog"></div><div class="qq" id="qq"></div><div class="qopts" id="qopts"></div><div class="qfb" id="qfb"></div><button class="qnext" id="qnext" onclick="nextQ()">Next →</button></div><div class="qscore" id="qscore"><div class="qsnum" id="qsnum"></div><div class="qslbl" id="qslbl"></div><button class="qsbtn" onclick="startQ()">Try again</button></div></div>`;qIdx=0;qScore=0;startQ();}
+  else if(n===6){content.innerHTML=`<div id="cw"></div>`;cIdx=0;cScore=0;renderCase();}
+}
+function showDTab(n,el){
+  document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  renderDTab(n);
 }
 
-function goBack(to) {
-  if (to === 'home') { switchView('home-view'); state.view='home'; state.system=null; state.group=null; }
-  else if (to === 'group') { switchView('group-view'); state.view='group'; state.group=null; state.disease=null; }
-  else if (to === 'disease') { switchView('disease-view'); state.view='disease'; state.disease=null; }
-  updateBreadcrumb();
-}
-
-function switchView(id) {
-  ['home-view','group-view','disease-view','detail-view','mode-view'].forEach(v =>
-    document.getElementById(v).style.display = v === id ? '' : 'none'
-  );
-}
-
-function switchTab(name, btn) {
-  state.currentTab = name;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
-}
-
-function updateBreadcrumb() {
-  const bc = document.getElementById('breadcrumb');
-  let parts = [`<span class="bc-link" onclick="goBack('home')">All systems</span>`];
-  if (state.system) parts.push(`<span class="bc-sep">›</span><span class="bc-link" onclick="selectSystem('${state.system.id}')">${state.system.name}</span>`);
-  if (state.group) parts.push(`<span class="bc-sep">›</span><span class="bc-link" onclick="selectGroup('${state.group}')">${GROUPS[state.group].name}</span>`);
-  if (state.disease) parts.push(`<span class="bc-sep">›</span><span>${DISEASE_META[state.disease].name}</span>`);
-  bc.innerHTML = parts.join('');
-  const sd = document.getElementById('score-display');
-  if (sd) sd.textContent = state.totalAnswered > 0 ? `${state.totalCorrect}/${state.totalAnswered} correct · ` : '';
-}
-
-// ─────────────────────────────────────────────
-//  AI CONTENT LOADING
-// ─────────────────────────────────────────────
-
-const PROMPTS = {
-  patho: (d) => `You are a clinical educator for Dutch medical students preparing the IVTG exam.
-Explain the pathophysiology of "${d.full}" in 4-6 clear, well-structured sentences.
-Cover: (1) etiology/risk factors, (2) key molecular/cellular mechanism, (3) how the mechanism leads to the clinical syndrome.
-Be specific — name key proteins, pathways, or genes where relevant.
-After your explanation, on a new line write exactly: FACTS:["Key fact 1 (max 8 words)","Key fact 2","Key fact 3","Key fact 4"]
-Nothing else.`,
-
-  diag: (d) => `You are a clinical educator for Dutch medical students preparing the IVTG exam.
-Explain how "${d.full}" is diagnosed, in 5-7 clear sentences.
-Structure your answer: (1) classic clinical presentation & symptoms, (2) key physical examination findings, (3) essential investigations (bloods, imaging, biopsy, criteria), (4) diagnostic criteria or scoring systems if applicable.
-Use specific values, test names, and clinical signs. Be practical and exam-focused.`,
-
-  treat: (d) => `You are a clinical educator for Dutch medical students preparing the IVTG exam.
-Explain the treatment of "${d.full}" in 5-7 clear sentences.
-Structure: (1) acute/emergency management if relevant, (2) first-line pharmacological treatment with drug classes and mechanism, (3) second-line or adjunct treatments, (4) non-pharmacological management, (5) monitoring and follow-up.
-Name specific drug classes. Mention targets (e.g., HbA1c) and monitoring parameters.`,
-
-  prevent: (d) => `You are a clinical educator for Dutch medical students preparing the IVTG exam.
-Explain how "${d.full}" can be prevented, in 4-6 sentences.
-Cover: (1) primary prevention (preventing the disease from occurring), (2) secondary prevention (screening, early detection), (3) tertiary prevention (preventing complications in those already diagnosed), (4) population-level or lifestyle measures where relevant.
-If the disease has no meaningful primary prevention, state that and focus on secondary/tertiary.`,
-};
-
-async function loadContent(tab) {
-  const d = DISEASE_META[state.disease];
-  const cacheKey = state.disease + '_' + tab;
-  if (contentCache[cacheKey]) { setContent(tab, contentCache[cacheKey]); return; }
-
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 800,
-        messages: [{ role: 'user', content: PROMPTS[tab](d) }]
-      })
-    });
-    const data = await resp.json();
-    const text = data.content?.map(c => c.text || '').join('\n') || 'Could not load content.';
-    contentCache[cacheKey] = text;
-    setContent(tab, text);
-  } catch(e) {
-    setContent(tab, 'Error loading content. Check your internet connection or API key.');
-  }
-}
-
-function setContent(tab, text) {
-  const el = document.getElementById(tab + '-content');
-  if (tab === 'patho') {
-    const factsMatch = text.match(/FACTS:\[([^\]]*)\]/);
-    let facts = [], body = text;
-    if (factsMatch) {
-      try { facts = JSON.parse('[' + factsMatch[1] + ']'); } catch(e) {}
-      body = text.replace(/FACTS:\[.*?\]/s, '').trim();
-    }
-    el.className = 'ai-box';
-    el.innerHTML = formatText(body);
-    document.getElementById('patho-pills').innerHTML = facts.map(f => `<span class="pill">${f}</span>`).join('');
-  } else {
-    el.className = 'ai-box';
-    el.innerHTML = formatText(text);
-  }
-}
-
-function formatText(t) {
-  return '<p>' + t.trim()
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\n{2,}/g,'</p><p>')
-    .replace(/\n/g,' ') + '</p>';
-}
-
-// ─────────────────────────────────────────────
-//  QUIZ
-// ─────────────────────────────────────────────
-
-async function loadQuiz() {
-  state.quizQuestions = []; state.quizIndex = 0; state.quizScore = 0;
-  document.getElementById('quiz-final').style.display = 'none';
-  document.getElementById('quiz-container').style.display = 'block';
-  document.getElementById('quiz-q').innerHTML = '<span class="spinner"></span> Generating questions...';
-  document.getElementById('quiz-opts').innerHTML = '';
-  document.getElementById('quiz-fb').style.display = 'none';
-  document.getElementById('quiz-next').style.display = 'none';
-
-  const d = DISEASE_META[state.disease];
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1200,
-        messages: [{ role: 'user', content:
-          `Generate 5 multiple-choice questions about "${d.full}" for a Dutch medical student preparing the IVTG exam.
-Mix topics across: pathophysiology, clinical presentation, diagnosis (including investigations), treatment, and one complication or comorbidity.
-Make distractors plausible but clearly wrong to someone who understands the disease.
-Respond with ONLY valid compact JSON, no markdown fences, no explanation:
-{"questions":[{"q":"Question text?","options":["A text","B text","C text","D text"],"correct":0,"explanation":"1-2 sentence explanation of why correct and why the key distractor is wrong."}]}`
-        }]
-      })
-    });
-    const data = await resp.json();
-    let text = data.content?.map(c => c.text || '').join('') || '';
-    text = text.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(text);
-    state.quizQuestions = parsed.questions;
-    renderQuestion();
-  } catch(e) {
-    document.getElementById('quiz-q').textContent = 'Could not generate questions. Try switching away and back to this tab.';
-  }
-}
-
-function renderQuestion() {
-  if (state.quizIndex >= state.quizQuestions.length) {
-    document.getElementById('quiz-container').style.display = 'none';
-    document.getElementById('quiz-final').style.display = 'block';
-    const pct = Math.round((state.quizScore / state.quizQuestions.length) * 100);
-    document.getElementById('quiz-score-num').textContent = `${state.quizScore}/${state.quizQuestions.length}`;
-    document.getElementById('quiz-score-label').textContent = pct >= 80 ? '🎉 Excellent! ' + pct + '%' : pct >= 60 ? '👍 Good. ' + pct + '%' : '📖 Keep studying. ' + pct + '%';
+// Quiz
+function startQ(){document.getElementById('qm').style.display='block';document.getElementById('qscore').style.display='none';qIdx=0;qScore=0;renderQ();}
+function renderQ(){
+  const qs=ALS.quiz_questions;
+  if(qIdx>=qs.length){
+    document.getElementById('qm').style.display='none';
+    document.getElementById('qscore').style.display='block';
+    const pct=Math.round(qScore/qs.length*100);
+    document.getElementById('qsnum').textContent=qScore+'/'+qs.length;
+    document.getElementById('qslbl').textContent=pct>=80?'Excellent! You know your ALS.':pct>=60?'Good effort. Review the weak spots.':'Keep studying — go back through the tabs.';
     return;
   }
-  const q = state.quizQuestions[state.quizIndex];
-  document.getElementById('quiz-progress').textContent = `Question ${state.quizIndex + 1} of ${state.quizQuestions.length}`;
-  document.getElementById('quiz-q').textContent = q.q;
-  document.getElementById('quiz-opts').innerHTML = q.options.map((o, i) =>
-    `<button class="quiz-opt" onclick="answerQuiz(${i})">${o}</button>`
-  ).join('');
-  document.getElementById('quiz-fb').style.display = 'none';
-  document.getElementById('quiz-next').style.display = 'none';
+  const q=qs[qIdx];
+  document.getElementById('qprog').textContent='Question '+(qIdx+1)+' of '+qs.length;
+  document.getElementById('qq').textContent=q.q;
+  document.getElementById('qopts').innerHTML=q.opts.map((o,i)=>`<button class="qopt" onclick="ansQ(${i})">${o}</button>`).join('');
+  document.getElementById('qfb').style.display='none';
+  document.getElementById('qnext').style.display='none';
 }
-
-function answerQuiz(chosen) {
-  const q = state.quizQuestions[state.quizIndex];
-  document.querySelectorAll('.quiz-opt').forEach((o, i) => {
-    o.disabled = true;
-    if (i === q.correct) o.classList.add('correct');
-    else if (i === chosen && chosen !== q.correct) o.classList.add('wrong');
-  });
-  if (chosen === q.correct) { state.quizScore++; state.totalCorrect++; }
-  state.totalAnswered++;
-  const fb = document.getElementById('quiz-fb');
-  fb.textContent = (chosen === q.correct ? '✓ Correct. ' : '✗ Incorrect. ') + q.explanation;
-  fb.style.display = 'block';
-  document.getElementById('quiz-next').style.display = 'inline-block';
-  updateBreadcrumb();
+function ansQ(chosen){
+  const q=ALS.quiz_questions[qIdx];
+  document.querySelectorAll('.qopt').forEach((o,i)=>{o.disabled=true;if(i===q.c)o.classList.add('correct');else if(i===chosen&&chosen!==q.c)o.classList.add('wrong');});
+  if(chosen===q.c){qScore++;totalCorrect++;}
+  totalAnswered++;
+  document.getElementById('qfb').textContent=(chosen===q.c?'✓ Correct. ':'✗ Incorrect. ')+q.exp;
+  document.getElementById('qfb').style.display='block';
+  document.getElementById('qnext').style.display='inline-block';
+  updateBC();
 }
+function nextQ(){qIdx++;renderQ();}
 
-function nextQuestion() { state.quizIndex++; renderQuestion(); }
-
-// ─────────────────────────────────────────────
-//  CLINICAL CASES
-// ─────────────────────────────────────────────
-
-async function loadCase() {
-  const container = document.getElementById('case-container');
-  container.innerHTML = '<div class="case-card"><div class="ai-box loading"><span class="spinner"></span> Generating clinical case...</div></div>';
-
-  const d = DISEASE_META[state.disease];
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1400,
-        messages: [{ role: 'user', content:
-          `Create a realistic clinical vignette for a Dutch medical student about "${d.full}".
-The case should present with a realistic patient (age, sex, occupation, presenting complaint, history, relevant exam findings, and key investigation results).
-Then ask 3 sequential clinical reasoning questions — each question should build on the previous answer (first: most likely diagnosis; second: key investigation or mechanism; third: treatment or management).
-Each question has 4 options, one correct, with plausible distractors.
-Respond ONLY with valid compact JSON, no markdown:
-{"vignette":"Full patient case text here (4-6 sentences)","questions":[{"q":"Question text?","options":["A","B","C","D"],"correct":0,"explanation":"Brief explanation."}]}`
-        }]
-      })
-    });
-    const data = await resp.json();
-    let text = data.content?.map(c => c.text || '').join('') || '';
-    text = text.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(text);
-    renderCase(parsed);
-  } catch(e) {
-    container.innerHTML = '<div class="case-card"><p style="color:var(--text2);font-size:13px">Could not generate case. Try switching away and back to this tab.</p></div>';
-  }
+// Case
+function renderCase(){
+  const done=cIdx>=ALS.case.questions.length;
+  const q=done?null:ALS.case.questions[cIdx];
+  document.getElementById('cw').innerHTML=`
+    <div class="case-vig"><div class="case-lbl">Clinical vignette · Mr. Jan de Vries, 54</div><div class="case-text">${ALS.case.vignette}</div></div>
+    ${done?`<div class="cscore"><div class="csnum">${cScore}/${ALS.case.questions.length}</div><div class="cslbl">${Math.round(cScore/ALS.case.questions.length*100)}% — ${cScore===3?'Perfect clinical reasoning!':cScore===2?'Strong work! Review the question you missed.':'Review the respiratory management section.'}</div><button class="csbtn" onclick="resetCase()">New attempt →</button></div>`:`
+    <div class="cqcard"><div class="cqlbl">Question ${cIdx+1} of ${ALS.case.questions.length}</div><div class="cqtxt">${q.q}</div>
+    <div class="copts">${q.opts.map((o,i)=>`<button class="copt" onclick="ansCase(${i})">${o}</button>`).join('')}</div>
+    <div class="cfb" id="cfb"></div><button class="cnext" id="cnext" onclick="nextCase()">Next question →</button></div>`}`;
 }
-
-function renderCase(caseData) {
-  const container = document.getElementById('case-container');
-  let caseState = { index: 0, score: 0 };
-
-  function render() {
-    const q = caseData.questions[caseState.index];
-    const done = caseState.index >= caseData.questions.length;
-
-    container.innerHTML = `
-      <div class="case-card">
-        <div class="case-label">Clinical vignette</div>
-        <div class="case-vignette">${escHtml(caseData.vignette)}</div>
-      </div>
-      ${done ? `
-        <div class="case-card">
-          <div class="quiz-score-final">
-            <div class="quiz-score-num">${caseState.score}/${caseData.questions.length}</div>
-            <div class="quiz-score-label">Case complete — ${Math.round(caseState.score/caseData.questions.length*100)}%</div>
-            <button class="quiz-retry-btn" onclick="loadCase()">New case →</button>
-          </div>
-        </div>
-      ` : `
-        <div class="case-card" id="case-q-card">
-          <div class="case-label">Question ${caseState.index + 1} of ${caseData.questions.length}</div>
-          <div class="case-question">${escHtml(q.q)}</div>
-          <div class="case-opts">
-            ${q.options.map((o,i) => `<button class="case-opt" id="case-opt-${i}" onclick="answerCase(${i}, ${q.correct}, ${JSON.stringify(q.explanation).replace(/</g,'&lt;')})">${escHtml(o)}</button>`).join('')}
-          </div>
-          <div class="case-feedback" id="case-fb"></div>
-          <button class="case-next" id="case-next" onclick="nextCase()">Next question →</button>
-        </div>
-      `}`;
-
-    window._caseState = caseState;
-    window._caseData = caseData;
-  }
-
-  window.answerCase = function(chosen, correct, explanation) {
-    document.querySelectorAll('.case-opt').forEach((o,i) => {
-      o.disabled = true;
-      if (i === correct) o.classList.add('correct');
-      else if (i === chosen && chosen !== correct) o.classList.add('wrong');
-    });
-    if (chosen === correct) { caseState.score++; state.totalCorrect++; }
-    state.totalAnswered++;
-    const fb = document.getElementById('case-fb');
-    fb.textContent = (chosen === correct ? '✓ Correct. ' : '✗ Incorrect. ') + explanation;
-    fb.style.display = 'block';
-    document.getElementById('case-next').style.display = 'inline-block';
-    updateBreadcrumb();
-  };
-
-  window.nextCase = function() {
-    caseState.index++;
-    render();
-  };
-
-  render();
+function ansCase(chosen){
+  const q=ALS.case.questions[cIdx];
+  document.querySelectorAll('.copt').forEach((o,i)=>{o.disabled=true;if(i===q.c)o.classList.add('correct');else if(i===chosen&&chosen!==q.c)o.classList.add('wrong');});
+  if(chosen===q.c){cScore++;totalCorrect++;}
+  totalAnswered++;
+  document.getElementById('cfb').innerHTML=(chosen===q.c?'<strong>✓ Correct.</strong> ':'<strong>✗ Incorrect.</strong> ')+q.exp;
+  document.getElementById('cfb').style.display='block';
+  document.getElementById('cnext').style.display='inline-block';
+  updateBC();
 }
+function nextCase(){cIdx++;renderCase();}
+function resetCase(){cIdx=0;cScore=0;renderCase();}
 
-function escHtml(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-// ─────────────────────────────────────────────
-//  API KEY MANAGEMENT
-// ─────────────────────────────────────────────
-
-function getApiKey() {
-  return localStorage.getItem('medlearn_api_key') || '';
-}
-
-function getHeaders() {
-  const key = getApiKey();
-  const h = { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' };
-  if (key) h['x-api-key'] = key;
-  return h;
-}
-
-function saveKey() {
-  const val = document.getElementById('key-input').value.trim();
-  const errEl = document.getElementById('setup-error');
-  if (!val.startsWith('sk-ant-')) {
-    errEl.textContent = 'That doesn\'t look right — the key should start with "sk-ant-"';
-    errEl.style.display = 'block'; return;
-  }
-  localStorage.setItem('medlearn_api_key', val);
-  document.getElementById('setup-screen').style.display = 'none';
-  errEl.style.display = 'none';
-}
-
-function showKeySettings() {
-  const key = getApiKey();
-  const short = key ? key.slice(0,14) + '...' : 'not set';
-  const action = confirm(`Current API key: ${short}\n\nClick OK to change your key, or Cancel to keep it.`);
-  if (action) {
-    localStorage.removeItem('medlearn_api_key');
-    document.getElementById('key-input').value = '';
-    document.getElementById('setup-screen').style.display = 'flex';
-  }
-}
-
-// ─────────────────────────────────────────────
-//  INIT
-// ─────────────────────────────────────────────
+function tog(id){document.getElementById(id).classList.toggle('open');}
 
 renderHome();
-updateBreadcrumb();
-
-// Show setup screen if no key stored
-if (!getApiKey()) {
-  document.getElementById('setup-screen').style.display = 'flex';
-} else {
-  document.getElementById('setup-screen').style.display = 'none';
-}
-
-// Allow pressing Enter in the key input
-document.getElementById('key-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') saveKey();
-});
+updateBC();
 </script>
 </body>
 </html>
