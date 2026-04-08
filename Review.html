@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MED-ED · Daily Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0c0c10;--s1:#141418;--s2:#1e1e28;--s3:#282836;
+  --text:#f0f0f6;--text2:#b8b8d0;--text3:#8080a0;
+  --border:rgba(255,255,255,.09);--border2:rgba(255,255,255,.17);
+  --purple:#7c6df0;--purple2:#b8aff8;
+  --green:#3dd68c;--amber:#f5a623;--red:#f06b6b;--blue:#5ba4f5;
+  --r:14px;--rl:20px;
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);}
+#app{height:100%;height:100dvh;display:flex;flex-direction:column;}
+
+/* ── TOP BAR ── */
+#bar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:0.5px solid var(--border);flex-shrink:0;}
+.bar-logo{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;background:linear-gradient(135deg,var(--purple),var(--purple2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;cursor:pointer;}
+.bar-right{display:flex;align-items:center;gap:10px;}
+.bar-pill{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+.pill-amber{background:rgba(245,158,11,.12);border:0.5px solid rgba(245,158,11,.25);color:var(--amber);}
+.pill-red{background:rgba(248,113,113,.1);border:0.5px solid rgba(248,113,113,.2);color:var(--red);}
+.pill-green{background:rgba(61,214,140,.1);border:0.5px solid rgba(61,214,140,.2);color:var(--green);}
+
+/* ── SCROLLABLE STAGE ── */
+#stage{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+.screen{display:flex;flex-direction:column;align-items:center;padding:20px 18px 16px;min-height:100%;}
+.screen.hidden{display:none;}
+.scene{width:100%;max-width:520px;}
+
+/* ── ANIMATIONS ── */
+@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pop{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes slideLeft{from{opacity:1;transform:translateX(0);}to{opacity:0;transform:translateX(-40px);}}
+.anim-up{animation:slideUp .35s cubic-bezier(.4,0,.2,1) forwards;}
+.anim-pop{animation:pop .28s cubic-bezier(.4,0,.2,1) forwards;}
+
+/* ── HOME SCREEN ── */
+.home-hero{text-align:center;padding:24px 0 28px;}
+.home-date{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;}
+.home-title{font-family:'Syne',sans-serif;font-size:clamp(24px,6vw,36px);font-weight:800;line-height:1.15;margin-bottom:10px;}
+.home-title em{font-style:normal;color:var(--purple2);}
+.home-sub{font-size:14px;color:var(--text2);line-height:1.65;max-width:340px;margin:0 auto;}
+
+/* Due / stats cards */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
+.stat-card{background:var(--s1);border:0.5px solid var(--border);border-radius:var(--rl);padding:16px;text-align:center;}
+.stat-n{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:3px;}
+.stat-l{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);}
+
+/* Due cards list */
+.section-lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.section-lbl::after{content:'';flex:1;height:0.5px;background:var(--border);}
+.due-list{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
+.due-card{background:var(--s1);border:0.5px solid var(--border);border-radius:var(--rl);padding:14px 16px;display:flex;align-items:center;gap:12px;}
+.due-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.due-info{flex:1;}
+.due-disease{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:2px;}
+.due-count{font-size:14px;font-weight:600;color:var(--text);}
+.due-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+
+/* No cards state */
+.empty-state{text-align:center;padding:40px 20px;}
+.empty-icon{font-size:56px;margin-bottom:16px;}
+.empty-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:8px;}
+.empty-sub{font-size:14px;color:var(--text2);line-height:1.65;max-width:300px;margin:0 auto 20px;}
+.next-review{background:var(--s1);border:0.5px solid var(--border);border-radius:var(--rl);padding:14px 18px;text-align:center;margin-bottom:20px;}
+.next-lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:5px;}
+.next-time{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--purple2);}
+
+/* Unlock prompt */
+.unlock-prompt{background:linear-gradient(135deg,rgba(124,109,240,.12),rgba(124,109,240,.04));border:0.5px solid rgba(124,109,240,.25);border-radius:var(--rl);padding:18px 20px;text-align:center;margin-bottom:16px;}
+.unlock-icon{font-size:28px;margin-bottom:8px;}
+.unlock-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:6px;}
+.unlock-sub{font-size:13px;color:var(--text2);line-height:1.55;}
+
+/* ── SESSION SCREEN ── */
+.session-progress{margin-bottom:20px;}
+.sp-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.sp-label{font-size:12px;font-weight:600;color:var(--text3);}
+.sp-count{font-size:12px;font-weight:700;color:var(--purple2);}
+.sp-track{height:6px;background:var(--s3);border-radius:3px;overflow:hidden;}
+.sp-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--purple),var(--purple2));transition:width .5s cubic-bezier(.4,0,.2,1);}
+
+/* Card type badge */
+.card-type{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:20px;margin-bottom:14px;}
+.ct-recall{background:rgba(91,164,245,.12);color:var(--blue);border:0.5px solid rgba(91,164,245,.25);}
+.ct-recognition{background:rgba(124,109,240,.12);color:var(--purple2);border:0.5px solid rgba(124,109,240,.25);}
+.ct-snap{background:rgba(245,158,11,.12);color:var(--amber);border:0.5px solid rgba(245,158,11,.25);}
+.ct-icon{font-size:12px;}
+
+/* Question */
+.card-q{font-family:'Syne',sans-serif;font-size:clamp(17px,4vw,22px);font-weight:700;line-height:1.35;margin-bottom:8px;}
+.card-context{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:20px;padding:12px 14px;background:var(--s2);border-radius:var(--r);border-left:3px solid var(--purple);}
+.card-context strong{font-weight:600;color:var(--text);}
+
+/* Options (recognition + snap) */
+.opts{display:flex;flex-direction:column;gap:9px;margin-bottom:16px;}
+.opt{padding:14px 16px;background:var(--s1);border:0.5px solid var(--border2);border-radius:var(--r);cursor:pointer;font-size:13px;font-weight:500;color:var(--text);font-family:inherit;text-align:left;transition:all .15s;display:flex;align-items:center;gap:10px;width:100%;}
+.opt:hover:not(:disabled){background:var(--s2);border-color:var(--purple);}
+.opt-letter{width:26px;height:26px;border-radius:50%;background:var(--s3);border:0.5px solid var(--border2);font-size:11px;font-weight:700;color:var(--text3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.opt.correct{background:rgba(61,214,140,.1);border-color:var(--green);}
+.opt.correct .opt-letter{background:rgba(61,214,140,.2);border-color:var(--green);color:var(--green);}
+.opt.correct .opt-text{color:var(--green);}
+.opt.wrong{background:rgba(240,107,107,.1);border-color:var(--red);}
+.opt.wrong .opt-letter{background:rgba(240,107,107,.15);border-color:var(--red);color:var(--red);}
+.opt.wrong .opt-text{color:var(--red);}
+.opt.dim{opacity:.3;}
+.opt:disabled{cursor:default;}
+.opt-text{font-size:13px;line-height:1.45;}
+
+/* Recall reveal */
+.recall-hint{font-size:13px;color:var(--text3);text-align:center;margin-bottom:12px;}
+.reveal-card{background:var(--s2);border:0.5px solid var(--border);border-radius:var(--rl);padding:18px 20px;margin-bottom:16px;display:none;}
+.reveal-card.shown{display:block;animation:fadeIn .25s ease;}
+.reveal-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;}
+.reveal-answer{font-size:15px;color:var(--text);line-height:1.7;font-weight:500;}
+.reveal-answer strong{font-weight:700;}
+
+/* Feedback after answer */
+.answer-fb{border-radius:var(--r);padding:14px 16px;margin-bottom:16px;display:none;}
+.answer-fb.correct{background:rgba(61,214,140,.1);border:0.5px solid rgba(61,214,140,.3);}
+.answer-fb.wrong{background:rgba(240,107,107,.1);border:0.5px solid rgba(240,107,107,.3);}
+.fb-verdict{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:6px;}
+.fb-correct .fb-verdict{color:var(--green);}
+.fb-wrong .fb-verdict{color:var(--red);}
+.fb-explain{font-size:13px;color:var(--text2);line-height:1.75;}
+.fb-explain strong{font-weight:600;color:var(--text);}
+
+/* Self-rating (recall cards) */
+.rating-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px;}
+.rating-btn{padding:13px 8px;border:0.5px solid var(--border2);border-radius:var(--r);cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;transition:all .15s;text-align:center;}
+.r-forgot{background:rgba(240,107,107,.1);border-color:rgba(240,107,107,.3);color:var(--red);}
+.r-forgot:hover{background:rgba(240,107,107,.18);}
+.r-hard{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:var(--amber);}
+.r-hard:hover{background:rgba(245,158,11,.18);}
+.r-easy{background:rgba(61,214,140,.1);border-color:rgba(61,214,140,.3);color:var(--green);}
+.r-easy:hover{background:rgba(61,214,140,.18);}
+.rating-sub{display:flex;justify-content:space-around;font-size:10px;color:var(--text3);margin-top:4px;padding:0 4px;}
+
+/* Session complete */
+.complete-screen{text-align:center;padding:24px 0;}
+.complete-icon{font-size:72px;margin-bottom:12px;filter:drop-shadow(0 0 20px rgba(124,109,240,.4));}
+.complete-title{font-family:'Syne',sans-serif;font-size:clamp(20px,5vw,28px);font-weight:800;margin-bottom:8px;}
+.complete-sub{font-size:14px;color:var(--text2);line-height:1.65;max-width:320px;margin:0 auto 24px;}
+.complete-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
+.cs{background:var(--s1);border:0.5px solid var(--border);border-radius:var(--rl);padding:14px;text-align:center;}
+.cs-n{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:3px;}
+.cs-l{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);}
+.next-due-box{background:var(--s2);border:0.5px solid var(--border);border-radius:var(--rl);padding:14px 18px;text-align:center;margin-bottom:16px;}
+.ndb-l{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+.ndb-v{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--purple2);}
+
+/* ── BOTTOM BUTTON ── */
+#bottom{padding:14px 18px;flex-shrink:0;border-top:0.5px solid var(--border);background:var(--bg);}
+.btn{width:100%;padding:16px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;border:none;border-radius:var(--rl);cursor:pointer;transition:all .18s;letter-spacing:.01em;}
+.btn-go{background:linear-gradient(135deg,var(--purple),#5b2fd4);color:#fff;}
+.btn-go:active{opacity:.88;}
+.btn-secondary{background:var(--s2);border:0.5px solid var(--border2);color:var(--text2);}
+.btn-done{background:linear-gradient(135deg,var(--green),#16a34a);color:#0c0c10;}
+.btn-hidden{display:none;}
+
+/* Decorative */
+.bg-blob{position:fixed;pointer-events:none;border-radius:50%;filter:blur(80px);opacity:.05;z-index:0;}
+.b1{width:300px;height:300px;background:var(--purple);top:-80px;right:-60px;}
+.b2{width:240px;height:240px;background:#3dd68c;bottom:-60px;left:-60px;}
+@media(min-width:600px){#bar,#bottom,.screen{padding-left:28px;padding-right:28px;}}
+</style>
+</head>
+<body>
+<div class="bg-blob b1"></div>
+<div class="bg-blob b2"></div>
+
+<div id="app">
+  <div id="bar">
+    <div class="bar-logo" onclick="goHome()">MED-ED · Review</div>
+    <div class="bar-right">
+      <div class="bar-pill pill-amber">⚡ <span id="bar-xp">0</span> XP</div>
+      <div class="bar-pill pill-red">🔥 <span id="bar-streak">0</span></div>
+    </div>
+  </div>
+
+  <div id="stage">
+    <!-- HOME -->
+    <div class="screen" id="home-screen">
+      <div class="scene">
+        <div class="home-hero">
+          <div class="home-date" id="home-date"></div>
+          <div class="home-title">Your daily<br><em>review</em></div>
+          <div class="home-sub">Cards due today based on what you've studied. 3 minutes keeps everything fresh.</div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-n" id="stat-due" style="color:var(--amber)">0</div>
+            <div class="stat-l">Due today</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-n" id="stat-total" style="color:var(--purple2)">0</div>
+            <div class="stat-l">Total cards</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-n" id="stat-streak" style="color:var(--green)">0</div>
+            <div class="stat-l">Day streak</div>
+          </div>
+        </div>
+        <div id="home-body"></div>
+      </div>
+    </div>
+
+    <!-- SESSION -->
+    <div class="screen hidden" id="session-screen">
+      <div class="scene">
+        <div class="session-progress">
+          <div class="sp-row">
+            <span class="sp-label" id="sp-label">Card 1 of 7</span>
+            <span class="sp-count" id="sp-xp">+0 XP</span>
+          </div>
+          <div class="sp-track"><div class="sp-fill" id="sp-fill" style="width:0%"></div></div>
+        </div>
+        <div id="card-content"></div>
+      </div>
+    </div>
+
+    <!-- COMPLETE -->
+    <div class="screen hidden" id="complete-screen">
+      <div class="scene">
+        <div class="complete-screen">
+          <div class="complete-icon" id="comp-icon">🎉</div>
+          <div class="complete-title" id="comp-title">Session done!</div>
+          <div class="complete-sub" id="comp-sub"></div>
+          <div class="complete-stats">
+            <div class="cs"><div class="cs-n" id="comp-correct" style="color:var(--green)">0</div><div class="cs-l">Correct</div></div>
+            <div class="cs"><div class="cs-n" id="comp-xp" style="color:var(--amber)">0</div><div class="cs-l">XP earned</div></div>
+            <div class="cs"><div class="cs-n" id="comp-cards" style="color:var(--purple2)">0</div><div class="cs-l">Reviewed</div></div>
+          </div>
+          <div class="next-due-box">
+            <div class="ndb-l">Next review</div>
+            <div class="ndb-v" id="comp-next">Tomorrow</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="bottom">
+    <button class="btn btn-go" id="main-btn">Start review →</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  CARD DEFINITIONS
+//  Each card has: id, disease, chapter, type (recall/recognition/snap), content
+// ════════════════════════════════════════
+const ALL_CARDS = [
+
+  // ── ALS CH0: The patient ──
+  { id:'als_ch0_paradox', disease:'ALS', chapter:0, chapter_name:'The patient walks in',
+    type:'recognition',
+    q:'You find brisk reflexes AND muscle wasting in the same hand. Why is this paradoxical?',
+    opts:['Brisk reflexes are normal in wasted muscles from disuse',
+          'UMN death causes brisk reflexes while LMN death causes wasting — both dying simultaneously is almost unique to ALS',
+          'Wasting increases reflex speed by reducing the load on tendons',
+          'This only occurs in cervical myelopathy'],
+    correct:1,
+    explain:'Most diseases hit UMN or LMN. ALS hits both simultaneously — brisk reflexes from UMN loss of inhibition, wasting from LMN denervation. Finding them together in the same region is the clinical signature of ALS.' },
+
+  { id:'als_ch0_split_hand', disease:'ALS', chapter:0, chapter_name:'The patient walks in',
+    type:'snap',
+    context:'A 56-year-old has weakness in his right hand for 6 months. You notice the thumb pad is hollowed out but the pinky side of the hand looks normal.',
+    q:'What is this sign called and what does it suggest?',
+    opts:['Claw hand — suggests ulnar nerve palsy',
+          'Split hand sign — suggests ALS (thenar + 1st DI wasted, hypothenar spared)',
+          'Thenar wasting only — suggests carpal tunnel syndrome',
+          'Benediction sign — suggests median nerve injury'],
+    correct:1,
+    explain:'Split hand sign = thenar eminence + first dorsal interosseous wasted, hypothenar spared. Almost pathognomonic for ALS. In carpal tunnel syndrome, thenar wasting occurs but without UMN signs and with sensory symptoms.' },
+
+  // ── ALS CH1: Two-neuron relay ──
+  { id:'als_ch1_umn_signs', disease:'ALS', chapter:1, chapter_name:'The two-neuron relay',
+    type:'recall',
+    q:'Name 4 UMN signs you would look for in ALS.',
+    answer:'<strong>Spasticity</strong> (clasp-knife resistance) · <strong>Hyperreflexia</strong> (exaggerated tendon jerk) · <strong>Babinski positive</strong> (big toe extends UP when sole stroked) · <strong>Clonus</strong> (rhythmic jerking when foot held in dorsiflexion) · <strong>Hoffman sign</strong> (flick middle fingernail → thumb flexes)',
+    explain:'UMN signs all come from loss of cortical inhibition — everything becomes overactive. Remember SHBACH: Spasticity, Hyperreflexia, Babinski, Absent superficial reflexes, Clonus, Hoffman.' },
+
+  { id:'als_ch1_babinski', disease:'ALS', chapter:1, chapter_name:'The two-neuron relay',
+    type:'recognition',
+    q:'You stroke the sole of a patient\'s foot. The big toe extends upward. What does this mean?',
+    opts:['Normal response — the toe always extends with plantar stimulation',
+          'Babinski sign positive — indicates UMN lesion, always pathological in adults',
+          'Babinski sign negative — normal plantar reflex',
+          'LMN sign — indicates peripheral nerve damage'],
+    correct:1,
+    explain:'In adults, the normal response is the big toe CURLING DOWN (plantarflexion). Extension upward = Babinski positive = UMN lesion. Always pathological in adults — the upgoing toe in a wasted, fasciculating limb is the hallmark of ALS.' },
+
+  { id:'als_ch1_fasciculations', disease:'ALS', chapter:1, chapter_name:'The two-neuron relay',
+    type:'recall',
+    q:'What are fasciculations and why do they occur in ALS?',
+    answer:'<strong>Fasciculations</strong> are visible spontaneous twitches under the skin caused by the random firing of dying motor neurons before they go permanently silent. They represent LMN involvement — the muscle\'s nerve supply is failing. They are seen, not felt by the patient as weakness.',
+    explain:'Fasciculations = LMN sign. The dying neuron fires chaotically before it goes silent. They\'re visible as tiny twitches. On EMG they appear as fasciculation potentials. Tongue fasciculations at rest are highly specific for bulbar LMN involvement in ALS.' },
+
+  // ── ALS CH2: Inside the neuron ──
+  { id:'als_ch2_tdp43', disease:'ALS', chapter:2, chapter_name:'Inside the neuron',
+    type:'recognition',
+    q:'TDP-43 aggregates are found in what percentage of all ALS cases?',
+    opts:['40%', '65%', '97%', '100%'],
+    correct:2,
+    explain:'TDP-43 cytoplasmic aggregates are found in 97% of ALL ALS — sporadic and familial alike. This makes TDP-43 the unifying molecular hallmark of the disease, regardless of what genetic mutation or trigger initiated the cascade. It\'s the common final pathway.' },
+
+  { id:'als_ch2_riluzole_mechanism', disease:'ALS', chapter:2, chapter_name:'Inside the neuron',
+    type:'recognition',
+    q:'Exactly how does riluzole work in ALS?',
+    opts:['Scavenges reactive oxygen species from mitochondria',
+          'Blocks presynaptic Na⁺ channels → reduces glutamate release → less excitotoxicity',
+          'Binds SOD1 mRNA to prevent toxic protein production',
+          'Reduces microglial M1 activation and neuroinflammation'],
+    correct:1,
+    explain:'Riluzole blocks voltage-gated Na⁺ channels on presynaptic motor neuron terminals → less glutamate released → less excitotoxic Ca²⁺ influx at step 3 of the cascade. Edaravone targets step 4 (ROS). Tofersen targets SOD1 mRNA. No approved drug directly targets neuroinflammation.' },
+
+  { id:'als_ch2_cascade_order', disease:'ALS', chapter:2, chapter_name:'Inside the neuron',
+    type:'snap',
+    context:'A patient asks why riluzole only added about 3 months to his survival when it directly targets a key mechanism.',
+    q:'What is the best explanation?',
+    opts:['Riluzole is underdosed in clinical practice',
+          'Riluzole only works in familial ALS not sporadic',
+          'Blocking one step barely slows the other self-amplifying steps — oxidative stress, neuroinflammation, and axon retraction keep running',
+          'By symptom onset the disease is already too advanced for any drug to work'],
+    correct:2,
+    explain:'ALS is a cascade where each step amplifies the next. Riluzole blocks step 3 (excitotoxicity) but steps 4 (ROS storm), 5 (neuroinflammation) and 6 (axon retraction) continue. This is why combining drugs targeting different steps makes more biological sense than monotherapy.' },
+
+  { id:'als_ch2_motor_neuron_flaws', disease:'ALS', chapter:2, chapter_name:'Inside the neuron',
+    type:'recall',
+    q:'Why are motor neurons uniquely vulnerable in ALS? Give 3 reasons.',
+    answer:'1. <strong>Enormous axon length</strong> (>1 metre) — extreme metabolic demand, any energy failure is catastrophic. 2. <strong>No calcium buffering</strong> — almost zero calbindin or parvalbumin, so Ca²⁺ floods cause direct damage. 3. <strong>Ca²⁺-permeable AMPA receptors</strong> — low GluR2 subunit means calcium enters with every glutamate signal.',
+    explain:'A fourth flaw: neurofilament transport blockage cuts the neuron off from its own muscle target. Together these make motor neurons a "skyscraper with no fire exits" — uniquely exposed to every mechanism of ALS pathology.' },
+
+  // ── ALS CH3: Diagnosis ──
+  { id:'als_ch3_el_escorial', disease:'ALS', chapter:3, chapter_name:'Cracking the diagnosis',
+    type:'recognition',
+    q:'What defines "Definite ALS" by the El Escorial criteria?',
+    opts:['UMN signs in 2 body regions',
+          'LMN signs in 3 body regions on EMG',
+          'UMN + LMN signs in 3 or more of the 4 body regions (Bulbar, Cervical, Thoracic, Lumbosacral)',
+          'UMN + LMN in 2 regions with UMN signs rostral to LMN'],
+    correct:2,
+    explain:'Definite ALS = UMN + LMN signs in 3+ regions. The 4 regions are Bulbar, Cervical, Thoracic, Lumbosacral (BCTL). Awaji criteria allow EMG findings to substitute for clinical LMN signs, enabling earlier diagnosis. 2 regions = Probable ALS.' },
+
+  { id:'als_ch3_emg', disease:'ALS', chapter:3, chapter_name:'Cracking the diagnosis',
+    type:'snap',
+    context:'A 52-year-old presents with progressive asymmetric limb weakness, brisk reflexes, and tongue fasciculations. You suspect ALS.',
+    q:'What is the single most important investigation to order?',
+    opts:['MRI brain + spinal cord',
+          'EMG and nerve conduction studies',
+          'Serum CK and LFTs',
+          'GM1 ganglioside antibodies'],
+    correct:1,
+    explain:'EMG is the cornerstone — it shows active denervation (fibrillations, positive sharp waves, fasciculation potentials) across multiple myotomes, confirming LMN involvement beyond what\'s clinically visible. Normal NCS simultaneously excludes peripheral neuropathy and MMN. MRI is essential to exclude structural mimics but doesn\'t confirm ALS.' },
+
+  { id:'als_ch3_mmn', disease:'ALS', chapter:3, chapter_name:'Cracking the diagnosis',
+    type:'recognition',
+    q:'A patient has progressive asymmetric arm weakness with wasting but NO UMN signs anywhere. GM1 antibodies come back positive. What is the diagnosis and treatment?',
+    opts:['ALS — start riluzole',
+          'Kennedy disease — genetic counselling only',
+          'Multifocal motor neuropathy (MMN) — start IVIG, this is treatable',
+          'Cervical myelopathy — arrange spinal surgery'],
+    correct:2,
+    explain:'MMN is the most important treatable mimic of ALS. Key features: LMN signs only (no UMN ever), GM1 antibody positive, responds dramatically to IVIG. Missing this diagnosis condemns a treatable patient to an ALS label. Always check GM1 antibodies before accepting an ALS diagnosis.' },
+
+  // ── ALS CH4: Treatment ──
+  { id:'als_ch4_ret', disease:'ALS', chapter:4, chapter_name:'What we can do',
+    type:'recall',
+    q:'Name the 3 disease-modifying drugs in ALS (RET), their mechanisms, and who gets each.',
+    answer:'<strong>Riluzole</strong> — blocks glutamate release via Na⁺ channel blockade, given to everyone. <strong>Edaravone</strong> — free radical scavenger (ROS), given to early cases with FVC >80%. <strong>Tofersen</strong> — ASO reducing SOD1 protein via mRNA binding, SOD1-mutation carriers only.',
+    explain:'RET = Riluzole (Reduces glutamate) + Edaravone (Eliminates free radicals) + Tofersen (Targets SOD1 mRNA). The eligibility criteria for edaravone (FVC >80%) and tofersen (SOD1 mutation) are commonly tested.' },
+
+  { id:'als_ch4_fvc_threshold', disease:'ALS', chapter:4, chapter_name:'What we can do',
+    type:'recognition',
+    q:'At what FVC threshold should you strongly recommend starting NIV (BiPAP) in ALS?',
+    opts:['FVC <80%', 'FVC <65%', 'FVC <50%', 'FVC <30%'],
+    correct:2,
+    explain:'FVC <50% = strongly recommend NIV. Earlier consideration (50-80%) if symptomatic (morning headache, orthopnoea, disturbed sleep). NIV extends survival 7-13 months and dramatically improves quality of life. Morning headache = nocturnal CO₂ retention = act today.' },
+
+  { id:'als_ch4_scream', disease:'ALS', chapter:4, chapter_name:'What we can do',
+    type:'snap',
+    context:'A patient with ALS has excessive drooling that\'s severely affecting his quality of life. He is embarrassed in social situations.',
+    q:'What is the first-line treatment?',
+    opts:['Botulinum toxin to salivary glands',
+          'Amitriptyline — anticholinergic effect dries secretions',
+          'Hyoscine transdermal patch',
+          'Glycopyrrolate oral'],
+    correct:1,
+    explain:'Amitriptyline is first-line for sialorrhoea (drooling) in ALS — its anticholinergic properties reduce salivary secretions. It also helps with pseudobulbar affect and sleep. Hyoscine and glycopyrrolate are alternatives. Botulinum toxin to salivary glands is reserved for severe, refractory cases.' },
+
+  { id:'als_ch4_pseudobulbar', disease:'ALS', chapter:4, chapter_name:'What we can do',
+    type:'snap',
+    context:'A patient with ALS laughs uncontrollably at things that aren\'t funny. He is embarrassed and his family thinks something psychiatric is happening.',
+    q:'What is this, and what do you prescribe?',
+    opts:['Depression — start an SSRI',
+          'Pseudobulbar affect from UMN loss — dextromethorphan/quinidine (Nuedexta)',
+          'Mania — start a mood stabiliser',
+          'Anxiety — start a benzodiazepine'],
+    correct:1,
+    explain:'Pseudobulbar affect = involuntary emotional expression from UMN loss of cortical inhibition over brainstem emotional circuits. The patient\'s MOOD is normal — the expression is dysregulated. Dextromethorphan/quinidine (Nuedexta) has level I RCT evidence. This is a UMN sign, not a psychiatric disorder. Reassure the family clearly.' },
+
+  { id:'als_ch4_peg_timing', disease:'ALS', chapter:4, chapter_name:'What we can do',
+    type:'recognition',
+    q:'When should you insert a PEG tube in ALS?',
+    opts:['Only when the patient can no longer swallow at all',
+          'Before FVC drops below 50% — anaesthetic risk rises sharply below this threshold',
+          'At the same time as starting NIV regardless of FVC',
+          'Only when BMI drops below 18'],
+    correct:1,
+    explain:'PEG tube should be placed BEFORE FVC drops below 50% because the sedation/anaesthetic risk for the procedure increases significantly at lower FVC. Plan ahead — don\'t wait for a nutritional crisis. PEG maintains nutrition, prevents aspiration pneumonia, and allows medication delivery.' },
+
+  // ── ALS CH5: Full case ──
+  { id:'als_ch5_morning_headache', disease:'ALS', chapter:5, chapter_name:'The full case',
+    type:'snap',
+    context:'Jan calls — he has morning headaches every day and wakes breathless at night. He has ALS and FVC is currently 52%.',
+    q:'What does the morning headache signify and what do you do immediately?',
+    opts:['Medication side effect — adjust riluzole timing',
+          'Nocturnal CO₂ retention from diaphragm weakness — arrange urgent spirometry + start NIV',
+          'Migraine — treat with analgesia',
+          'Raised intracranial pressure — urgent MRI brain'],
+    correct:1,
+    explain:'Morning headache in ALS = nocturnal CO₂ retention until proven otherwise. Weakened diaphragm cannot adequately ventilate during sleep → CO₂ builds → vasodilation → headache on waking. This is a respiratory emergency. Arrange urgent spirometry and overnight oximetry. Start NIV (BiPAP) immediately. FVC 52% is above the threshold but symptoms mandate action now.' },
+
+  { id:'als_ch5_atlas_trial', disease:'ALS', chapter:5, chapter_name:'The full case',
+    type:'recognition',
+    q:'Jan\'s cousin has a confirmed SOD1 mutation but no symptoms. What can be offered to her?',
+    opts:['Nothing — wait until symptoms develop before any intervention',
+          'Riluzole prophylactically — standard of care for all SOD1 carriers',
+          'Referral for the ATLAS trial — pre-symptomatic tofersen may delay or prevent ALS onset',
+          'Annual MRI surveillance only'],
+    correct:2,
+    explain:'The ATLAS trial gives tofersen to pre-symptomatic SOD1 carriers — attempting to prevent ALS before it starts. NfL (neurofilament light chain) rises in blood years before symptoms, enabling early monitoring. If successful, it would be the first prevention trial to succeed in any neurodegenerative disease. Genetic counselling should accompany any pre-symptomatic testing.' },
+];
+
+// ════════════════════════════════════════
+//  SM-2 SPACED REPETITION ALGORITHM
+// ════════════════════════════════════════
+function sm2Update(card, quality) {
+  // quality: 0=forgot, 1=hard, 2=easy
+  // SM-2 grades: 0-2 → fail (quality<3 in original), 3-5 → pass
+  // We map: forgot=0, hard=3, easy=5
+  const q = quality === 0 ? 0 : quality === 1 ? 3 : 5;
+
+  if (q < 3) {
+    // Failed — reset to 1 day
+    card.interval = 1;
+    card.repetitions = 0;
+  } else {
+    if (card.repetitions === 0) card.interval = 1;
+    else if (card.repetitions === 1) card.interval = 3;
+    else card.interval = Math.round(card.interval * card.easeFactor);
+    card.repetitions++;
+  }
+
+  // Update ease factor
+  card.easeFactor = Math.max(1.3,
+    card.easeFactor + 0.1 - (5 - q) * (0.08 + (5 - q) * 0.02)
+  );
+
+  // Set next due date
+  const nextDate = new Date();
+  nextDate.setDate(nextDate.getDate() + card.interval);
+  nextDate.setHours(0, 0, 0, 0);
+  card.dueDate = nextDate.getTime();
+
+  return card;
+}
+
+// ════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════
+let state = {
+  xp: 0,
+  streak: 0,
+  lastReviewDate: null,
+  cards: {}  // card_id → {interval, easeFactor, repetitions, dueDate}
+};
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('meded_review_state');
+    if (saved) state = JSON.parse(saved);
+    // Also check XP from the learning app
+    const learningXP = +localStorage.getItem('als2_xp') || 0;
+    state.xp = Math.max(state.xp, learningXP);
+  } catch(e) {}
+  // Seed any new cards from completed chapters
+  seedCards();
+}
+
+function saveState() {
+  localStorage.setItem('meded_review_state', JSON.stringify(state));
+  localStorage.setItem('als2_xp', state.xp);
+}
+
+function seedCards() {
+  // Check which chapters are done in the learning app
+  const doneLearning = JSON.parse(localStorage.getItem('als2_done') || '[]');
+  const now = Date.now();
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+
+  ALL_CARDS.forEach(card => {
+    if (doneLearning.includes(card.chapter) && !state.cards[card.id]) {
+      // New card — due today
+      state.cards[card.id] = {
+        interval: 1,
+        easeFactor: 2.5,
+        repetitions: 0,
+        dueDate: now,
+        disease: card.disease,
+        chapter: card.chapter
+      };
+    }
+  });
+  saveState();
+}
+
+function getDueCards() {
+  const now = Date.now();
+  return ALL_CARDS.filter(card =>
+    state.cards[card.id] &&
+    state.cards[card.id].dueDate <= now
+  );
+}
+
+function getTotalCards() {
+  return Object.keys(state.cards).length;
+}
+
+function getNextDueTime() {
+  const upcoming = Object.values(state.cards)
+    .map(c => c.dueDate)
+    .filter(d => d > Date.now())
+    .sort((a, b) => a - b);
+  if (!upcoming.length) return null;
+  return upcoming[0];
+}
+
+function updateStreak() {
+  const today = new Date().toDateString();
+  if (state.lastReviewDate === today) return;
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (state.lastReviewDate === yesterday.toDateString()) {
+    state.streak++;
+  } else if (state.lastReviewDate !== today) {
+    state.streak = 1;
+  }
+  state.lastReviewDate = today;
+}
+
+// ════════════════════════════════════════
+//  UI HELPERS
+// ════════════════════════════════════════
+function formatNextDue(ts) {
+  if (!ts) return '—';
+  const diff = ts - Date.now();
+  const hours = Math.ceil(diff / 3600000);
+  if (hours <= 1) return 'In less than 1 hour';
+  if (hours < 24) return `In ${hours} hours`;
+  const days = Math.ceil(diff / 86400000);
+  if (days === 1) return 'Tomorrow';
+  return `In ${days} days`;
+}
+
+function todayStr() {
+  return new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long'});
+}
+
+function diseaseColour(disease) {
+  const map = { ALS:'rgba(124,109,240,.18)', 'Parkinson\'s':'rgba(245,158,11,.15)', MS:'rgba(91,164,245,.15)' };
+  return map[disease] || 'rgba(124,109,240,.18)';
+}
+
+function diseaseIcon(disease) {
+  const map = { ALS:'⚡', 'Parkinson\'s':'🧠', MS:'🛡️' };
+  return map[disease] || '🧬';
+}
+
+// Group due cards by disease
+function groupByDisease(cards) {
+  const groups = {};
+  cards.forEach(c => {
+    if (!groups[c.disease]) groups[c.disease] = [];
+    groups[c.disease].push(c);
+  });
+  return groups;
+}
+
+// ════════════════════════════════════════
+//  SCREENS
+// ════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function goHome() {
+  loadState();
+  renderHome();
+  showScreen('home-screen');
+  const btn = document.getElementById('main-btn');
+  const due = getDueCards();
+  if (due.length > 0) {
+    btn.textContent = `Start review — ${due.length} card${due.length > 1 ? 's' : ''} →`;
+    btn.className = 'btn btn-go';
+    btn.onclick = startSession;
+  } else {
+    btn.textContent = 'No cards due — come back later';
+    btn.className = 'btn btn-secondary';
+    btn.onclick = null;
+  }
+}
+
+function renderHome() {
+  const due = getDueCards();
+  const total = getTotalCards();
+  const doneLearning = JSON.parse(localStorage.getItem('als2_done') || '[]');
+
+  document.getElementById('home-date').textContent = todayStr();
+  document.getElementById('stat-due').textContent = due.length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-streak').textContent = state.streak;
+  document.getElementById('bar-xp').textContent = state.xp;
+  document.getElementById('bar-streak').textContent = state.streak + ' day' + (state.streak !== 1 ? 's' : '');
+
+  const body = document.getElementById('home-body');
+
+  if (total === 0) {
+    // No cards at all — user hasn't studied anything yet
+    body.innerHTML = `
+      <div class="unlock-prompt">
+        <div class="unlock-icon">🔒</div>
+        <div class="unlock-title">No cards yet</div>
+        <div class="unlock-sub">Complete chapters in the ALS module to unlock review cards. Cards appear here automatically once you've learned the material.</div>
+      </div>
+      <a href="als-discover.html" style="display:block;text-decoration:none">
+        <div style="background:var(--s1);border:0.5px solid var(--border);border-radius:var(--rl);padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer">
+          <div style="width:40px;height:40px;border-radius:10px;background:rgba(124,109,240,.18);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⚡</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px">ALS module</div>
+            <div style="font-size:12px;color:var(--text3)">${doneLearning.length}/6 chapters complete</div>
+          </div>
+          <div style="margin-left:auto;font-size:14px;color:var(--text3)">→</div>
+        </div>
+      </a>`;
+    return;
+  }
+
+  if (due.length === 0) {
+    const next = getNextDueTime();
+    body.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">✅</div>
+        <div class="empty-title">All caught up!</div>
+        <div class="empty-sub">You've reviewed everything that's due. Your brain is consolidating the knowledge right now. Come back when the next batch is ready.</div>
+      </div>
+      <div class="next-review">
+        <div class="next-lbl">Next cards due</div>
+        <div class="next-time">${formatNextDue(next)}</div>
+      </div>
+      <a href="als-discover.html" style="display:block;text-decoration:none">
+        <div style="background:var(--s1);border:0.5px solid rgba(124,109,240,.2);border-radius:var(--rl);padding:14px 16px;display:flex;align-items:center;gap:12px;text-align:left">
+          <div style="font-size:20px">📖</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px">Study new material</div>
+            <div style="font-size:12px;color:var(--text3)">Continue the ALS module →</div>
+          </div>
+        </div>
+      </a>`;
+    return;
+  }
+
+  // Show cards due by disease
+  const groups = groupByDisease(due);
+  const listHTML = Object.entries(groups).map(([disease, cards]) => `
+    <div class="due-card">
+      <div class="due-icon" style="background:${diseaseColour(disease)}">${diseaseIcon(disease)}</div>
+      <div class="due-info">
+        <div class="due-disease">${disease}</div>
+        <div class="due-count">${cards.length} card${cards.length > 1 ? 's' : ''} due</div>
+      </div>
+      <div class="due-badge" style="background:rgba(245,158,11,.12);color:var(--amber);border:0.5px solid rgba(245,158,11,.25)">
+        ~${Math.ceil(cards.length * 0.4)} min
+      </div>
+    </div>`).join('');
+
+  body.innerHTML = `
+    <div class="section-lbl">Due today</div>
+    <div class="due-list">${listHTML}</div>`;
+}
+
+// ════════════════════════════════════════
+//  SESSION
+// ════════════════════════════════════════
+let session = {
+  queue: [],
+  current: 0,
+  xpEarned: 0,
+  correct: 0,
+  answered: false,
+  revealed: false,
+  selectedOpt: -1,
+};
+
+function startSession() {
+  const due = getDueCards();
+  if (!due.length) return;
+
+  // Shuffle due cards
+  session.queue = due.sort(() => Math.random() - 0.5);
+  session.current = 0;
+  session.xpEarned = 0;
+  session.correct = 0;
+  session.answered = false;
+  session.revealed = false;
+  session.selectedOpt = -1;
+
+  showScreen('session-screen');
+  renderCard();
+
+  const btn = document.getElementById('main-btn');
+  btn.className = 'btn btn-secondary';
+  btn.textContent = 'Show answer';
+  btn.onclick = handleSessionBtn;
+}
+
+function renderCard() {
+  const card = session.queue[session.current];
+  const total = session.queue.length;
+  const pct = (session.current / total) * 100;
+
+  document.getElementById('sp-label').textContent = `Card ${session.current + 1} of ${total}`;
+  document.getElementById('sp-xp').textContent = `+${session.xpEarned} XP`;
+  document.getElementById('sp-fill').style.width = pct + '%';
+
+  session.answered = false;
+  session.revealed = false;
+  session.selectedOpt = -1;
+
+  const typeLabels = { recall:'🧠 Recall', recognition:'🎯 Recognition', snap:'⚡ Clinical snap' };
+  const typeClasses = { recall:'ct-recall', recognition:'ct-recognition', snap:'ct-snap' };
+
+  let html = `<div class="anim-up">
+    <div class="card-type ${typeClasses[card.type]}">${typeLabels[card.type]}</div>`;
+
+  if (card.context) {
+    html += `<div class="card-context">${card.context}</div>`;
+  }
+
+  html += `<div class="card-q">${card.q}</div>`;
+
+  if (card.type === 'recall') {
+    html += `
+      <div class="recall-hint">Think of your answer, then tap "Show answer"</div>
+      <div class="reveal-card" id="reveal-card">
+        <div class="reveal-label">Answer</div>
+        <div class="reveal-answer">${card.answer}</div>
+      </div>
+      <div class="answer-fb" id="answer-fb"></div>
+      <div class="rating-row" id="rating-row" style="display:none">
+        <button class="rating-btn r-forgot" onclick="rateCard(0)">😰<br>Forgot</button>
+        <button class="rating-btn r-hard" onclick="rateCard(1)">😅<br>Hard</button>
+        <button class="rating-btn r-easy" onclick="rateCard(2)">😊<br>Easy</button>
+      </div>
+      <div class="rating-sub" id="rating-sub" style="display:none">
+        <span>Back to start</span><span>Again soon</span><span>See you later</span>
+      </div>`;
+  } else {
+    html += `<div class="opts" id="opts">`;
+    const letters = ['A','B','C','D'];
+    card.opts.forEach((opt, i) => {
+      html += `<button class="opt" id="opt${i}" onclick="selectOpt(${i})">
+        <div class="opt-letter">${letters[i]}</div>
+        <div class="opt-text">${opt}</div>
+      </button>`;
+    });
+    html += `</div><div class="answer-fb" id="answer-fb"></div>`;
+  }
+
+  html += `</div>`;
+  document.getElementById('card-content').innerHTML = html;
+
+  // Set button
+  const btn = document.getElementById('main-btn');
+  if (card.type === 'recall') {
+    btn.textContent = 'Show answer';
+    btn.className = 'btn btn-secondary';
+  } else {
+    btn.textContent = 'Check';
+    btn.className = 'btn btn-secondary';
+  }
+}
+
+function selectOpt(i) {
+  if (session.answered) return;
+  session.selectedOpt = i;
+  document.querySelectorAll('.opt').forEach((el, j) => {
+    el.classList.remove('dim');
+    if (j === i) el.style.borderColor = 'var(--purple)';
+    else el.classList.add('dim');
+    el.style.borderColor = j === i ? 'var(--purple)' : '';
+  });
+  const btn = document.getElementById('main-btn');
+  btn.textContent = 'Check';
+  btn.className = 'btn btn-go';
+}
+
+function handleSessionBtn() {
+  const card = session.queue[session.current];
+
+  if (card.type === 'recall') {
+    if (!session.revealed) {
+      // Show answer
+      document.getElementById('reveal-card').classList.add('shown');
+      document.getElementById('rating-row').style.display = 'grid';
+      document.getElementById('rating-sub').style.display = 'flex';
+      session.revealed = true;
+      const btn = document.getElementById('main-btn');
+      btn.textContent = 'Rate yourself above ↑';
+      btn.className = 'btn btn-secondary';
+    }
+    return;
+  }
+
+  // Recognition / snap
+  if (!session.answered) {
+    if (session.selectedOpt < 0) return;
+    checkOpt();
+  } else {
+    advanceCard();
+  }
+}
+
+function checkOpt() {
+  const card = session.queue[session.current];
+  const correct = session.selectedOpt === card.correct;
+  session.answered = true;
+
+  document.querySelectorAll('.opt').forEach((el, i) => {
+    el.disabled = true;
+    el.classList.remove('dim');
+    el.style.borderColor = '';
+    if (i === card.correct) el.classList.add('correct');
+    else if (i === session.selectedOpt && !correct) el.classList.add('wrong');
+    else el.classList.add('dim');
+  });
+
+  const fb = document.getElementById('answer-fb');
+  fb.className = 'answer-fb ' + (correct ? 'correct' : 'wrong');
+  fb.innerHTML = `<div class="fb-verdict ${correct?'fb-correct':'fb-wrong'}">${correct ? '✓ Correct!' : '✗ Not quite.'}</div>
+    <div class="fb-explain">${card.explain}</div>`;
+  fb.style.display = 'block';
+
+  // XP
+  const xpGain = correct ? 15 : 5;
+  session.xpEarned += xpGain;
+  if (correct) session.correct++;
+  document.getElementById('sp-xp').textContent = `+${session.xpEarned} XP`;
+
+  // Update card in SM-2
+  const quality = correct ? 2 : 0;
+  const cardState = state.cards[card.id];
+  const updated = sm2Update({ ...cardState }, quality);
+  state.cards[card.id] = updated;
+
+  const btn = document.getElementById('main-btn');
+  btn.textContent = session.current < session.queue.length - 1 ? 'Next card →' : 'Finish →';
+  btn.className = 'btn btn-go';
+}
+
+function rateCard(quality) {
+  // quality: 0=forgot, 1=hard, 2=easy
+  const card = session.queue[session.current];
+  const xpGain = quality === 2 ? 15 : quality === 1 ? 8 : 3;
+  session.xpEarned += xpGain;
+  if (quality >= 1) session.correct++;
+  document.getElementById('sp-xp').textContent = `+${session.xpEarned} XP`;
+
+  // SM-2 update
+  const cardState = state.cards[card.id];
+  const updated = sm2Update({ ...cardState }, quality);
+  state.cards[card.id] = updated;
+
+  // Hide rating, show interval feedback
+  document.getElementById('rating-row').style.display = 'none';
+  document.getElementById('rating-sub').style.display = 'none';
+
+  const nextDays = updated.interval;
+  const fb = document.getElementById('answer-fb');
+  fb.className = 'answer-fb ' + (quality >= 1 ? 'correct' : 'wrong');
+  const nextStr = nextDays === 1 ? 'tomorrow' : `in ${nextDays} days`;
+  fb.innerHTML = `<div class="fb-verdict ${quality >= 1 ? 'fb-correct':'fb-wrong'}">${quality === 2 ? '✓ Great!' : quality === 1 ? '👍 Good.' : '😰 Noted — back soon.'}</div>
+    <div class="fb-explain">This card will come back <strong>${nextStr}</strong>.</div>`;
+  fb.style.display = 'block';
+
+  session.answered = true;
+  const btn = document.getElementById('main-btn');
+  btn.textContent = session.current < session.queue.length - 1 ? 'Next card →' : 'Finish →';
+  btn.className = 'btn btn-go';
+}
+
+function advanceCard() {
+  session.current++;
+  if (session.current >= session.queue.length) {
+    finishSession();
+  } else {
+    renderCard();
+  }
+}
+
+function finishSession() {
+  // Commit XP and streak
+  state.xp += session.xpEarned;
+  updateStreak();
+  saveState();
+
+  // Render complete screen
+  const total = session.queue.length;
+  const pct = Math.round(session.correct / total * 100);
+  const next = getNextDueTime();
+
+  document.getElementById('comp-icon').textContent = pct >= 80 ? '🏆' : pct >= 60 ? '🎉' : '📖';
+  document.getElementById('comp-title').textContent = pct >= 80 ? 'Outstanding!' : pct >= 60 ? 'Good session!' : 'Keep practising';
+  document.getElementById('comp-sub').textContent = pct >= 80
+    ? 'Your retention is excellent. The cards are moving to longer intervals.'
+    : pct >= 60
+    ? 'Solid session. Tricky cards will come back sooner for extra practice.'
+    : 'The spaced repetition will bring back the tough ones more frequently. It\'ll click.';
+  document.getElementById('comp-correct').textContent = session.correct;
+  document.getElementById('comp-xp').textContent = '+' + session.xpEarned;
+  document.getElementById('comp-cards').textContent = total;
+  document.getElementById('comp-next').textContent = formatNextDue(next);
+  document.getElementById('sp-fill').style.width = '100%';
+
+  showScreen('complete-screen');
+
+  const btn = document.getElementById('main-btn');
+  btn.textContent = 'Back to home';
+  btn.className = 'btn btn-done';
+  btn.onclick = goHome;
+}
+
+// ════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════
+document.getElementById('main-btn').addEventListener('click', handleSessionBtn);
+loadState();
+goHome();
+</script>
+</body>
+</html>
