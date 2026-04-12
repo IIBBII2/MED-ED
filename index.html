@@ -229,9 +229,61 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);}
   #bar,#bottom,.screen{padding-left:24px;padding-right:24px;}
   .moment-visual{max-width:420px;}
 }
+
+/* ══ GAMIFICATION LAYER ══ */
+/* Confetti */
+#confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1000;display:none;}
+
+/* XP float */
+.xp-float{position:fixed;pointer-events:none;font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--amber);text-shadow:0 0 16px rgba(245,158,11,.6);z-index:999;animation:xpFloat 1s cubic-bezier(.4,0,.2,1) forwards;}
+@keyframes xpFloat{0%{opacity:1;transform:translateY(0) scale(1);}60%{opacity:1;transform:translateY(-55px) scale(1.15);}100%{opacity:0;transform:translateY(-80px) scale(.9);}}
+
+/* Combo banner */
+#combo-banner{position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:998;pointer-events:none;display:none;}
+.combo-inner{background:linear-gradient(135deg,#f5a623,#ef4444);color:#fff;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;padding:10px 22px;border-radius:40px;white-space:nowrap;box-shadow:0 4px 24px rgba(245,166,35,.45);animation:comboPop .4s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes comboPop{from{opacity:0;transform:scale(.6);}to{opacity:1;transform:scale(1);}}
+@keyframes comboFade{to{opacity:0;transform:translateY(-12px) scale(.9);}}
+.combo-fade{animation:comboFade .35s ease forwards!important;}
+
+/* Achievement toasts */
+#toast-container{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);z-index:997;pointer-events:none;display:flex;flex-direction:column-reverse;gap:8px;align-items:center;}
+.achievement-toast{background:rgba(30,30,40,.96);border:0.5px solid rgba(124,109,240,.5);border-radius:40px;padding:10px 18px;display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,.5);animation:toastIn .4s cubic-bezier(.34,1.56,.64,1) both;white-space:nowrap;backdrop-filter:blur(8px);}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px) scale(.9);}to{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-10px) scale(.95);}}
+.achievement-toast.out{animation:toastOut .3s ease forwards;}
+
+/* Level-up modal */
+#levelup-modal{position:fixed;inset:0;z-index:1001;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);}
+#levelup-modal.show{display:flex;}
+.levelup-card{background:var(--surface);border:0.5px solid rgba(124,109,240,.45);border-radius:var(--rl);padding:36px 28px 28px;text-align:center;max-width:320px;width:100%;animation:luPop .45s cubic-bezier(.34,1.56,.64,1);}
+@keyframes luPop{from{opacity:0;transform:scale(.75);}to{opacity:1;transform:scale(1);}}
+.lu-emoji{font-size:68px;margin-bottom:10px;filter:drop-shadow(0 0 24px rgba(124,109,240,.5));}
+.lu-eyebrow{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--purple2);margin-bottom:6px;}
+.lu-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--purple),var(--purple2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+.lu-sub{font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:24px;}
+.lu-btn{width:100%;padding:15px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;background:linear-gradient(135deg,var(--purple),#5b2fd4);color:#fff;border:none;border-radius:var(--rl);cursor:pointer;letter-spacing:.02em;}
+.lu-btn:active{opacity:.88;}
+
+/* Bar XP pulse */
+@keyframes barPulse{0%,100%{box-shadow:none;}50%{box-shadow:0 0 12px rgba(245,158,11,.5);}}
+.bar-pulse{animation:barPulse .5s ease;}
 </style>
 </head>
 <body>
+<!-- Gamification layer -->
+<canvas id="confetti-canvas"></canvas>
+<div id="combo-banner"></div>
+<div id="toast-container"></div>
+<div id="levelup-modal">
+  <div class="levelup-card">
+    <div class="lu-emoji" id="lu-emoji">⭐</div>
+    <div class="lu-eyebrow">Level Up!</div>
+    <div class="lu-title" id="lu-title">Level 2</div>
+    <div class="lu-sub" id="lu-sub">You're on your way!</div>
+    <button class="lu-btn" onclick="closeLevelup()">Let's keep going! 🚀</button>
+  </div>
+</div>
+
 <div class="bg-blob blob1"></div>
 <div class="bg-blob blob2"></div>
 
@@ -1184,6 +1236,236 @@ function goBack(){
     showMap();
   }
 }
+
+// ══════════════════════════
+//  GAMIFICATION ENGINE
+// ══════════════════════════
+
+// ── LEVEL SYSTEM ──
+const LEVEL_XP    = [0,100,250,450,700,1000,1400,1900,2500,3200,4000];
+const LEVEL_NAMES = ['','Intern','Resident','Senior Resident','Registrar','Fellow','Attending','Specialist','Consultant','Chief','Professor'];
+const LEVEL_EMOJIS= ['','🩺','🔬','💉','🧠','⭐','🏆','🎓','👨‍⚕️','🌟','👑'];
+const LEVEL_MSGS  = [
+  'You\'re just getting started. The nervous system awaits.',
+  'Two chapters in — the UMN/LMN paradox is clicking.',
+  'You can explain the death cascade. That\'s impressive.',
+  'Diagnosis unlocked. You\'re thinking like a neurologist.',
+  'Treatment protocols locked in your memory.',
+  'You could present an ALS case right now. Seriously.',
+  'More than most interns know. Keep going.',
+  'Your attending would be genuinely impressed.',
+  'Consultant-level knowledge of ALS.',
+  'You literally wrote the manual.',
+];
+
+function getLevel(xp){
+  for(let i=LEVEL_XP.length-1;i>=0;i--) if(xp>=LEVEL_XP[i]) return i+1;
+  return 1;
+}
+
+let _lastLevel = getLevel(XP);
+
+function checkLevelUp(){
+  const lv = getLevel(XP);
+  if(lv > _lastLevel){
+    _lastLevel = lv;
+    showLevelUp(lv);
+    checkAchievement('level_'+lv);
+  }
+}
+
+function showLevelUp(lv){
+  const idx = Math.min(lv-1, LEVEL_NAMES.length-1);
+  document.getElementById('lu-emoji').textContent  = LEVEL_EMOJIS[idx] || '⭐';
+  document.getElementById('lu-title').textContent  = 'Level '+lv+' — '+LEVEL_NAMES[idx];
+  document.getElementById('lu-sub').textContent    = LEVEL_MSGS[Math.min(lv-2, LEVEL_MSGS.length-1)] || 'Keep going!';
+  document.getElementById('levelup-modal').classList.add('show');
+}
+
+function closeLevelup(){
+  document.getElementById('levelup-modal').classList.remove('show');
+}
+
+// ── COMBO ──
+let _combo = 0;
+let _comboTimer = null;
+
+function triggerCombo(correct){
+  if(correct){
+    _combo++;
+    if(_combo >= 3){
+      const labels = [
+        '🔥 '+_combo+' in a row!',
+        '⚡ '+_combo+' streak — nice!',
+        '🏆 '+_combo+' combo!',
+        '🌟 UNSTOPPABLE — '+_combo+'!',
+      ];
+      showComboBanner(labels[Math.min(_combo-3, labels.length-1)]);
+      if(_combo===3)  checkAchievement('combo_3');
+      if(_combo===5)  checkAchievement('combo_5');
+      if(_combo===10) checkAchievement('combo_10');
+    }
+  } else {
+    _combo = 0;
+  }
+}
+
+function showComboBanner(text){
+  const banner = document.getElementById('combo-banner');
+  banner.innerHTML = `<div class="combo-inner">${text}</div>`;
+  banner.style.display = 'block';
+  if(_comboTimer) clearTimeout(_comboTimer);
+  _comboTimer = setTimeout(()=>{
+    const inner = banner.querySelector('.combo-inner');
+    if(inner){ inner.classList.add('combo-fade'); }
+    setTimeout(()=>{ banner.style.display='none'; }, 350);
+  }, 1500);
+}
+
+// ── XP FLOAT ──
+function floatXP(amount){
+  const barEl = document.getElementById('bar-xp');
+  const rect = barEl ? barEl.getBoundingClientRect() : null;
+  const el = document.createElement('div');
+  el.className = 'xp-float';
+  el.textContent = '+' + amount + ' XP';
+  el.style.left = rect ? (rect.left + rect.width/2 - 28) + 'px' : 'calc(50% - 28px)';
+  el.style.top  = rect ? (rect.top - 4) + 'px' : '30%';
+  document.body.appendChild(el);
+  el.addEventListener('animationend', ()=>el.remove());
+  // pulse the bar
+  barEl && barEl.classList.add('bar-pulse');
+  setTimeout(()=>barEl && barEl.classList.remove('bar-pulse'), 500);
+}
+
+// ── ACHIEVEMENTS ──
+const _achiDone = new Set(JSON.parse(localStorage.getItem('als2_achi')||'[]'));
+function saveAchi(){ localStorage.setItem('als2_achi', JSON.stringify([..._achiDone])); }
+
+const ACHI_DEFS = [
+  {id:'first_correct', icon:'⭐', text:'First correct answer!'},
+  {id:'combo_3',       icon:'🔥', text:'3 in a row!'},
+  {id:'combo_5',       icon:'💥', text:'5 in a row — you\'re on fire!'},
+  {id:'combo_10',      icon:'🌟', text:'10 in a row — incredible!'},
+  {id:'first_chapter', icon:'🎓', text:'First chapter complete!'},
+  {id:'perfect',       icon:'🏆', text:'Perfect chapter — no mistakes!'},
+  {id:'half_done',     icon:'⚡', text:'Halfway through ALS!'},
+  {id:'all_done',      icon:'👑', text:'ALS complete — you\'re a pro!'},
+  {id:'level_2',       icon:'📈', text:'Level 2 — Resident!'},
+  {id:'level_3',       icon:'🔬', text:'Level 3 — Senior Resident!'},
+  {id:'level_4',       icon:'💉', text:'Level 4 — Registrar!'},
+  {id:'level_5',       icon:'🚀', text:'Level 5 — Fellow! You\'re flying!'},
+];
+
+function checkAchievement(id){
+  if(_achiDone.has(id)) return;
+  const def = ACHI_DEFS.find(a=>a.id===id);
+  if(!def) return;
+  _achiDone.add(id);
+  saveAchi();
+  showToast(def.icon, def.text);
+}
+
+function showToast(icon, text){
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'achievement-toast';
+  t.innerHTML = `<span>${icon}</span><span>${text}</span>`;
+  c.appendChild(t);
+  setTimeout(()=>{
+    t.classList.add('out');
+    t.addEventListener('animationend', ()=>t.remove(), {once:true});
+  }, 2800);
+}
+
+// ── CONFETTI ──
+function launchConfetti(ms=2800){
+  const canvas = document.getElementById('confetti-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.style.display = 'block';
+
+  const colors = ['#7c6df0','#b8aff8','#3dd68c','#f5a623','#5ba4f5','#f06b6b','#ff79c6','#fcd34d'];
+  const pieces = Array.from({length:130}, ()=>({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height - canvas.height,
+    w: 7+Math.random()*7,
+    h: 3.5+Math.random()*3.5,
+    color: colors[Math.floor(Math.random()*colors.length)],
+    vx: (Math.random()-.5)*5,
+    vy: 2.5+Math.random()*4,
+    rot: Math.random()*360,
+    vr: (Math.random()-.5)*9,
+  }));
+
+  const start = Date.now();
+  (function frame(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const t = (Date.now()-start)/ms;
+    pieces.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, 1-t*1.1);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    if(Date.now()-start < ms) requestAnimationFrame(frame);
+    else{ ctx.clearRect(0,0,canvas.width,canvas.height); canvas.style.display='none'; }
+  })();
+}
+
+// ── INTEGRATE INTO GAME ──
+// Wrap the original checkChoice to add gamification
+const _origCheckChoice = checkChoice;
+checkChoice = function(){
+  const step = curChapter.steps[curStep];
+  if(_selectedChoice < 0) return;
+  const correct = step.choices[_selectedChoice].correct;
+  _origCheckChoice();
+  triggerCombo(correct);
+  if(correct){
+    const xpGain = 15;
+    floatXP(xpGain);
+    if(tc===1) checkAchievement('first_correct');
+  }
+};
+
+const _origCheckTap = checkTap;
+checkTap = function(){
+  // snapshot state before original runs
+  const prevCorrect = lvlCorrect;
+  _origCheckTap();
+  const gotIt = lvlCorrect > prevCorrect;
+  triggerCombo(gotIt);
+  if(gotIt){
+    floatXP(15);
+    if(tc===1) checkAchievement('first_correct');
+  }
+};
+
+const _origCompleteChapter = completeChapter;
+completeChapter = function(){
+  const wasNew = !done.includes(curChapter.id);
+  const wasPerfect = (lvlCorrect === lvlTotal && lvlTotal > 0);
+  _origCompleteChapter();
+  if(wasNew){
+    // small delay so map has time to render, then celebrate
+    setTimeout(()=>{
+      launchConfetti(3000);
+      checkLevelUp();
+      const doneCount = done.length;
+      if(doneCount===1) checkAchievement('first_chapter');
+      if(wasPerfect)    checkAchievement('perfect');
+      if(doneCount===3) checkAchievement('half_done');
+      if(doneCount===6) checkAchievement('all_done');
+    }, 400);
+  }
+};
 
 // ══════════════════════════
 //  INIT
