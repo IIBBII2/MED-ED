@@ -59,7 +59,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
 
 /* ── STAGE ── */
 #stage{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
-.screen{display:flex;flex-direction:column;align-items:center;padding:20px 18px 12px;min-height:100%;}
+.screen{display:flex;flex-direction:column;align-items:center;padding:14px 16px 10px;min-height:100%;}
 .screen.hidden{display:none;}
 
 /* ── TRANSITIONS ── */
@@ -79,7 +79,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
 #map-screen{background:var(--bg);justify-content:flex-start;}
 .map-top{text-align:center;margin-bottom:24px;padding-top:12px;}
 .map-eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--purple2);margin-bottom:14px;}
-.map-title{font-family:'Syne',sans-serif;font-size:clamp(38px,10vw,64px);font-weight:800;line-height:1.0;margin-bottom:12px;letter-spacing:-.02em;}
+.map-title{font-family:'Syne',sans-serif;font-size:clamp(28px,6.5vw,46px);font-weight:800;line-height:1.0;margin-bottom:12px;letter-spacing:-.02em;}
 .map-title em{font-style:normal;background:linear-gradient(135deg,var(--purple),var(--purple2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .map-sub{font-size:14px;color:var(--text2);line-height:1.7;max-width:360px;margin:0 auto;}
 
@@ -144,13 +144,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
 /* ════════════════════════════════
    LESSON SCREEN
 ════════════════════════════════ */
-#lesson-screen{justify-content:flex-start;}
+:root{--chapter-glow:transparent;}
+#lesson-screen{justify-content:flex-start;background:radial-gradient(ellipse 90% 30% at 50% 0%, var(--chapter-glow) 0%, transparent 70%), var(--bg);transition:background .5s ease;}
 
 /* ════════════════════════════════
    MOMENT — cinematic, full bleed feel
 ════════════════════════════════ */
-.moment{text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;padding-top:8px;}
-.moment-visual{width:100%;max-width:420px;border-radius:var(--rl);overflow:hidden;}
+.moment{text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;padding-top:8px;}
+.moment-visual{width:100%;max-width:380px;border-radius:var(--rl);overflow:hidden;}
 .moment-visual svg{display:block;width:100%;height:auto;}
 
 .moment-tag{
@@ -162,26 +163,26 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
 
 .moment-title{
   font-family:'Syne',sans-serif;
-  font-size:clamp(34px,7.5vw,54px);
-  font-weight:800;line-height:1.08;
+  font-size:clamp(24px,5vw,36px);
+  font-weight:800;line-height:1.1;
   max-width:460px;
   letter-spacing:-.02em;
 }
-.moment-body{font-size:16px;color:var(--text2);line-height:1.8;max-width:420px;}
+.moment-body{font-size:15px;color:var(--text2);line-height:1.72;max-width:420px;}
 .moment-body strong{font-weight:600;color:var(--text);}
 
 /* ════════════════════════════════
    CHOICE / TAP / MATCH — bigger prompts
 ════════════════════════════════ */
-.choice-prompt{font-family:'Syne',sans-serif;font-size:clamp(22px,5.5vw,32px);font-weight:800;text-align:center;line-height:1.2;margin-bottom:8px;letter-spacing:-.01em;}
+.choice-prompt{font-family:'Syne',sans-serif;font-size:clamp(17px,3.5vw,24px);font-weight:800;text-align:center;line-height:1.25;margin-bottom:8px;letter-spacing:-.01em;}
 .choice-sub{font-size:14px;color:var(--text2);text-align:center;margin-bottom:20px;line-height:1.6;}
-.choices{display:grid;gap:11px;width:100%;}
+.choices{display:grid;gap:8px;width:100%;}
 .choices.grid-2{grid-template-columns:1fr 1fr;}
 .choices.grid-1{grid-template-columns:1fr;}
 
 /* ── CHOICE CARDS ── */
 .choice{
-  padding:18px 16px;
+  padding:13px 14px;
   background:var(--surface);
   border:1.5px solid var(--border2);
   border-radius:18px;
@@ -211,21 +212,23 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
   flex-direction:column;
   align-items:center;
   text-align:center;
-  padding:22px 12px 18px;
-  gap:10px;
+  padding:16px 10px 14px;
+  gap:8px;
 }
-.choices.grid-2 .choice-ico{font-size:36px;margin-top:0;}
+.choices.grid-2 .choice-ico{font-size:28px;margin-top:0;}
 .choices.grid-2 .choice-text{font-size:13px;}
 
 .choice-ico{font-size:24px;flex-shrink:0;line-height:1;margin-top:1px;}
 .choice-text{font-size:14px;font-weight:500;color:var(--text);line-height:1.55;}
 
+@keyframes correctPop{0%{transform:scale(1);}35%{transform:scale(1.03);}100%{transform:scale(1);}}
 /* States */
 .choice.correct{
-  background:rgba(61,214,140,.12);
+  background:rgba(61,214,140,.14);
   border-color:var(--green);
-  box-shadow:0 0 24px rgba(61,214,140,.2),0 4px 12px rgba(0,0,0,.2);
+  box-shadow:0 0 28px rgba(61,214,140,.28),0 4px 16px rgba(0,0,0,.2);
   transform:none;
+  animation:correctPop .38s cubic-bezier(.4,0,.2,1);
 }
 .choice.correct .choice-text{color:var(--green);}
 .choice.wrong{
@@ -239,7 +242,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
 .choice:disabled{cursor:default;}
 
 /* ── REVEAL RESULT — more dramatic ── */
-.reveal-result{border-radius:var(--rl);padding:20px 20px;margin-top:16px;}
+.reveal-result{border-radius:var(--rl);padding:16px 18px;margin-top:12px;}
 .reveal-result.good{background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.35);box-shadow:0 0 24px rgba(61,214,140,.1);}
 .reveal-result.bad{background:rgba(240,107,107,.09);border:1px solid rgba(240,107,107,.3);}
 .reveal-emoji{font-size:30px;margin-bottom:8px;}
@@ -260,7 +263,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
 
 /* ── TAP-ALL ── */
 .tap-wrap{width:100%;}
-.tap-prompt{font-family:'Syne',sans-serif;font-size:clamp(22px,5.5vw,32px);font-weight:800;text-align:center;margin-bottom:8px;line-height:1.2;letter-spacing:-.01em;}
+.tap-prompt{font-family:'Syne',sans-serif;font-size:clamp(17px,3.5vw,24px);font-weight:800;text-align:center;margin-bottom:8px;line-height:1.25;letter-spacing:-.01em;}
 .tap-sub{font-size:14px;color:var(--text2);text-align:center;margin-bottom:18px;}
 .tap-grid{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;}
 .tap-chip{padding:11px 20px;background:var(--surface);border:1px solid var(--border2);border-radius:40px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text2);transition:all .15s;font-family:inherit;}
@@ -272,7 +275,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
 
 /* ── MATCH ── */
 .match-wrap{width:100%;}
-.match-prompt{font-family:'Syne',sans-serif;font-size:clamp(22px,5.5vw,32px);font-weight:800;text-align:center;margin-bottom:18px;line-height:1.2;letter-spacing:-.01em;}
+.match-prompt{font-family:'Syne',sans-serif;font-size:clamp(17px,3.5vw,24px);font-weight:800;text-align:center;margin-bottom:14px;line-height:1.25;letter-spacing:-.01em;}
 .match-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .match-col{display:flex;flex-direction:column;gap:9px;}
 .match-chip{padding:14px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);transition:all .15s;line-height:1.45;text-align:center;font-family:inherit;width:100%;}
@@ -283,10 +286,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
 @keyframes flashWrong{0%,100%{border-color:var(--border2);}50%{border-color:var(--red);background:rgba(240,107,107,.14);}}
 
 /* ── FACT CARD ── */
-.fact-card{background:linear-gradient(135deg,rgba(124,109,240,.14),rgba(124,109,240,.04));border:1px solid rgba(124,109,240,.3);border-radius:var(--rl);padding:28px 24px;text-align:center;width:100%;}
-.fact-icon{font-size:40px;margin-bottom:14px;}
+.fact-card{background:linear-gradient(135deg,rgba(124,109,240,.14),rgba(124,109,240,.04));border:1px solid rgba(124,109,240,.3);border-radius:var(--rl);padding:20px 20px;text-align:center;width:100%;}
+.fact-icon{font-size:32px;margin-bottom:10px;}
 .fact-label{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--purple2);margin-bottom:10px;}
-.fact-text{font-family:'Syne',sans-serif;font-size:clamp(22px,5vw,30px);font-weight:800;line-height:1.25;letter-spacing:-.01em;}
+.fact-text{font-family:'Syne',sans-serif;font-size:clamp(18px,4vw,26px);font-weight:800;line-height:1.25;letter-spacing:-.01em;}
 .fact-sub{font-size:14px;color:var(--text2);margin-top:12px;line-height:1.75;}
 
 /* ── VERTICAL ACCORDION ── */
@@ -337,8 +340,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
 
 /* ── BADGE SCREEN ── */
 .badge-screen{text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;padding:20px 0;}
-.badge-glow{font-size:84px;filter:drop-shadow(0 0 30px rgba(124,109,240,.6));margin-bottom:4px;}
-.badge-title{font-family:'Syne',sans-serif;font-size:clamp(28px,6vw,38px);font-weight:800;letter-spacing:-.02em;}
+.badge-glow{font-size:68px;filter:drop-shadow(0 0 24px rgba(124,109,240,.6));margin-bottom:4px;}
+.badge-title{font-family:'Syne',sans-serif;font-size:clamp(22px,5vw,32px);font-weight:800;letter-spacing:-.02em;}
 .badge-sub{font-size:16px;color:var(--text2);line-height:1.7;max-width:340px;}
 .badge-xp{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--amber);}
 .badge-stat-row{display:flex;gap:10px;width:100%;}
@@ -348,7 +351,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
 
 /* ── BOTTOM BUTTON ── */
 #bottom{padding:16px 18px;flex-shrink:0;z-index:10;border-top:0.5px solid var(--border);background:var(--bg);}
-.main-btn{width:100%;padding:20px;font-family:'Syne',sans-serif;font-size:17px;font-weight:700;border:none;border-radius:var(--rl);cursor:pointer;transition:all .18s;letter-spacing:.01em;}
+.main-btn{width:100%;padding:16px;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;border:none;border-radius:var(--rl);cursor:pointer;transition:all .18s;letter-spacing:.01em;}
 .btn-go{background:linear-gradient(135deg,var(--purple),#5b2fd4);color:#fff;box-shadow:0 4px 24px rgba(124,109,240,.3);}
 .btn-go:hover{box-shadow:0 6px 30px rgba(124,109,240,.4);transform:translateY(-1px);}
 .btn-go:active{opacity:.9;transform:none;}
@@ -696,51 +699,65 @@ steps:[
   {type:'moment',
    tag:'Now the harder question.',
    title:'You know the paradox. But why these specific cells?',
-   body:'Out of every neuron in the body — why do motor neurons die while everything else survives? There\'s a specific answer. Four design flaws that make them uniquely, catastrophically vulnerable to exactly what\'s happening to Jan.',
+   body:'Out of every neuron in the body — why do motor neurons die while everything else survives? There\'s a specific answer. A structural vulnerability that makes them uniquely, catastrophically exposed to exactly what\'s happening to Jan.',
    visual:'neuron'},
 ]},
 
 // ─── CHAPTER 2: WHAT IS KILLING THEM? ───
-{id:2,icon:'🔬',color:'rgba(245,158,11,.15)',name:'Inside the neuron',desc:'Why these cells? There\'s a reason.',xp:120,
+{id:2,icon:'🔬',color:'rgba(245,158,11,.15)',name:'Inside the neuron',desc:'Why these cells? Derive the treatment.',xp:120,
 steps:[
-  // 0
+  // 0 — entry
   {type:'moment',
    tag:'Why these specific cells?',
-   title:'Motor neurons are uniquely bad at surviving ALS.',
-   body:'Out of all the cells in your body, motor neurons are the most vulnerable to exactly what ALS does to them. It\'s not bad luck — it\'s four specific design flaws, all hitting at once.',
+   title:'To treat this disease, you need to understand what\'s killing them.',
+   body:'Other neurons survive what motor neurons can\'t. This isn\'t bad luck — there\'s a specific vulnerability. Find it, and the treatment becomes obvious.',
    visual:'neuron'},
 
-  // 1 — four flaws reveal
-  {type:'reveal-sequence',
-   title:'Four design disasters',
-   items:[
-     {q:'Axon length', a:'Over 1 metre long — from your brain to your foot. Any energy failure along that cable = catastrophic.'},
-     {q:'No calcium buffers', a:'Almost zero calbindin or parvalbumin (proteins that mop up excess Ca²⁺). Other neurons have these. Motor neurons don\'t.'},
-     {q:'Calcium-leaky receptors', a:'Low GluR2 in AMPA receptors = calcium floods in with every signal. A door with no lock.'},
-     {q:'Axonal transport jams', a:'When transport fails, neurofilaments pile up — physically blocking survival signals from reaching the neuron.'},
-   ],
-   depth:'These four flaws explain why motor neurons die in ALS while other neurons survive the same insults. Long axons demand enormous metabolic investment. No calcium buffering means excitotoxicity causes catastrophic damage. The calcium-permeable AMPA receptors amplify every glutamate signal into a flood. And when transport jams, the neuron loses contact with its own muscle target.'},
-
-  // 2 — the cascade choice
+  // 1 — the vulnerability: what signal floods them?
   {type:'choice', layout:'grid-1',
-   prompt:'Glutamate floods the synapse. Motor neurons have no calcium buffers. What happens next?',
-   sub:'Pick the consequence.',
+   prompt:'Motor neurons have almost no calcium protection. Which signal fires calcium into them — hundreds of times per second?',
+   sub:'Name the trigger.',
    choices:[
-     {ico:'💥',text:'Massive Ca²⁺ floods in → mitochondria overwhelmed → the cell starts destroying itself from within', value:'a', correct:true},
-     {ico:'💤',text:'The motor neuron temporarily shuts down but recovers after rest', value:'b', correct:false},
-     {ico:'🔄',text:'Neighbouring neurons compensate, so no noticeable damage occurs', value:'c', correct:false},
+     {ico:'⚡',text:'Glutamate — the brain\'s main excitatory signal. Each burst opens calcium channels. No buffers to catch the flood.', value:'a', correct:true},
+     {ico:'🔋',text:'ATP depletion — running low on energy lets calcium leak in passively over time.', value:'b', correct:false},
+     {ico:'🧊',text:'TDP-43 aggregates — protein clumps that physically block calcium from leaving the cell.', value:'c', correct:false},
    ],
-   feedback:{correct:'Yes — that\'s excitotoxicity. Neurons excited to death. Glutamate overload → Ca²⁺ floods in → mitochondria collapse → reactive oxygen species (molecular sparks) fly everywhere → the cell destroys itself from within. Riluzole blocks the glutamate release that starts all of this.',
-             wrong:'No recovery in this one — the Ca²⁺ flood overwhelms the mitochondria and triggers a self-destruction cascade. That\'s excitotoxicity: neurons excited to death. Riluzole works by blocking the glutamate that kicks this whole thing off.'}},
+   feedback:{correct:'Exactly. Glutamate is the ignition. Every nerve signal fires calcium into motor neurons. Most neurons have proteins — calbindin, parvalbumin — that mop it up fast. Motor neurons barely have any. So with every signal, a little more calcium stays trapped inside. Over months, that residue becomes lethal. The cell excites itself to death.',
+             wrong:'The answer is glutamate. It\'s the brain\'s main excitatory transmitter — every signal opens calcium channels in motor neurons. Most neurons buffer the flood with specialised proteins. Motor neurons barely have any. So each signal deposits a little more calcium, and over months that accumulates into catastrophic damage.'}},
 
-  // 3 — the protein hallmark
+  // 2 — THE KEY INTERACTION: derive the treatment
+  {type:'choice', layout:'grid-2',
+   prompt:'Jan\'s neurons are drowning in calcium. Which option would most directly protect them?',
+   sub:'Think about the mechanism — then choose.',
+   choices:[
+     {ico:'🚪',text:'Block the glutamate signal before it can open the calcium door', value:'a', correct:true},
+     {ico:'💧',text:'Flood the cell with more calcium to dilute the toxic buildup', value:'b', correct:false},
+     {ico:'🛡️',text:'Give anti-inflammatory steroids to calm the immune response', value:'c', correct:false},
+     {ico:'🧬',text:'Replace the damaged TDP-43 protein with a synthetic version', value:'d', correct:false},
+   ],
+   feedback:{correct:'That\'s how riluzole works — exactly. It blocks glutamate release. Fewer signals → less calcium floods in → the motor neurons survive longer. You just derived the first-line treatment from the mechanism. The treatment is proof of what\'s happening inside the cell.',
+             wrong:{
+               b:'More calcium would accelerate the damage — the cell is already drowning in it. The goal is to stop the flood from starting. What opens the calcium door?',
+               c:'This isn\'t primarily inflammatory — steroids don\'t address the calcium flooding. Think about what triggers the calcium to enter in the first place.',
+               d:'TDP-43 replacement isn\'t currently possible, and it\'s downstream of the real problem. What signal is opening the calcium door hundreds of times per second?',
+               default:'Block the glutamate. That\'s the answer. Glutamate signals open the calcium door — fewer signals means less calcium floods in, and motor neurons survive longer. That\'s riluzole, the first drug you prescribe in ALS.',
+             }}},
+
+  // 3 — treatment fact card
+  {type:'fact',
+   icon:'💊',
+   label:'Treatment derived from mechanism',
+   text:'Riluzole: block glutamate → less calcium → neurons live longer.',
+   sub:'You didn\'t memorise that. You derived it. Riluzole (1995) was the first ALS treatment ever approved. It extends survival by months — modest, but it\'s the proof that the glutamate-calcium cascade is real and druggable.'},
+
+  // 4 — the protein hallmark
   {type:'fact',
    icon:'🧬',
-   label:'The universal clue',
+   label:'The molecular fingerprint',
    text:'TDP-43 aggregates — in 97% of ALL ALS.',
-   sub:'Whatever starts ALS — mutation, environment, bad luck — the cascade almost always ends here. TDP-43 escapes the nucleus, clumps up, and takes down the neuron\'s RNA machinery. It\'s the molecular fingerprint of the disease.'},
+   sub:'Whatever starts ALS — mutation, environment, bad luck — the cascade almost always ends here. TDP-43 escapes the nucleus, clumps up, and shuts down the neuron\'s RNA machinery. It\'s the downstream stamp that confirms the disease.'},
 
-  // 4 — genes match
+  // 5 — genes match
   {type:'match',
    prompt:'Which gene → which fact?',
    pairs:[
@@ -754,7 +771,7 @@ steps:[
   {type:'moment',
    tag:'You\'ve been building toward this.',
    title:'You know the mechanism. Now name it.',
-   body:'The wasted hand. The brisk reflex. The four design flaws. The calcium flood, the protein clumps, the dying axons. Every piece has been pointing at one diagnosis. Jan has been waiting eight months. Time to commit.',
+   body:'The wasted hand. The brisk reflex. The calcium flood. The protein clumps, the dying axons — and now the first prescription you\'d write. Every piece has been pointing at one diagnosis. Jan has been waiting eight months. Time to commit.',
    visual:'relay'},
 ]},
 
@@ -1080,6 +1097,7 @@ function startChapter(id){
   curChapter=CHAPTERS.find(c=>c.id===id);
   curStep=0; stepDone=false; hearts=3;
   lvlCorrect=0; lvlTotal=0;
+  document.documentElement.style.setProperty('--chapter-glow', curChapter.color||'transparent');
   document.getElementById('map-screen').classList.add('hidden');
   document.getElementById('lesson-screen').classList.remove('hidden');
   // Scroll stage back to top
