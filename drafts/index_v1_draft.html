@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALS — Discover the Disease</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0c0c10;--surface:#141418;--surface2:#1e1e28;--surface3:#282836;
+  --text:#f0f0f6;--text2:#b8b8d0;--text3:#8080a0;
+  --border:rgba(255,255,255,.09);--border2:rgba(255,255,255,.17);
+  --purple:#7c6df0;--purple2:#b8aff8;--purple3:rgba(124,109,240,.18);
+  --green:#3dd68c;--amber:#f5a623;--red:#f06b6b;--blue:#5ba4f5;
+  --r:14px;--rl:20px;
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);}
+
+/* ── SHELL ── */
+#game{width:100%;height:100%;height:100dvh;display:flex;flex-direction:column;position:relative;}
+
+/* ── TOP BAR ── */
+#bar{display:flex;align-items:center;gap:10px;padding:12px 16px;flex-shrink:0;z-index:10;border-bottom:0.5px solid var(--border);}
+#bar-back{font-size:20px;cursor:pointer;color:var(--text3);transition:color .2s;flex-shrink:0;line-height:1;padding:4px;min-width:32px;}
+#bar-back:hover{color:var(--text);}
+#bar-track{flex:1;height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;min-width:0;}
+#bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--purple),var(--purple2));transition:width .6s cubic-bezier(.4,0,.2,1);}
+#bar-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+#bar-xp{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--amber);white-space:nowrap;}
+#bar-hearts{font-size:12px;letter-spacing:1px;white-space:nowrap;}
+
+/* ── STAGE: scrollable content area ── */
+#stage{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+.screen{display:flex;flex-direction:column;align-items:center;padding:16px 16px 8px;min-height:100%;}
+.screen.hidden{display:none;}
+
+/* ── TRANSITIONS ── */
+@keyframes slideIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes popIn{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
+.anim-slide{animation:slideIn .35s cubic-bezier(.4,0,.2,1) forwards;}
+.anim-fade{animation:fadeIn .3s ease forwards;}
+.anim-pop{animation:popIn .28s cubic-bezier(.4,0,.2,1) forwards;}
+
+/* ── SCENE WRAPPER ── */
+.scene{width:100%;max-width:520px;display:flex;flex-direction:column;gap:0;}
+
+/* ── MAP SCREEN ── */
+#map-screen{background:var(--bg);justify-content:flex-start;}
+.map-top{text-align:center;margin-bottom:24px;padding-top:8px;}
+.map-eyebrow{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--purple2);margin-bottom:8px;}
+.map-title{font-family:'Syne',sans-serif;font-size:clamp(22px,6vw,36px);font-weight:800;line-height:1.1;margin-bottom:8px;}
+.map-title em{font-style:normal;color:var(--purple2);}
+.map-sub{font-size:13px;color:var(--text2);line-height:1.6;max-width:340px;margin:0 auto;}
+.map-stats{display:flex;gap:8px;justify-content:center;margin-bottom:20px;}
+.mstat{text-align:center;padding:8px 14px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);flex:1;max-width:110px;}
+.mstat-n{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:1px;}
+.mstat-l{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);}
+.chapters{display:flex;flex-direction:column;gap:8px;width:100%;max-width:480px;padding-bottom:20px;}
+.chapter-btn{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);cursor:pointer;transition:all .2s;text-align:left;width:100%;border:none;font-family:inherit;}
+.chapter-btn:hover:not(.locked){border-color:var(--border2);background:var(--surface2);}
+.chapter-btn.locked{opacity:.38;cursor:not-allowed;}
+.chapter-btn.done{outline:0.5px solid rgba(61,214,140,.2);}
+.ch-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.ch-info{flex:1;min-width:0;}
+.ch-num{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:2px;}
+.ch-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ch-desc{font-size:11px;color:var(--text3);}
+.ch-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;}
+.ch-xp{font-size:10px;font-weight:700;color:var(--amber);}
+
+/* ── LESSON SCREEN ── */
+#lesson-screen{justify-content:flex-start;}
+
+/* ── MOMENT — big visual, tiny text ── */
+.moment{text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;padding-top:4px;}
+.moment-visual{width:100%;max-width:400px;border-radius:var(--rl);overflow:hidden;}
+.moment-visual svg{display:block;width:100%;height:auto;}
+.moment-tag{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);}
+.moment-title{font-family:'Syne',sans-serif;font-size:clamp(20px,4.5vw,28px);font-weight:800;line-height:1.2;max-width:400px;}
+.moment-body{font-size:15px;color:var(--text2);line-height:1.75;max-width:400px;}
+.moment-body strong{font-weight:600;color:var(--text);}
+
+/* ── CHOICE ── */
+.choice-prompt{font-family:'Syne',sans-serif;font-size:clamp(17px,4vw,21px);font-weight:700;text-align:center;line-height:1.35;margin-bottom:7px;}
+.choice-sub{font-size:14px;color:var(--text2);text-align:center;margin-bottom:18px;}
+.choices{display:grid;gap:9px;width:100%;}
+.choices.grid-2{grid-template-columns:1fr 1fr;}
+.choices.grid-1{grid-template-columns:1fr;}
+.choice{padding:14px 16px;background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--r);cursor:pointer;transition:all .18s;display:flex;align-items:flex-start;gap:12px;font-family:inherit;text-align:left;width:100%;}
+.choice:hover:not(:disabled){background:var(--surface2);border-color:var(--purple);}
+.choice-ico{font-size:20px;flex-shrink:0;margin-top:1px;}
+.choice-text{font-size:14px;font-weight:500;color:var(--text);line-height:1.5;}
+.choice.correct{background:rgba(61,214,140,.1);border-color:var(--green);}
+.choice.correct .choice-text{color:var(--green);}
+.choice.wrong{background:rgba(240,107,107,.1);border-color:var(--red);}
+.choice.wrong .choice-text{color:var(--red);}
+.choice.dim{opacity:.3;}
+.choice:disabled{cursor:default;}
+
+/* ── REVEAL RESULT ── */
+.reveal-result{border-radius:var(--r);padding:15px 17px;margin-top:14px;}
+.reveal-result.good{background:rgba(61,214,140,.1);border:0.5px solid rgba(61,214,140,.3);}
+.reveal-result.bad{background:rgba(240,107,107,.1);border:0.5px solid rgba(240,107,107,.3);}
+.reveal-emoji{font-size:26px;margin-bottom:8px;}
+.reveal-verdict{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;margin-bottom:6px;}
+.reveal-explain{font-size:13px;color:var(--text2);line-height:1.8;}
+.reveal-explain strong{font-weight:600;color:var(--text);}
+
+/* ── STORY VISUAL ── */
+.story-visual{width:100%;border-radius:var(--rl);background:var(--surface);border:0.5px solid var(--border);overflow:hidden;margin-bottom:14px;}
+.story-visual svg{display:block;width:100%;height:auto;}
+
+/* ── TAP-ALL ── */
+.tap-wrap{width:100%;}
+.tap-prompt{font-family:'Syne',sans-serif;font-size:clamp(17px,4vw,21px);font-weight:700;text-align:center;margin-bottom:6px;line-height:1.35;}
+.tap-sub{font-size:14px;color:var(--text2);text-align:center;margin-bottom:16px;}
+.tap-grid{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;}
+.tap-chip{padding:10px 18px;background:var(--surface);border:0.5px solid var(--border2);border-radius:40px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);transition:all .15s;font-family:inherit;}
+.tap-chip:hover:not(:disabled){background:var(--surface2);border-color:var(--purple);color:var(--text);}
+.tap-chip.on{background:rgba(124,109,240,.18);border-color:var(--purple);color:var(--purple2);}
+.tap-chip.correct{background:rgba(61,214,140,.14);border-color:var(--green);color:var(--green);}
+.tap-chip.missed{background:rgba(61,214,140,.06);border-color:rgba(61,214,140,.2);color:rgba(61,214,140,.5);}
+.tap-chip.wrong{background:rgba(240,107,107,.12);border-color:var(--red);color:var(--red);}
+
+/* ── MATCH ── */
+.match-wrap{width:100%;}
+.match-prompt{font-family:'Syne',sans-serif;font-size:clamp(17px,4vw,21px);font-weight:700;text-align:center;margin-bottom:16px;line-height:1.35;}
+.match-cols{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.match-col{display:flex;flex-direction:column;gap:8px;}
+.match-chip{padding:13px 13px;background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--r);cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);transition:all .15s;line-height:1.45;text-align:center;font-family:inherit;width:100%;}
+.match-chip:hover:not(.matched){background:var(--surface2);border-color:var(--purple);color:var(--text);}
+.match-chip.sel{border-color:var(--purple2);background:var(--purple3);color:var(--purple2);}
+.match-chip.matched{border-color:rgba(61,214,140,.4);background:rgba(61,214,140,.1);color:var(--green);cursor:default;}
+.match-chip.flash-wrong{animation:flashRed .4s ease;}
+@keyframes flashRed{0%,100%{border-color:var(--border2);}50%{border-color:var(--red);background:rgba(240,107,107,.14);}}
+
+/* ── FACT CARD ── */
+.fact-card{background:linear-gradient(135deg,rgba(124,109,240,.14),rgba(124,109,240,.04));border:0.5px solid rgba(124,109,240,.3);border-radius:var(--rl);padding:22px 22px;text-align:center;width:100%;}
+.fact-icon{font-size:34px;margin-bottom:12px;}
+.fact-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple2);margin-bottom:8px;}
+.fact-text{font-family:'Syne',sans-serif;font-size:clamp(17px,4vw,21px);font-weight:700;line-height:1.4;}
+.fact-sub{font-size:14px;color:var(--text2);margin-top:10px;line-height:1.65;}
+
+/* ── VERTICAL ACCORDION (neuron-build + reveal-sequence) ── */
+.vacc-wrap{width:100%;border:0.5px solid var(--border);border-radius:var(--rl);overflow:hidden;}
+.vacc-item{border-bottom:0.5px solid var(--border);}
+.vacc-item:last-child{border-bottom:none;}
+.vacc-trigger{display:flex;align-items:center;gap:12px;padding:15px 16px;cursor:pointer;background:var(--surface);transition:background .15s;width:100%;text-align:left;border:none;font-family:inherit;}
+.vacc-trigger:hover,.vacc-trigger.opened{background:var(--surface2);}
+.vacc-num{width:30px;height:30px;border-radius:50%;background:var(--surface3);border:0.5px solid var(--border2);font-size:13px;font-weight:700;color:var(--text3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;}
+.vacc-num.done{background:rgba(61,214,140,.15);border-color:rgba(61,214,140,.4);color:var(--green);}
+.vacc-label{flex:1;}
+.vacc-title{font-size:14px;font-weight:700;color:var(--text);line-height:1.3;}
+.vacc-sub{font-size:12px;color:var(--text3);margin-top:2px;}
+.vacc-arr{font-size:11px;color:var(--text3);transition:transform .25s;flex-shrink:0;}
+.vacc-trigger.opened .vacc-arr{transform:rotate(180deg);}
+.vacc-body{display:none;padding:14px 16px 16px 58px;background:var(--surface2);border-top:0.5px solid var(--border);font-size:13px;color:var(--text2);line-height:1.8;}
+.vacc-body.open{display:block;}
+.vacc-body strong{font-weight:600;color:var(--text);}
+/* neuron visual inside vacc */
+.nv-row{display:flex;align-items:center;justify-content:center;gap:18px;margin:12px 0 8px;}
+.nv-cell{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.nv-dot{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.nv-dot-live{background:rgba(61,214,140,.18);border:2px solid var(--green);}
+.nv-dot-dead{background:rgba(240,107,107,.12);border:2px dashed var(--red);opacity:.55;}
+.nv-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+.nv-arrow{font-size:22px;color:var(--text3);}
+.nv-muscle{width:56px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+.nv-muscle-ok{background:rgba(61,214,140,.15);border:1.5px solid var(--green);color:var(--green);}
+.nv-muscle-waste{background:rgba(240,107,107,.1);border:1.5px dashed var(--red);color:var(--red);}
+
+/* ── SIGN CARDS ── */
+.sign-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;width:100%;}
+.sign-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:14px 14px;cursor:pointer;transition:all .2s;}
+.sign-card.umno{border-color:rgba(240,107,107,.35);background:rgba(240,107,107,.06);}
+.sign-card.lmno{border-color:rgba(91,164,245,.35);background:rgba(91,164,245,.06);}
+.sign-emoji{font-size:22px;margin-bottom:7px;}
+.sign-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.sign-desc{font-size:12px;color:var(--text2);line-height:1.5;}
+.sign-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;margin-top:6px;}
+.badge-umno{background:rgba(240,107,107,.15);color:var(--red);}
+.badge-lmno{background:rgba(91,164,245,.15);color:var(--blue);}
+
+/* ── DEPTH BUTTON ── */
+.depth-btn{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);cursor:pointer;background:none;border:0.5px solid var(--border);border-radius:40px;padding:8px 16px;font-family:inherit;transition:all .15s;margin:14px auto 0;}
+.depth-btn:hover{border-color:var(--border2);color:var(--text2);}
+.depth-panel{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:15px 17px;margin-top:10px;font-size:13px;color:var(--text2);line-height:1.8;display:none;}
+.depth-panel.open{display:block;animation:fadeIn .25s ease;}
+.depth-panel strong{font-weight:600;color:var(--text);}
+
+/* ── BADGE SCREEN ── */
+.badge-screen{text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;padding:16px 0;}
+.badge-glow{font-size:76px;filter:drop-shadow(0 0 24px rgba(124,109,240,.55));margin-bottom:4px;}
+.badge-title{font-family:'Syne',sans-serif;font-size:clamp(22px,5vw,30px);font-weight:800;}
+.badge-sub{font-size:15px;color:var(--text2);line-height:1.65;max-width:320px;}
+.badge-xp{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--amber);}
+.badge-stat-row{display:flex;gap:10px;width:100%;}
+.bstat{flex:1;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:14px;text-align:center;}
+.bstat-n{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:3px;}
+.bstat-l{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+
+/* ── BOTTOM BUTTON ── */
+#bottom{padding:14px 18px;flex-shrink:0;z-index:10;border-top:0.5px solid var(--border);background:var(--bg);}
+.main-btn{width:100%;padding:17px;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;border:none;border-radius:var(--rl);cursor:pointer;transition:all .18s;letter-spacing:.01em;}
+.btn-go{background:linear-gradient(135deg,var(--purple),#5b2fd4);color:#fff;}
+.btn-go:active{opacity:.88;}
+.btn-check{background:var(--surface2);border:0.5px solid var(--border2);color:var(--text3);}
+.btn-ready{background:linear-gradient(135deg,var(--purple),#5b2fd4);color:#fff;}
+.btn-done{background:linear-gradient(135deg,var(--green),#16a34a);color:#0c0c10;}
+
+/* ── DECORATIVE BG ── */
+.bg-blob{position:fixed;pointer-events:none;border-radius:50%;filter:blur(80px);opacity:.05;z-index:0;}
+.blob1{width:300px;height:300px;background:var(--purple);top:-80px;right:-80px;}
+.blob2{width:250px;height:250px;background:#3dd68c;bottom:-60px;left:-60px;}
+
+/* ── RESPONSIVE BREAKPOINTS ── */
+@media(max-width:380px){
+  .choices.grid-2{grid-template-columns:1fr;}
+  .match-cols{grid-template-columns:1fr;}
+  .match-col:last-child{display:none;} /* handled by relayout in JS below */
+  .sign-grid{grid-template-columns:1fr;}
+  .ch-name{font-size:12px;}
+  .map-title{font-size:20px;}
+}
+@media(min-width:600px){
+  #bar,#bottom,.screen{padding-left:24px;padding-right:24px;}
+  .moment-visual{max-width:420px;}
+}
+</style>
+</head>
+<body>
+<div class="bg-blob blob1"></div>
+<div class="bg-blob blob2"></div>
+
+<div id="game">
+  <div id="bar">
+    <div id="bar-back" onclick="goBack()">←</div>
+    <div id="bar-track"><div id="bar-fill" style="width:0%"></div></div>
+    <div id="bar-right">
+      <div id="bar-xp">0 XP</div>
+      <div id="bar-hearts">❤️❤️❤️</div>
+    </div>
+  </div>
+
+  <div id="stage">
+    <!-- MAP -->
+    <div class="screen" id="map-screen">
+      <div class="scene">
+        <div class="map-top">
+          <div class="map-eyebrow">Motor Neuron Disease</div>
+          <div class="map-title">Discover<br><em>ALS</em></div>
+          <div class="map-sub">You're a junior doctor. A patient just walked in. Let's figure this out together.</div>
+        </div>
+        <div class="map-stats">
+          <div class="mstat"><div class="mstat-n" id="stat-xp" style="color:var(--amber)">0</div><div class="mstat-l">XP</div></div>
+          <div class="mstat"><div class="mstat-n" id="stat-done" style="color:var(--green)">0</div><div class="mstat-l">done</div></div>
+          <div class="mstat"><div class="mstat-n" id="stat-acc" style="color:var(--purple2)">—</div><div class="mstat-l">accuracy</div></div>
+        </div>
+        <div class="chapters" id="chapters"></div>
+      </div>
+    </div>
+
+    <!-- LESSON -->
+    <div class="screen hidden" id="lesson-screen">
+      <div class="scene" id="lesson-content"></div>
+    </div>
+  </div>
+
+  <div id="bottom">
+    <button class="main-btn btn-go" id="main-btn">Let's go →</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════
+//  STATE
+// ══════════════════════════
+let XP = +localStorage.getItem('als2_xp')||0;
+let done = JSON.parse(localStorage.getItem('als2_done')||'[]');
+let tc = +localStorage.getItem('als2_tc')||0;
+let ta = +localStorage.getItem('als2_ta')||0;
+let hearts = 3;
+let curChapter = null, curStep = 0, stepDone = false;
+let lvlCorrect = 0, lvlTotal = 0;
+
+function save(){
+  localStorage.setItem('als2_xp',XP);
+  localStorage.setItem('als2_done',JSON.stringify(done));
+  localStorage.setItem('als2_tc',tc);
+  localStorage.setItem('als2_ta',ta);
+}
+
+// ══════════════════════════
+//  CHAPTERS
+// ══════════════════════════
+const CHAPTERS = [
+
+// ─── CHAPTER 0: THE PATIENT ───
+{id:0,icon:'🚪',color:'rgba(124,109,240,.18)',name:'The patient walks in',desc:'Something is very wrong',xp:80,
+steps:[
+  // 0 — scene setter
+  {type:'moment',
+   tag:'Rotterdam · Tuesday 9am',
+   title:'Jan de Vries, 54, walks into your clinic.',
+   body:'He\'s a civil engineer. Fit, capable. But for 8 months, his right hand hasn\'t been right.',
+   visual:'patient'},
+
+  // 1 — choice: what do you notice?
+  {type:'choice', layout:'grid-2',
+   prompt:'He shakes your hand. Something feels off. What do you notice?',
+   sub:'Pick the one that stands out.',
+   choices:[
+     {ico:'🤝',text:'His grip is weak — he can barely squeeze', value:'weak', correct:true},
+     {ico:'👁️',text:'He looks anxious', value:'anxious', correct:false},
+     {ico:'🗣️',text:'His speech is slightly slurred', value:'speech', correct:false},
+     {ico:'😰',text:'He\'s sweating heavily', value:'sweat', correct:false},
+   ],
+   feedback:{correct:'Good eye. The grip weakness is the first clue — and it\'s been getting worse for 8 months, not better. That matters.',
+             wrong:'That might be there — but the medical finding is the grip weakness. 8 months of progressive weakness in one hand is the signal you can\'t ignore.'}},
+
+  // 2 — fact card
+  {type:'fact',
+   icon:'📋',
+   label:'His story',
+   text:'"I can\'t button my shirt anymore. I dropped a mug last week."',
+   sub:'Progressive. Worsening. Asymmetric — only the right hand. This is not normal ageing.'},
+
+  // 3 — visual: the hand
+  {type:'moment',
+   tag:'On examination',
+   title:'You look at his right hand.',
+   body:'The <strong>thumb muscle pad (thenar eminence)</strong> is visibly sunken — the muscle has wasted away. But when you tap his wrist tendon, the reflex jerks back hard. <strong>Too hard.</strong>',
+   visual:'hand'},
+
+  // 4 — choice: what does this combination mean?
+  {type:'choice', layout:'grid-1',
+   prompt:'A muscle that is wasted AND has an exaggerated reflex. What does this tell you?',
+   sub:'Think about what controls a muscle.',
+   choices:[
+     {ico:'🤔',text:'Wasting = nerve to muscle is dying. Brisk reflex = something above that is also dying. Two systems failing simultaneously.', value:'a', correct:true},
+     {ico:'💭',text:'The wasting is from disuse — he\'s not using the hand so it shrank. The reflex is just normal variation.', value:'b', correct:false},
+     {ico:'❓',text:'These findings cancel each other out — you can\'t draw any conclusions.', value:'c', correct:false},
+   ],
+   feedback:{correct:'Exactly. Wasting = lower motor neuron dying (the nerve that connects directly to muscle). Brisk reflex = upper motor neuron dying (the brain\'s command neuron). Both at once. That combination is almost unique to one disease.',
+             wrong:'Actually this combination is a red flag. Wasting means the nerve to the muscle is dying (lower motor neuron). A brisk reflex means the brain\'s command neuron is also dying (upper motor neuron). Both failing simultaneously points directly to one diagnosis.'}},
+]},
+
+// ─── CHAPTER 1: THE TWO SYSTEMS ───
+{id:1,icon:'⚡',color:'rgba(91,164,245,.18)',name:'The two-neuron relay',desc:'Why this paradox exists',xp:100,
+steps:[
+  // 0 — visual intro
+  {type:'moment',
+   tag:'Understanding the paradox',
+   title:'Your motor system is a relay race.',
+   body:'Two neurons. One hands off to the other. Most diseases destroy one. ALS destroys <strong>both at once</strong>.',
+   visual:'relay'},
+
+  // 1 — build the relay
+  {type:'neuron-build',
+   stages:[
+     {label:'Normal', umNo:false, lmNo:false, muscle:'ok', caption:'UMN hands signal to LMN → muscle contracts normally'},
+     {label:'UMN dies', umNo:true, lmNo:false, muscle:'ok', caption:'UMN gone → LMN loses braking → reflexes go wild'},
+     {label:'LMN dies', umNo:false, lmNo:true, muscle:'waste', caption:'LMN gone → muscle gets no signal → wasting, twitching'},
+     {label:'ALS: both', umNo:true, lmNo:true, muscle:'waste', caption:'Both die simultaneously → the paradox: brisk reflexes AND wasting'},
+   ]},
+
+  // 2 — tap the UMN signs
+  {type:'tap',
+   prompt:'UMN dies → you LOSE the brake. Which signs appear?',
+   sub:'Tap all that apply.',
+   chips:[
+     {text:'Spasticity',correct:true},
+     {text:'Muscle wasting',correct:false},
+     {text:'Brisk reflexes',correct:true},
+     {text:'Fasciculations',correct:false},
+     {text:'Babinski sign',correct:true},
+     {text:'Floppy muscles',correct:false},
+     {text:'Clonus',correct:true},
+     {text:'Absent reflexes',correct:false},
+   ],
+   depth:'<strong>Babinski sign:</strong> stroke the sole — big toe extends UP instead of curling down. Always abnormal in adults. <strong>Clonus:</strong> hold the foot bent up — ankle starts rhythmically jerking on its own. <strong>Spasticity:</strong> muscles resist movement like a clasp-knife. All of these come from LOSS of UMN inhibition — the brake is gone, everything overactivates.',
+   feedback:'UMN signs = loss of inhibition = everything overactive. Spasticity, brisk reflexes, Babinski, clonus. Wasting and fasciculations are LMN signs — they come from the muscle losing its direct nerve supply.'},
+
+  // 3 — sign gallery
+  {type:'signs',
+   title:'The signs — side by side',
+   signs:[
+     {emoji:'🔧',name:'Brisk reflexes',desc:'Tap tendon → exaggerated jerk',type:'umno'},
+     {emoji:'🌀',name:'Spasticity',desc:'Muscles resist like a clasp-knife',type:'umno'},
+     {emoji:'👆',name:'Babinski +',desc:'Stroke sole → big toe extends UP',type:'umno'},
+     {emoji:'📳',name:'Clonus',desc:'Foot held up → rhythmic shaking',type:'umno'},
+     {emoji:'💪',name:'Wasting',desc:'Muscle visibly shrinks',type:'lmno'},
+     {emoji:'✨',name:'Fasciculations',desc:'Tiny twitches under skin',type:'lmno'},
+     {emoji:'🪢',name:'Flaccidity',desc:'Muscle feels completely floppy',type:'lmno'},
+     {emoji:'🔕',name:'Absent reflexes',desc:'Tap tendon → barely any response',type:'lmno'},
+   ]},
+
+  // 4 — pearl moment
+  {type:'fact',
+   icon:'🔑',
+   label:'The clinical pearl',
+   text:'Brisk reflex in a wasted, twitching muscle — same limb.',
+   sub:'That combination is almost unique to ALS. Two systems failing at once. That\'s your diagnosis.'},
+]},
+
+// ─── CHAPTER 2: WHAT IS KILLING THEM? ───
+{id:2,icon:'🔬',color:'rgba(245,158,11,.15)',name:'Inside the neuron',desc:'Why motor neurons die',xp:120,
+steps:[
+  // 0
+  {type:'moment',
+   tag:'The molecular story',
+   title:'Why motor neurons? Why not brain cells, or heart cells?',
+   body:'Motor neurons are the worst-designed cells in the body for surviving what ALS throws at them. Four design flaws that all hit at once.',
+   visual:'neuron'},
+
+  // 1 — four flaws reveal
+  {type:'reveal-sequence',
+   title:'Four design disasters',
+   items:[
+     {q:'Axon length', a:'Over 1 metre long — from your brain to your foot. Any energy failure along that cable = catastrophic.'},
+     {q:'No calcium buffers', a:'Almost zero calbindin or parvalbumin (proteins that mop up excess Ca²⁺). Other neurons have these. Motor neurons don\'t.'},
+     {q:'Calcium-leaky receptors', a:'Low GluR2 in AMPA receptors = calcium floods in with every signal. A door with no lock.'},
+     {q:'Axonal transport jams', a:'When transport fails, neurofilaments pile up — physically blocking survival signals from reaching the neuron.'},
+   ],
+   depth:'These four flaws explain why motor neurons die in ALS while other neurons survive the same insults. Long axons demand enormous metabolic investment. No calcium buffering means excitotoxicity causes catastrophic damage. The calcium-permeable AMPA receptors amplify every glutamate signal into a flood. And when transport jams, the neuron loses contact with its own muscle target.'},
+
+  // 2 — the cascade choice
+  {type:'choice', layout:'grid-1',
+   prompt:'Glutamate floods the synapse. Motor neurons have no calcium buffers. What happens next?',
+   sub:'Pick the consequence.',
+   choices:[
+     {ico:'💥',text:'Massive Ca²⁺ floods in → mitochondria overwhelmed → the cell starts destroying itself from within', value:'a', correct:true},
+     {ico:'💤',text:'The motor neuron temporarily shuts down but recovers after rest', value:'b', correct:false},
+     {ico:'🔄',text:'Neighbouring neurons compensate, so no noticeable damage occurs', value:'c', correct:false},
+   ],
+   feedback:{correct:'This is excitotoxicity — neurons being excited to death. Glutamate overload → Ca²⁺ floods in → mitochondria collapse → reactive oxygen species (molecular sparks) fly everywhere → the cell destroys itself. Riluzole blocks the glutamate release upstream of this cascade.',
+             wrong:'No recovery here. The Ca²⁺ flood overwhelms the mitochondria and triggers a self-destruction cascade. This is excitotoxicity — neurons excited to death. Riluzole blocks the glutamate that starts this process.'}},
+
+  // 3 — the protein hallmark
+  {type:'fact',
+   icon:'🧬',
+   label:'The universal clue',
+   text:'TDP-43 aggregates — in 97% of ALL ALS.',
+   sub:'Whatever starts ALS — mutation, environment, bad luck — the cascade almost always ends here. TDP-43 escapes the nucleus, clumps up, and takes down the neuron\'s RNA machinery. It\'s the molecular fingerprint of the disease.'},
+
+  // 4 — genes match
+  {type:'match',
+   prompt:'Which gene → which fact?',
+   pairs:[
+     {left:'C9orf72',right:'Also causes frontotemporal dementia'},
+     {left:'SOD1',right:'Target of tofersen — first precision ALS drug'},
+     {left:'FUS',right:'Young-onset, aggressive disease (20s–30s)'},
+     {left:'TDP-43 aggregates',right:'Found in 97% of ALL ALS cases'},
+   ]},
+]},
+
+// ─── CHAPTER 3: HOW TO DIAGNOSE IT ───
+{id:3,icon:'🩺',color:'rgba(61,214,140,.15)',name:'Cracking the diagnosis',desc:'El Escorial · EMG · mimics',xp:120,
+steps:[
+  // 0
+  {type:'moment',
+   tag:'Back to Jan',
+   title:'You examine him fully. It\'s spreading.',
+   body:'Right hand wasting and brisk reflexes. Left leg fasciculations. Slightly slurred speech. His tongue twitches at rest.',
+   visual:'exam'},
+
+  // 1 — how many regions?
+  {type:'choice', layout:'grid-2',
+   prompt:'ALS is diagnosed by region. How many body regions show UMN + LMN signs?',
+   sub:'Bulbar · Cervical · Thoracic · Lumbosacral',
+   choices:[
+     {ico:'1️⃣',text:'1 region', value:'1', correct:false},
+     {ico:'2️⃣',text:'2 regions', value:'2', correct:false},
+     {ico:'3️⃣',text:'3 regions', value:'3', correct:true},
+     {ico:'4️⃣',text:'4 regions', value:'4', correct:false},
+   ],
+   feedback:{correct:'Bulbar (tongue fasciculations + slurred speech) + Cervical (right hand) + Lumbosacral (left leg). 3 regions with both UMN and LMN signs = Definite ALS by El Escorial criteria.',
+             wrong:'Count again: Bulbar (tongue twitching = LMN + slurred speech = UMN), Cervical (right hand wasting = LMN + brisk reflexes = UMN), Lumbosacral (left leg fasciculations). That\'s 3 regions. 3+ = Definite ALS by El Escorial.'}},
+
+  // 2 — investigation order
+  {type:'choice', layout:'grid-1',
+   prompt:'You need to confirm the diagnosis. What\'s the single most important test?',
+   sub:'One test stands above the rest.',
+   choices:[
+     {ico:'🧲',text:'MRI brain + spine — to see the motor neurons', value:'mri', correct:false},
+     {ico:'⚡',text:'EMG + nerve conduction — to map the denervation', value:'emg', correct:true},
+     {ico:'🩸',text:'Blood tests including CK and GM1 antibodies', value:'blood', correct:false},
+     {ico:'💨',text:'Spirometry — lung function testing', value:'fvc', correct:false},
+   ],
+   feedback:{correct:'EMG is the cornerstone. It shows active denervation (fibrillations, positive sharp waves, fasciculation potentials) across multiple myotomes — confirming LMN damage beyond what\'s clinically visible. Normal nerve conduction velocities simultaneously exclude peripheral neuropathy. It\'s diagnostic and exclusionary in one test.',
+             wrong:'All of these matter, but EMG is the king. It maps denervation across multiple regions (confirming the diagnosis) and normal conduction velocities exclude most mimics. MRI mainly excludes structural causes. Blood tests look for treatable mimics. Spirometry monitors respiratory — vital, but not diagnostic.'}},
+
+  // 3 — mimic tap
+  {type:'tap',
+   prompt:'Which of these are TREATABLE mimics of ALS you must never miss?',
+   sub:'If you miss these, the patient gets the wrong treatment.',
+   chips:[
+     {text:'MMN (multifocal motor neuropathy)',correct:true},
+     {text:'Cervical myelopathy',correct:true},
+     {text:'Kennedy disease',correct:false},
+     {text:'Myasthenia gravis',correct:true},
+     {text:'Thyroid myopathy',correct:true},
+     {text:'Primary lateral sclerosis',correct:false},
+   ],
+   depth:'<strong>MMN:</strong> GM1 antibody positive, LMN signs only, responds dramatically to IVIG — always exclude this first. <strong>Cervical myelopathy:</strong> MRI confirms, surgery may help. <strong>Myasthenia:</strong> AChR antibody, fatigable weakness, responds to pyridostigmine. <strong>Thyroid myopathy:</strong> treat the thyroid. Kennedy disease and PLS are real neurodegenerative conditions without effective disease-modifying treatment.',
+   feedback:'MMN, cervical myelopathy, myasthenia, and thyroid myopathy are all treatable. Kennedy disease (X-linked, LMN only) and PLS are neurodegenerative — different from ALS but not "treatable" in the same sense. The big one to never miss: MMN — it looks like ALS and IVIG can transform patients.'},
+]},
+
+// ─── CHAPTER 4: TREATMENT ───
+{id:4,icon:'💊',color:'rgba(124,109,240,.18)',name:'What we can do',desc:'RET · Respiratory · SCREAM',xp:150,
+steps:[
+  // 0
+  {type:'moment',
+   tag:'The honest conversation',
+   title:'ALS has no cure. But there\'s a lot you CAN do.',
+   body:'Three disease-modifying drugs. A critical respiratory window. Six symptom domains to manage. Done well, this extends survival and quality of life.',
+   visual:'treatment'},
+
+  // 1 — drug match
+  {type:'match',
+   prompt:'Match each drug to what it actually does.',
+   pairs:[
+     {left:'Riluzole',right:'Blocks glutamate release → less excitotoxicity'},
+     {left:'Edaravone',right:'Scavenges free radicals from mitochondria'},
+     {left:'Tofersen',right:'Reduces toxic SOD1 protein via ASO'},
+   ]},
+
+  // 2 — who gets what?
+  {type:'choice', layout:'grid-1',
+   prompt:'Jan\'s FVC (lung capacity) is 45%. Which treatment plan is correct?',
+   sub:'FVC <50% is a threshold you must know.',
+   choices:[
+     {ico:'💊',text:'Riluzole only — wait until FVC drops lower before doing more', value:'a', correct:false},
+     {ico:'✅',text:'Riluzole + NIV (BiPAP) immediately — FVC <50% is the threshold', value:'b', correct:true},
+     {ico:'💉',text:'Edaravone — slows decline by 33%', value:'c', correct:false},
+     {ico:'🧬',text:'Tofersen — the most targeted option', value:'d', correct:false},
+   ],
+   feedback:{correct:'Riluzole for everyone with ALS (first-line disease-modifying therapy). FVC <50% = start NIV (BiPAP) now — it extends survival 7–13 months and dramatically improves quality of life. Edaravone needs FVC >80%, so not indicated here. Tofersen is only for SOD1 mutation carriers — Jan has sporadic ALS.',
+             wrong:'Two things here: Riluzole is first-line for all ALS patients. And FVC 45% (<50%) means NIV (BiPAP) should start immediately — this threshold extends survival 7–13 months. Edaravone requires FVC >80%. Tofersen is only for confirmed SOD1 mutations.'}},
+
+  // 3 — morning headache
+  {type:'choice', layout:'grid-1',
+   prompt:'Jan\'s wife calls — he wakes up breathless and has a morning headache every day. What does the morning headache mean?',
+   sub:'This is specific. There\'s a physiological reason.',
+   choices:[
+     {ico:'😴',text:'Poor sleep quality from anxiety — reassure and review in clinic', value:'a', correct:false},
+     {ico:'💨',text:'Nocturnal CO₂ retention — diaphragm too weak to ventilate during sleep. Urgent NIV.', value:'b', correct:true},
+     {ico:'🧠',text:'Raised intracranial pressure from disease progression to the brain', value:'c', correct:false},
+   ],
+   feedback:{correct:'Morning headache in ALS = nocturnal CO₂ retention until proven otherwise. The diaphragm is too weak to breathe adequately during sleep → CO₂ builds up → vasodilation → headache on waking. This is a respiratory emergency. Arrange urgent spirometry and overnight oximetry. Start NIV immediately if confirmed.',
+             wrong:'Morning headache in ALS has a specific cause: nocturnal CO₂ retention. The weakened diaphragm can\'t adequately ventilate during sleep → CO₂ accumulates → headache on waking. ALS doesn\'t raise intracranial pressure. This is a respiratory emergency — act now.'}},
+
+  // 4 — SCREAM reveal
+  {type:'reveal-sequence',
+   title:'Symptomatic management — SCREAM',
+   items:[
+     {q:'S — Sialorrhoea (drooling)', a:'Amitriptyline (anticholinergic, dries secretions) first-line. Hyoscine patch. Botox to salivary glands if severe.'},
+     {q:'C — Communication', a:'Voice bank EARLY — record voice while speech is still clear. AAC devices + eye-tracking when speech fails.'},
+     {q:'R — Respiratory', a:'NIV (BiPAP) at FVC <50%. Cough-assist device. Flu + pneumococcal vaccines — infections cause rapid irreversible decline.'},
+     {q:'E — Eating (dysphagia)', a:'PEG tube BEFORE FVC drops <50% — anaesthetic risk rises sharply below this. Plan ahead, not in crisis.'},
+     {q:'A — Affect (pseudobulbar)', a:'Involuntary disproportionate laughing/crying = UMN sign, NOT depression. Treat with dextromethorphan/quinidine (Nuedexta).'},
+     {q:'M — Muscle cramps + spasticity', a:'Cramps: mexiletine (RCT evidence). Spasticity: baclofen (GABA-B agonist). Physiotherapy throughout.'},
+   ],
+   depth:'SCREAM covers every quality-of-life domain that ALS attacks. The critical timing rules: voice bank before speech goes, PEG before FVC <50%, NIV before respiratory crisis, advance care planning before capacity is lost. MDT care (neurologist, SLT, physio, dietitian, palliative) independently extends survival.'},
+]},
+
+// ─── CHAPTER 5: THE FULL PICTURE ───
+{id:5,icon:'🏆',color:'rgba(61,214,140,.18)',name:'The full case',desc:'Jan — 6 months later',xp:200,
+steps:[
+  // 0 — update
+  {type:'moment',
+   tag:'6 months on',
+   title:'Jan is back. A lot has changed.',
+   body:'EMG confirmed Definite ALS. He\'s on riluzole. FVC now 52%. Right arm weak, left leg dragging. He\'s scared about breathing.',
+   visual:'followup'},
+
+  // 1 — pseudobulbar
+  {type:'choice', layout:'grid-1',
+   prompt:'His wife mentions: "He laughed at a funeral last week. He didn\'t want to, he couldn\'t stop. It\'s not like him." What is this?',
+   sub:'There\'s a specific name and a specific treatment.',
+   choices:[
+     {ico:'😢',text:'Depression — start an antidepressant', value:'a', correct:false},
+     {ico:'🧠',text:'Pseudobulbar affect — UMN sign causing involuntary emotional expression. Treat with dextromethorphan/quinidine.', value:'b', correct:true},
+     {ico:'😰',text:'Anxiety disorder — refer to psychology', value:'c', correct:false},
+   ],
+   feedback:{correct:'Pseudobulbar affect (PBA) = involuntary emotional expression from UMN loss of cortical inhibition. The patient\'s MOOD is normal — it\'s the expression that\'s uncontrolled. He\'s embarrassed, not amused. Dextromethorphan/quinidine (Nuedexta) has RCT evidence. Reassure the family — this is a neurological sign, not a psychiatric breakdown.',
+             wrong:'This is pseudobulbar affect — a UMN sign, not depression or anxiety. The emotional expression is involuntary and disproportionate; the underlying mood may be fine. Dextromethorphan/quinidine (Nuedexta) treats it specifically. Antidepressants won\'t help PBA.'}},
+
+  // 2 — final rapid fire
+  {type:'choice', layout:'grid-1',
+   prompt:'Jan asks: "My cousin also has the SOD1 mutation. She has no symptoms. Can anything help her?"',
+   sub:'Apply the very latest evidence.',
+   choices:[
+     {ico:'🧬',text:'Yes — ATLAS trial: giving tofersen to pre-symptomatic SOD1 carriers may prevent or delay ALS onset', value:'a', correct:true},
+     {ico:'❌',text:'No — nothing can be done before symptoms appear', value:'b', correct:false},
+     {ico:'⏳',text:'Wait and watch — only start treatment when symptoms develop', value:'c', correct:false},
+   ],
+   feedback:{correct:'The ATLAS trial is attempting something unprecedented — preventing a neurodegenerative disease before it starts. Pre-symptomatic SOD1 carriers can get tofersen, and NfL (neurofilament light chain) rising in blood can signal when neurons are starting to stress, even years before symptoms. If it works, it would be the first neurodegenerative disease prevention trial to succeed.',
+             wrong:'This is actually the frontier of ALS research. The ATLAS trial gives tofersen to pre-symptomatic SOD1 carriers — attempting to prevent ALS from starting. NfL in blood can detect neuronal stress before any weakness appears. Genetic counselling + trial enrolment should be offered to at-risk relatives.'}},
+
+  // 3 — badge
+  {type:'badge',
+   emoji:'🏆',
+   title:'ALS Discovered.',
+   sub:'You went from a handshake that felt wrong to a full clinical picture — pathophysiology, diagnosis, treatment, and cutting-edge prevention. Jan is lucky to have you.',
+  },
+]},
+];
+
+// ══════════════════════════
+//  RENDER MAP
+// ══════════════════════════
+function showMap(){
+  document.getElementById('map-screen').classList.remove('hidden');
+  document.getElementById('lesson-screen').classList.add('hidden');
+  document.getElementById('bar-fill').style.width='0%';
+  document.getElementById('main-btn').textContent='↓ Pick a chapter below';
+  document.getElementById('main-btn').className='main-btn btn-check';
+
+  document.getElementById('stat-xp').textContent=XP;
+  document.getElementById('stat-done').textContent=done.length;
+  document.getElementById('stat-acc').textContent=ta>0?Math.round(tc/ta*100)+'%':'—';
+  document.getElementById('bar-xp').textContent=XP+' XP';
+
+  document.getElementById('chapters').innerHTML=CHAPTERS.map((c,i)=>{
+    const isDone=done.includes(c.id);
+    const isLocked=i>0&&!done.includes(CHAPTERS[i-1].id);
+    return `<button class="chapter-btn ${isLocked?'locked':''} ${isDone?'done':''}" 
+      style="${!isLocked?'cursor:pointer':''}"
+      onclick="${isLocked?'':'startChapter('+c.id+')'}">
+      <div class="ch-icon" style="background:${c.color}">${c.icon}</div>
+      <div class="ch-info">
+        <div class="ch-num">Chapter ${i+1}</div>
+        <div class="ch-name">${c.name}</div>
+        <div class="ch-desc">${c.desc}</div>
+      </div>
+      <div class="ch-right">
+        <div class="ch-xp">+${c.xp} XP</div>
+        <div>${isDone?'✅':isLocked?'🔒':'→'}</div>
+      </div>
+    </button>`;
+  }).join('');
+}
+
+// ══════════════════════════
+//  START CHAPTER
+// ══════════════════════════
+function startChapter(id){
+  curChapter=CHAPTERS.find(c=>c.id===id);
+  curStep=0; stepDone=false; hearts=3;
+  lvlCorrect=0; lvlTotal=0;
+  document.getElementById('map-screen').classList.add('hidden');
+  document.getElementById('lesson-screen').classList.remove('hidden');
+  // Scroll stage back to top
+  document.getElementById('stage').scrollTop=0;
+  renderStep();
+}
+
+// ══════════════════════════
+//  RENDER STEP
+// ══════════════════════════
+function renderStep(){
+  const step=curChapter.steps[curStep];
+  const pct=((curStep)/curChapter.steps.length)*100;
+  document.getElementById('bar-fill').style.width=pct+'%';
+  document.getElementById('bar-hearts').textContent='❤️'.repeat(hearts)+'🖤'.repeat(Math.max(0,3-hearts));
+
+  const el=document.getElementById('lesson-content');
+  el.innerHTML=buildStep(step);
+  el.classList.remove('anim-slide');
+  void el.offsetWidth;
+  el.classList.add('anim-slide');
+
+  // Set button
+  const btn=document.getElementById('main-btn');
+  if(['moment','fact','signs'].includes(step.type)){
+    btn.textContent='Continue'; btn.className='main-btn btn-go'; stepDone=true;
+  } else if(step.type==='neuron-build'){
+    window._nbOpened=new Set();
+    btn.textContent=`Open all 4 stages to continue`; btn.className='main-btn btn-check'; stepDone=false;
+  } else if(step.type==='reveal-sequence'){
+    window._rsOpen=new Set(); checkRevealDone();
+    stepDone=false;
+  } else if(step.type==='badge'){
+    btn.textContent='Back to map 🗺️'; btn.className='main-btn btn-done'; stepDone=true;
+    completeChapter();
+  } else {
+    btn.textContent='Check'; btn.className='main-btn btn-check'; stepDone=false;
+  }
+}
+
+// ══════════════════════════
+//  BUILD STEP HTML
+// ══════════════════════════
+function buildStep(step){
+  if(step.type==='moment') return buildMoment(step);
+  if(step.type==='fact') return buildFact(step);
+  if(step.type==='choice') return buildChoice(step);
+  if(step.type==='tap') return buildTap(step);
+  if(step.type==='match') return buildMatch(step);
+  if(step.type==='signs') return buildSigns(step);
+  if(step.type==='neuron-build') return buildNeuronBuild(step);
+  if(step.type==='reveal-sequence') return buildRevealSeq(step);
+  if(step.type==='badge') return buildBadge(step);
+  return '';
+}
+
+// MOMENT
+function buildMoment(s){
+  const visuals={
+    patient:`<svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;background:#141418">
+      <circle cx="180" cy="68" r="34" fill="rgba(124,109,240,.15)" stroke="rgba(124,109,240,.3)" stroke-width="1.5"/>
+      <text x="180" y="78" text-anchor="middle" font-size="32">👨</text>
+      <text x="180" y="115" text-anchor="middle" font-size="13" font-weight="700" fill="#f0f0f6">Jan de Vries, 54</text>
+      <text x="180" y="133" text-anchor="middle" font-size="11" fill="#8080a0">Civil engineer · Rotterdam</text>
+      <rect x="30" y="85" width="100" height="70" rx="12" fill="rgba(245,158,11,.08)" stroke="rgba(245,158,11,.25)" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="80" y="115" text-anchor="middle" font-size="12" font-weight="700" fill="#f5a623">8 months</text>
+      <text x="80" y="131" text-anchor="middle" font-size="11" fill="#f5a623">right hand</text>
+      <text x="80" y="147" text-anchor="middle" font-size="11" fill="#f5a623">weakness ⚠</text>
+      <line x1="131" y1="120" x2="152" y2="110" stroke="rgba(245,158,11,.3)" stroke-width="1.5" stroke-dasharray="3,3"/>
+    </svg>`,
+    hand:`<svg viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;background:#141418">
+      <text x="180" y="122" text-anchor="middle" font-size="88">🤚</text>
+      <rect x="56" y="148" width="96" height="38" rx="10" fill="rgba(240,107,107,.12)" stroke="rgba(240,107,107,.4)" stroke-width="1.5"/>
+      <text x="104" y="164" text-anchor="middle" font-size="12" font-weight="700" fill="#f06b6b">Thenar WASTED</text>
+      <text x="104" y="179" text-anchor="middle" font-size="10" fill="#f06b6b">LMN sign ↑</text>
+      <rect x="212" y="42" width="96" height="38" rx="10" fill="rgba(245,158,11,.12)" stroke="rgba(245,158,11,.4)" stroke-width="1.5"/>
+      <text x="260" y="58" text-anchor="middle" font-size="12" font-weight="700" fill="#f5a623">Reflex BRISK</text>
+      <text x="260" y="73" text-anchor="middle" font-size="10" fill="#f5a623">UMN sign ↑</text>
+      <line x1="150" y1="155" x2="212" y2="74" stroke="rgba(255,255,255,.1)" stroke-width="1" stroke-dasharray="4,4"/>
+      <text x="188" y="120" text-anchor="middle" font-size="12" fill="#8080a0" font-style="italic" font-weight="600">paradox!</text>
+    </svg>`,
+    relay:`<svg viewBox="0 0 360 170" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;background:#141418">
+      <defs>
+        <marker id="a1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="rgba(124,109,240,.7)"/></marker>
+        <marker id="a2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="rgba(91,164,245,.7)"/></marker>
+      </defs>
+      <rect x="14" y="52" width="92" height="66" rx="12" fill="rgba(124,109,240,.13)" stroke="rgba(124,109,240,.4)" stroke-width="1.5"/>
+      <text x="60" y="78" text-anchor="middle" font-size="13" font-weight="700" fill="#b8aff8">Motor</text>
+      <text x="60" y="95" text-anchor="middle" font-size="13" font-weight="700" fill="#b8aff8">Cortex</text>
+      <text x="60" y="112" text-anchor="middle" font-size="10" fill="#8080a0">UMN origin</text>
+      <path d="M106 85 L138 85" stroke="rgba(124,109,240,.5)" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#a1)"/>
+      <rect x="138" y="52" width="92" height="66" rx="12" fill="rgba(91,164,245,.1)" stroke="rgba(91,164,245,.4)" stroke-width="1.5"/>
+      <text x="184" y="78" text-anchor="middle" font-size="13" font-weight="700" fill="#5ba4f5">Spinal</text>
+      <text x="184" y="95" text-anchor="middle" font-size="13" font-weight="700" fill="#5ba4f5">Cord</text>
+      <text x="184" y="112" text-anchor="middle" font-size="10" fill="#8080a0">LMN here</text>
+      <path d="M230 85 L260 85" stroke="rgba(91,164,245,.5)" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#a2)"/>
+      <rect x="260" y="58" width="86" height="54" rx="12" fill="rgba(61,214,140,.1)" stroke="rgba(61,214,140,.4)" stroke-width="1.5"/>
+      <text x="303" y="82" text-anchor="middle" font-size="13" font-weight="700" fill="#3dd68c">Muscle</text>
+      <text x="303" y="99" text-anchor="middle" font-size="10" fill="#8080a0">contracts ✓</text>
+      <text x="60" y="140" text-anchor="middle" font-size="12" fill="#f06b6b" font-weight="700">ALS kills ✕</text>
+      <text x="184" y="140" text-anchor="middle" font-size="12" fill="#f06b6b" font-weight="700">ALS kills ✕</text>
+    </svg>`,
+    neuron:`<svg viewBox="0 0 360 175" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;background:#141418">
+      <ellipse cx="90" cy="88" rx="46" ry="44" fill="rgba(124,109,240,.1)" stroke="rgba(124,109,240,.35)" stroke-width="1.5"/>
+      <text x="90" y="83" text-anchor="middle" font-size="11" fill="#b8aff8" font-weight="700">Cell body</text>
+      <text x="90" y="99" text-anchor="middle" font-size="10" fill="#8080a0">1m+ axon →</text>
+      <line x1="136" y1="88" x2="296" y2="88" stroke="rgba(124,109,240,.25)" stroke-width="5" stroke-dasharray="9,5"/>
+      <rect x="296" y="72" width="50" height="30" rx="8" fill="rgba(61,214,140,.1)" stroke="rgba(61,214,140,.35)" stroke-width="1.5"/>
+      <text x="321" y="92" text-anchor="middle" font-size="11" fill="#3dd68c" font-weight="700">NMJ</text>
+      <rect x="10" y="140" width="112" height="24" rx="7" fill="rgba(245,158,11,.08)" stroke="rgba(245,158,11,.22)" stroke-width="1"/>
+      <text x="66" y="157" text-anchor="middle" font-size="11" fill="#f5a623" font-weight="600">⚠ No Ca²⁺ buffers</text>
+      <rect x="132" y="140" width="96" height="24" rx="7" fill="rgba(245,158,11,.08)" stroke="rgba(245,158,11,.22)" stroke-width="1"/>
+      <text x="180" y="157" text-anchor="middle" font-size="11" fill="#f5a623" font-weight="600">⚠ 1m axon</text>
+      <rect x="238" y="140" width="112" height="24" rx="7" fill="rgba(245,158,11,.08)" stroke="rgba(245,158,11,.22)" stroke-width="1"/>
+      <text x="294" y="157" text-anchor="middle" font-size="11" fill="#f5a623" font-weight="600">⚠ Leaky receptors</text>
+    </svg>`,
+    exam:`<svg viewBox="0 0 360 210" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;background:#141418">
+      <text x="180" y="26" text-anchor="middle" font-size="12" fill="#8080a0" font-weight="700" letter-spacing="1">EL ESCORIAL — BODY REGIONS</text>
+      <rect x="120" y="38" width="120" height="34" rx="9" fill="rgba(240,107,107,.14)" stroke="rgba(240,107,107,.4)" stroke-width="1.5"/>
+      <text x="180" y="60" text-anchor="middle" font-size="14" font-weight="700" fill="#f06b6b">Bulbar ✓✓</text>
+      <rect x="88" y="80" width="184" height="32" rx="9" fill="rgba(240,107,107,.14)" stroke="rgba(240,107,107,.4)" stroke-width="1.5"/>
+      <text x="180" y="101" text-anchor="middle" font-size="14" font-weight="700" fill="#f06b6b">Cervical ✓✓</text>
+      <rect x="108" y="120" width="144" height="32" rx="9" fill="rgba(91,164,245,.08)" stroke="rgba(91,164,245,.25)" stroke-width="1"/>
+      <text x="180" y="141" text-anchor="middle" font-size="14" fill="#5ba4f5">Thoracic ?</text>
+      <rect x="98" y="160" width="164" height="32" rx="9" fill="rgba(240,107,107,.14)" stroke="rgba(240,107,107,.4)" stroke-width="1.5"/>
+      <text x="180" y="181" text-anchor="middle" font-size="14" font-weight="700" fill="#f06b6b">Lumbosacral ✓✓</text>
+      <text x="180" y="204" text-anchor="middle" font-size="11" fill="#8080a0">3 regions with UMN+LMN = Definite ALS</text>
+    </svg>`,
+    treatment:`<svg viewBox="0 0 360 185" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;background:#141418">
+      <rect x="10" y="16" width="104" height="62" rx="10" fill="rgba(61,214,140,.1)" stroke="rgba(61,214,140,.3)" stroke-width="1.5"/>
+      <text x="62" y="42" text-anchor="middle" font-size="13" font-weight="700" fill="#3dd68c">Riluzole</text>
+      <text x="62" y="59" text-anchor="middle" font-size="11" fill="#8080a0">↓ glutamate</text>
+      <text x="62" y="73" text-anchor="middle" font-size="11" fill="#3dd68c">→ everyone</text>
+      <rect x="128" y="16" width="104" height="62" rx="10" fill="rgba(91,164,245,.1)" stroke="rgba(91,164,245,.3)" stroke-width="1.5"/>
+      <text x="180" y="42" text-anchor="middle" font-size="13" font-weight="700" fill="#5ba4f5">Edaravone</text>
+      <text x="180" y="59" text-anchor="middle" font-size="11" fill="#8080a0">↓ free radicals</text>
+      <text x="180" y="73" text-anchor="middle" font-size="11" fill="#5ba4f5">FVC &gt;80%</text>
+      <rect x="246" y="16" width="104" height="62" rx="10" fill="rgba(245,158,11,.1)" stroke="rgba(245,158,11,.3)" stroke-width="1.5"/>
+      <text x="298" y="42" text-anchor="middle" font-size="13" font-weight="700" fill="#f5a623">Tofersen</text>
+      <text x="298" y="59" text-anchor="middle" font-size="11" fill="#8080a0">↓ SOD1</text>
+      <text x="298" y="73" text-anchor="middle" font-size="11" fill="#f5a623">SOD1 only</text>
+      <rect x="50" y="96" width="260" height="70" rx="12" fill="rgba(240,107,107,.1)" stroke="rgba(240,107,107,.3)" stroke-width="1.5"/>
+      <text x="180" y="118" text-anchor="middle" font-size="13" font-weight="700" fill="#f06b6b">FVC &lt;50% → START NIV NOW</text>
+      <text x="180" y="138" text-anchor="middle" font-size="12" fill="#b8b8d0">BiPAP extends survival 7–13 months</text>
+      <text x="180" y="157" text-anchor="middle" font-size="12" fill="#b8b8d0">Morning headache = act today</text>
+    </svg>`,
+    followup:`<svg viewBox="0 0 360 168" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;background:#141418">
+      <text x="180" y="58" text-anchor="middle" font-size="40">👨</text>
+      <text x="180" y="86" text-anchor="middle" font-size="13" fill="#b8b8d0" font-weight="700">Jan · 6 months on</text>
+      <rect x="16" y="100" width="100" height="52" rx="11" fill="rgba(61,214,140,.1)" stroke="rgba(61,214,140,.28)" stroke-width="1.5"/>
+      <text x="66" y="122" text-anchor="middle" font-size="12" fill="#3dd68c" font-weight="700">Riluzole ✓</text>
+      <text x="66" y="140" text-anchor="middle" font-size="11" fill="#8080a0">On treatment</text>
+      <rect x="130" y="100" width="100" height="52" rx="11" fill="rgba(245,158,11,.1)" stroke="rgba(245,158,11,.28)" stroke-width="1.5"/>
+      <text x="180" y="122" text-anchor="middle" font-size="12" fill="#f5a623" font-weight="700">FVC 52%</text>
+      <text x="180" y="140" text-anchor="middle" font-size="11" fill="#8080a0">Monitoring ↓</text>
+      <rect x="244" y="100" width="100" height="52" rx="11" fill="rgba(240,107,107,.1)" stroke="rgba(240,107,107,.28)" stroke-width="1.5"/>
+      <text x="294" y="122" text-anchor="middle" font-size="12" fill="#f06b6b" font-weight="700">Spreading</text>
+      <text x="294" y="140" text-anchor="middle" font-size="11" fill="#8080a0">Left leg ↓</text>
+    </svg>`,
+  };
+  return `<div class="moment anim-slide">
+    <div class="moment-tag">${s.tag||''}</div>
+    <div class="moment-visual story-visual">${visuals[s.visual]||''}</div>
+    <div class="moment-title">${s.title}</div>
+    <div class="moment-body">${s.body}</div>
+  </div>`;
+}
+
+// FACT
+function buildFact(s){
+  return `<div class="fact-card anim-pop">
+    <div class="fact-icon">${s.icon}</div>
+    <div class="fact-label">${s.label}</div>
+    <div class="fact-text">${s.text}</div>
+    <div class="fact-sub">${s.sub}</div>
+  </div>`;
+}
+
+// CHOICE
+let _selectedChoice=-1;
+function buildChoice(s){
+  _selectedChoice=-1;
+  const small=window.innerWidth<380;
+  const cols=(s.layout==='grid-2'&&s.choices.length===4&&!small)?'grid-2':'grid-1';
+  return `<div class="anim-slide" style="width:100%">
+    <div class="choice-prompt">${s.prompt}</div>
+    <div class="choice-sub">${s.sub}</div>
+    <div class="choices ${cols}" id="choices">
+      ${s.choices.map((c,i)=>`<button class="choice" id="ch${i}" onclick="pickChoice(${i})">
+        <span class="choice-ico">${c.ico}</span>
+        <span class="choice-text">${c.text}</span>
+      </button>`).join('')}
+    </div>
+    <div id="choice-fb" style="display:none;margin-top:12px"></div>
+  </div>`;
+}
+
+function pickChoice(i){
+  if(stepDone) return;
+  _selectedChoice=i;
+  document.querySelectorAll('.choice').forEach((el,j)=>el.classList.toggle('dim',j!==i));
+  document.getElementById('ch'+i).classList.remove('dim');
+  document.getElementById('ch'+i).style.borderColor='var(--purple)';
+  const btn=document.getElementById('main-btn');
+  btn.textContent='Check'; btn.className='main-btn btn-ready';
+}
+
+function checkChoice(){
+  if(_selectedChoice<0) return;
+  const step=curChapter.steps[curStep];
+  const choice=step.choices[_selectedChoice];
+  const correct=choice.correct;
+  lvlTotal++; ta++;
+  if(correct){lvlCorrect++;tc++;} else {hearts=Math.max(0,hearts-1);}
+  save();
+  document.querySelectorAll('.choice').forEach((el,i)=>{
+    el.disabled=true; el.classList.remove('dim');
+    el.style.borderColor='';
+    if(step.choices[i].correct) el.classList.add('correct');
+    else if(i===_selectedChoice&&!correct) el.classList.add('wrong');
+    else el.classList.add('dim');
+  });
+  const fb=document.getElementById('choice-fb');
+  fb.className='reveal-result '+(correct?'good':'bad');
+  fb.innerHTML=`<div class="reveal-emoji">${correct?'✅':'❌'}</div>
+    <div class="reveal-verdict" style="color:var(--${correct?'green':'red'})">${correct?'Exactly right.':'Not quite.'}</div>
+    <div class="reveal-explain">${correct?step.feedback.correct:step.feedback.wrong}</div>`;
+  fb.style.display='block';
+  document.getElementById('bar-hearts').textContent='❤️'.repeat(hearts)+'🖤'.repeat(Math.max(0,3-hearts));
+  const btn=document.getElementById('main-btn');
+  btn.textContent='Continue'; btn.className='main-btn btn-go'; stepDone=true;
+}
+
+// TAP
+let _tapped=new Set();
+function buildTap(s){
+  _tapped=new Set();
+  return `<div class="tap-wrap anim-slide">
+    <div class="tap-prompt">${s.prompt}</div>
+    <div class="tap-sub">${s.sub}</div>
+    <div class="tap-grid">${s.chips.map((c,i)=>`<button class="tap-chip" id="tc${i}" onclick="toggleTap(${i})">${c.text}</button>`).join('')}</div>
+    <div id="tap-fb" style="display:none;margin-top:12px"></div>
+    ${s.depth?`<button class="depth-btn" id="depth-btn" onclick="toggleDepth()">💡 More depth</button>
+    <div class="depth-panel" id="depth-panel">${s.depth}</div>`:''}
+  </div>`;
+}
+function toggleTap(i){
+  if(stepDone) return;
+  const el=document.getElementById('tc'+i);
+  if(_tapped.has(i)){_tapped.delete(i);el.classList.remove('on');}
+  else{_tapped.add(i);el.classList.add('on');}
+  const btn=document.getElementById('main-btn');
+  btn.textContent='Check'; btn.className=_tapped.size>0?'main-btn btn-ready':'main-btn btn-check';
+}
+function checkTap(){
+  const step=curChapter.steps[curStep];
+  let allRight=true;
+  step.chips.forEach((c,i)=>{
+    const el=document.getElementById('tc'+i);
+    el.disabled=true;
+    if(c.correct&&_tapped.has(i)){el.classList.remove('on');el.classList.add('correct');}
+    else if(c.correct&&!_tapped.has(i)){el.classList.add('missed');allRight=false;}
+    else if(!c.correct&&_tapped.has(i)){el.classList.remove('on');el.classList.add('wrong');allRight=false;}
+  });
+  lvlTotal++;ta++;
+  if(allRight){lvlCorrect++;tc++;} else hearts=Math.max(0,hearts-1);
+  save();
+  const fb=document.getElementById('tap-fb');
+  fb.className='reveal-result '+(allRight?'good':'bad');
+  fb.innerHTML=`<div class="reveal-emoji">${allRight?'✅':'❌'}</div>
+    <div class="reveal-verdict" style="color:var(--${allRight?'green':'red'})">${allRight?'All correct!':'Some were off.'}</div>
+    <div class="reveal-explain">${step.feedback}</div>`;
+  fb.style.display='block';
+  document.getElementById('bar-hearts').textContent='❤️'.repeat(hearts)+'🖤'.repeat(Math.max(0,3-hearts));
+  const btn=document.getElementById('main-btn');
+  btn.textContent='Continue'; btn.className='main-btn btn-go'; stepDone=true;
+}
+
+// MATCH
+let _matchSel=null,_matchDone=new Set();
+function buildMatch(s){
+  _matchSel=null;_matchDone=new Set();
+  const rights=[...s.pairs.map(p=>p.right)].sort(()=>Math.random()-.5);
+  window._matchPairs=s.pairs; window._matchRights=rights;
+  const small=window.innerWidth<380;
+  const colStyle=small?'display:flex;flex-direction:column;gap:7px;':'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
+  return `<div class="match-wrap anim-slide">
+    <div class="match-prompt">${s.prompt}</div>
+    <div style="${colStyle}">
+      <div class="match-col">${s.pairs.map((p,i)=>`<button class="match-chip" id="ml${i}" onclick="selectMatchLeft(${i})">${p.left}</button>`).join('')}</div>
+      <div class="match-col">${rights.map((r,i)=>`<button class="match-chip" id="mr${i}" onclick="selectMatchRight(${i})">${r}</button>`).join('')}</div>
+    </div>
+    <div id="match-fb" style="display:none;margin-top:10px"></div>
+  </div>`;
+}
+function selectMatchLeft(i){
+  if(_matchDone.has('l'+i)) return;
+  _matchSel={side:'left',idx:i};
+  document.querySelectorAll('[id^="ml"]').forEach(el=>el.classList.remove('sel'));
+  document.getElementById('ml'+i).classList.add('sel');
+}
+function selectMatchRight(i){
+  if(!_matchSel||_matchSel.side!=='left') return;
+  if(_matchDone.has('r'+i)) return;
+  const li=_matchSel.idx;
+  const correct=window._matchRights[i]===window._matchPairs[li].right;
+  if(correct){
+    ['ml'+li,'mr'+i].forEach(id=>{
+      document.getElementById(id).classList.remove('sel');
+      document.getElementById(id).classList.add('matched');
+      document.getElementById(id).disabled=true;
+    });
+    _matchDone.add('l'+li);_matchDone.add('r'+i);
+    _matchSel=null;
+    if(_matchDone.size===window._matchPairs.length*2){
+      lvlTotal++;ta++;lvlCorrect++;tc++;save();
+      const fb=document.getElementById('match-fb');
+      fb.className='reveal-result good';
+      fb.innerHTML='<div class="reveal-emoji">✅</div><div class="reveal-verdict" style="color:var(--green)">All matched!</div>';
+      fb.style.display='block';
+      const btn=document.getElementById('main-btn');
+      btn.textContent='Continue';btn.className='main-btn btn-go';stepDone=true;
+    }
+  } else {
+    document.getElementById('mr'+i).classList.add('flash-wrong');
+    setTimeout(()=>document.getElementById('mr'+i).classList.remove('flash-wrong'),450);
+    document.getElementById('ml'+li).classList.remove('sel');
+    _matchSel=null;
+    hearts=Math.max(0,hearts-1);
+    document.getElementById('bar-hearts').textContent='❤️'.repeat(hearts)+'🖤'.repeat(Math.max(0,3-hearts));
+  }
+}
+
+// SIGNS GALLERY
+function buildSigns(s){
+  return `<div class="anim-fade" style="width:100%">
+    <div class="choice-prompt" style="margin-bottom:14px">${s.title}</div>
+    <div class="sign-grid">${s.signs.map(sg=>`<div class="sign-card ${sg.type}" onclick="this.classList.toggle('${sg.type}')">
+      <div class="sign-emoji">${sg.emoji}</div>
+      <div class="sign-name">${sg.name}</div>
+      <div class="sign-desc">${sg.desc}</div>
+      <span class="sign-badge ${sg.type==='umno'?'badge-umno':'badge-lmno'}">${sg.type==='umno'?'UMN sign':'LMN sign'}</span>
+    </div>`).join('')}</div>
+    <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:10px">Tap a card to highlight it</div>
+  </div>`;
+}
+
+// NEURON BUILD — vertical accordion
+function buildNeuronBuild(s){
+  window._nbSteps=s.stages;
+  window._nbOpened=new Set();
+  const items=s.stages.map((stage,i)=>{
+    const umnDead=stage.umNo, lmnDead=stage.lmNo, muscleWaste=stage.muscle==='waste';
+    return `<div class="vacc-item">
+      <button class="vacc-trigger" id="nbt${i}" onclick="toggleNB(${i})">
+        <div class="vacc-num" id="nbn${i}">${i+1}</div>
+        <div class="vacc-label">
+          <div class="vacc-title">${stage.label}</div>
+          <div class="vacc-sub">${stage.caption}</div>
+        </div>
+        <div class="vacc-arr" id="nba${i}">▼</div>
+      </button>
+      <div class="vacc-body" id="nbb${i}">
+        <div class="nv-row">
+          <div class="nv-cell">
+            <div class="nv-dot ${umnDead?'nv-dot-dead':'nv-dot-live'}">${umnDead?'💀':'🧠'}</div>
+            <div class="nv-label" style="color:${umnDead?'var(--red)':'var(--purple2)'}">UMN</div>
+          </div>
+          <div class="nv-arrow">${umnDead?'✕':'→'}</div>
+          <div class="nv-cell">
+            <div class="nv-dot ${lmnDead?'nv-dot-dead':'nv-dot-live'}">${lmnDead?'💀':'⚡'}</div>
+            <div class="nv-label" style="color:${lmnDead?'var(--red)':'var(--blue)'}">LMN</div>
+          </div>
+          <div class="nv-arrow">${lmnDead?'✕':'→'}</div>
+          <div class="nv-cell">
+            <div class="nv-muscle ${muscleWaste?'nv-muscle-waste':'nv-muscle-ok'}">${muscleWaste?'💀':'💪'}</div>
+            <div class="nv-label" style="color:${muscleWaste?'var(--red)':'var(--green)'}">Muscle</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="anim-slide" style="width:100%">
+    <div class="choice-prompt" style="margin-bottom:6px">Watch what happens when each neuron dies.</div>
+    <div style="font-size:14px;color:var(--text2);text-align:center;margin-bottom:16px">Tap each stage to reveal it. Open all four to continue.</div>
+    <div class="vacc-wrap">${items}</div>
+    <div id="nb-fb" style="display:none;margin-top:12px"></div>
+  </div>`;
+}
+function toggleNB(i){
+  const body=document.getElementById('nbb'+i);
+  const trig=document.getElementById('nbt'+i);
+  const arr=document.getElementById('nba'+i);
+  const num=document.getElementById('nbn'+i);
+  const isOpen=body.classList.contains('open');
+  body.classList.toggle('open');
+  trig.classList.toggle('opened',!isOpen);
+  arr.textContent=isOpen?'▼':'▲';
+  if(!isOpen){
+    window._nbOpened.add(i);
+    num.classList.add('done');
+    num.textContent='✓';
+    if(window._nbOpened.size>=window._nbSteps.length){
+      stepDone=true;
+      const btn=document.getElementById('main-btn');
+      btn.textContent='Got it →'; btn.className='main-btn btn-go';
+      const fb=document.getElementById('nb-fb');
+      fb.className='reveal-result good';
+      fb.innerHTML='<div class="reveal-emoji">✅</div><div class="reveal-verdict" style="color:var(--green)">You\'ve seen all four stages — the ALS paradox makes sense now.</div>';
+      fb.style.display='block';
+    }
+  }
+}
+
+// REVEAL SEQUENCE — vertical accordion
+let _revOpened=new Set();
+function buildRevealSeq(s){
+  _revOpened=new Set();
+  const items=s.items.map((item,i)=>`
+    <div class="vacc-item">
+      <button class="vacc-trigger" id="rvt${i}" onclick="toggleReveal(${i})">
+        <div class="vacc-num" id="rvi${i}">${i+1}</div>
+        <div class="vacc-label">
+          <div class="vacc-title">${item.q}</div>
+        </div>
+        <div class="vacc-arr" id="rva${i}">▼</div>
+      </button>
+      <div class="vacc-body" id="rvb${i}">${item.a}</div>
+    </div>`).join('');
+  return `<div class="anim-slide" style="width:100%">
+    <div class="choice-prompt" style="margin-bottom:6px">${s.title}</div>
+    <div style="font-size:14px;color:var(--text2);text-align:center;margin-bottom:16px">Tap each to reveal. Open all to continue.</div>
+    <div class="vacc-wrap">${items}</div>
+    ${s.depth?`<button class="depth-btn" onclick="toggleDepth()">💡 Go deeper</button>
+    <div class="depth-panel" id="depth-panel">${s.depth}</div>`:''}
+    <div id="rs-fb" style="display:none;margin-top:12px"></div>
+  </div>`;
+}
+function toggleReveal(i){
+  const body=document.getElementById('rvb'+i);
+  const trig=document.getElementById('rvt'+i);
+  const arr=document.getElementById('rva'+i);
+  const ico=document.getElementById('rvi'+i);
+  const isOpen=body.classList.contains('open');
+  body.classList.toggle('open');
+  trig.classList.toggle('opened',!isOpen);
+  arr.textContent=isOpen?'▼':'▲';
+  if(!isOpen){
+    _revOpened.add(i);
+    ico.classList.add('done');
+    ico.textContent='✓';
+  }
+  checkRevealDone();
+}
+function checkRevealDone(){
+  const step=curChapter.steps[curStep];
+  const total=step.items.length;
+  const btn=document.getElementById('main-btn');
+  if(_revOpened.size>=total){
+    btn.textContent='Continue →'; btn.className='main-btn btn-go'; stepDone=true;
+    const fb=document.getElementById('rs-fb');
+    if(fb){fb.className='reveal-result good';fb.innerHTML='<div class="reveal-emoji">✅</div><div class="reveal-verdict" style="color:var(--green)">All revealed. Keep going!</div>';fb.style.display='block';}
+  } else {
+    const rem=total-_revOpened.size;
+    btn.textContent=`Open ${rem} more to continue`; btn.className='main-btn btn-check'; stepDone=false;
+  }
+}
+
+// BADGE
+function buildBadge(s){
+  const pct=lvlTotal>0?Math.round(lvlCorrect/lvlTotal*100):100;
+  return `<div class="badge-screen anim-pop">
+    <div class="badge-glow">${s.emoji}</div>
+    <div class="badge-title">${s.title}</div>
+    <div class="badge-sub">${s.sub}</div>
+    <div class="badge-xp">+${curChapter.xp} XP earned</div>
+    <div class="badge-stat-row">
+      <div class="bstat"><div class="bstat-n" style="color:var(--amber)">${XP}</div><div class="bstat-l">Total XP</div></div>
+      <div class="bstat"><div class="bstat-n" style="color:var(--green)">${pct}%</div><div class="bstat-l">This chapter</div></div>
+      <div class="bstat"><div class="bstat-n" style="color:var(--purple2)">${done.length}</div><div class="bstat-l">Chapters done</div></div>
+    </div>
+  </div>`;
+}
+
+// DEPTH TOGGLE
+function toggleDepth(){
+  const p=document.getElementById('depth-panel');
+  const b=document.getElementById('depth-btn');
+  if(!p) return;
+  const open=p.classList.toggle('open');
+  if(b) b.textContent=open?'💡 Hide depth':'💡 More depth';
+}
+
+// ══════════════════════════
+//  BUTTON + FLOW
+// ══════════════════════════
+function handleBtn(){
+  // On map screen — button just scrolls to chapters
+  if(!curChapter){
+    document.getElementById('chapters').scrollIntoView({behavior:'smooth'});
+    return;
+  }
+
+  const step=curChapter.steps[curStep];
+  if(step.type==='badge'){showMap();return;}
+
+  if(!stepDone){
+    if(step.type==='choice') checkChoice();
+    else if(step.type==='tap') checkTap();
+    return;
+  }
+
+  // advance to next step
+  curStep++;
+  if(curStep>=curChapter.steps.length){completeChapter();showMap();}
+  else{stepDone=false;_selectedChoice=-1;_tapped=new Set();_matchSel=null;_matchDone=new Set();renderStep();}
+}
+
+function completeChapter(){
+  if(!done.includes(curChapter.id)){
+    done.push(curChapter.id);
+    XP+=curChapter.xp;
+    save();
+  }
+}
+
+function goBack(){
+  if(!document.getElementById('lesson-screen').classList.contains('hidden')){
+    curChapter=null;
+    showMap();
+  }
+}
+
+// ══════════════════════════
+//  INIT
+// ══════════════════════════
+document.getElementById('main-btn').addEventListener('click', handleBtn);
+showMap();
+</script>
+</body>
+</html>
