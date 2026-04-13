@@ -88,50 +88,47 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
 .mstat-n{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:2px;}
 .mstat-l{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);}
 
-/* ── PATH MAP ── */
+/* ── DISCIPLINE PATH MAP ── */
 .path-section{width:100%;max-width:500px;padding-bottom:40px;}
 
-.disc-header{display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:6px;cursor:default;}
-.disc-icon{font-size:24px;flex-shrink:0;}
-.disc-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px;}
-.disc-meta{font-size:11px;color:var(--text3);}
+/* Discipline header pill */
+.disc-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:var(--surface);border:0.5px solid var(--border);border-radius:40px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:14px;}
+.disc-pill-icon{font-size:15px;}
 
-.disc-case-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);text-align:center;margin:16px 0 4px;}
+/* Case card — the actual path node */
+.case-card{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px 20px 18px;margin-bottom:12px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.case-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,109,240,.06),transparent 60%);pointer-events:none;}
+.case-card.active{border-color:rgba(124,109,240,.5);box-shadow:0 0 32px rgba(124,109,240,.15),0 4px 20px rgba(0,0,0,.3);}
+.case-card:hover:not(.case-locked){border-color:rgba(124,109,240,.4);box-shadow:0 0 24px rgba(124,109,240,.12),0 4px 16px rgba(0,0,0,.25);transform:translateY(-2px);}
+.case-card.case-done{border-color:rgba(61,214,140,.35);background:rgba(61,214,140,.04);}
+.case-card.case-done::before{background:linear-gradient(135deg,rgba(61,214,140,.06),transparent 60%);}
+.case-card.case-locked{opacity:.35;cursor:not-allowed;pointer-events:none;}
 
-/* Path track */
-.path-track{position:relative;display:flex;flex-direction:column;align-items:stretch;padding:8px 0;}
-.path-track::before{content:'';position:absolute;top:48px;bottom:48px;left:50%;width:2px;background:repeating-linear-gradient(to bottom,var(--border2) 0,var(--border2) 6px,transparent 6px,transparent 12px);transform:translateX(-50%);border-radius:2px;}
+.case-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+.case-patient{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--text);line-height:1.2;}
+.case-hook{font-size:13px;color:var(--text2);margin-top:3px;line-height:1.5;}
+.case-status{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;flex-shrink:0;margin-left:12px;margin-top:2px;}
+.case-status.s-active{background:rgba(124,109,240,.18);color:var(--purple2);}
+.case-status.s-done{background:rgba(61,214,140,.15);color:var(--green);}
+.case-status.s-locked{background:var(--surface2);color:var(--text3);}
 
-.path-row{display:flex;padding:6px 24px;position:relative;z-index:1;}
-.path-row.side-l{justify-content:flex-start;}
-.path-row.side-r{justify-content:flex-end;}
+/* Chapter progress dots inside case card */
+.case-chapters{display:flex;align-items:center;gap:0;margin:14px 0 16px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;}
+.cc-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .2s;position:relative;}
+.cc-dot.ch-done{background:rgba(61,214,140,.15);border:2px solid rgba(61,214,140,.5);}
+.cc-dot.ch-active{background:rgba(124,109,240,.18);border:2px solid var(--purple);box-shadow:0 0 10px rgba(124,109,240,.35);animation:nodePulse 2.5s ease-in-out infinite;}
+.cc-dot.ch-locked{background:var(--surface2);border:2px solid var(--border);opacity:.35;}
+.cc-line{flex:1;height:2px;background:repeating-linear-gradient(to right,var(--border2) 0,var(--border2) 5px,transparent 5px,transparent 10px);min-width:8px;}
+.cc-line.line-done{background:rgba(61,214,140,.4);}
 
-.path-node{width:96px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;-webkit-tap-highlight-color:transparent;position:relative;}
+.case-cta{font-size:13px;font-weight:700;color:var(--purple2);display:flex;align-items:center;gap:6px;}
+.case-cta::after{content:'→';transition:transform .2s;}
+.case-card:hover .case-cta::after{transform:translateX(4px);}
+.case-card.case-done .case-cta{color:var(--green);}
 
-.pn-circle{width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;background:var(--surface2);border:3px solid var(--border2);transition:all .2s;position:relative;box-shadow:0 2px 8px rgba(0,0,0,.25);}
-
-/* Done */
-.path-node.state-done .pn-circle{background:rgba(61,214,140,.1);border-color:rgba(61,214,140,.55);}
-.pn-check{position:absolute;top:-4px;right:-4px;width:22px;height:22px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;border:2.5px solid var(--bg);}
-
-/* Active */
-.path-node.state-active .pn-circle{background:rgba(124,109,240,.15);border-color:var(--purple);box-shadow:0 0 0 6px rgba(124,109,240,.1),0 4px 20px rgba(124,109,240,.3);animation:nodePulse 2.5s ease-in-out infinite;}
+/* Coming-soon discipline sections */
+.disc-coming{opacity:.3;pointer-events:none;margin-top:8px;}
 @keyframes nodePulse{0%,100%{box-shadow:0 0 0 6px rgba(124,109,240,.1),0 4px 20px rgba(124,109,240,.3);}50%{box-shadow:0 0 0 14px rgba(124,109,240,.05),0 4px 28px rgba(124,109,240,.4);}}
-.pn-arrow{position:absolute;bottom:-8px;font-size:16px;color:var(--purple2);animation:arrowBounce 1.3s ease-in-out infinite;}
-@keyframes arrowBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(5px);}}
-
-/* Locked */
-.path-node.state-locked{cursor:not-allowed;}
-.path-node.state-locked .pn-circle{opacity:.25;}
-.path-node.state-locked .pn-label,.path-node.state-locked .pn-xp{opacity:.25;}
-
-.pn-label{font-size:11px;font-weight:700;color:var(--text2);text-align:center;line-height:1.3;max-width:92px;}
-.path-node.state-active .pn-label{color:var(--text);}
-.pn-xp{font-size:10px;font-weight:700;color:var(--amber);}
-
-/* Coming-soon disciplines */
-.disc-coming{opacity:.35;pointer-events:none;margin-top:16px;}
-.disc-coming .disc-header{background:transparent;}
 
 /* ════════════════════════════════
    LESSON SCREEN
@@ -167,18 +164,67 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
 ════════════════════════════════ */
 .choice-prompt{font-family:'Syne',sans-serif;font-size:clamp(22px,5.5vw,32px);font-weight:800;text-align:center;line-height:1.2;margin-bottom:8px;letter-spacing:-.01em;}
 .choice-sub{font-size:14px;color:var(--text2);text-align:center;margin-bottom:20px;line-height:1.6;}
-.choices{display:grid;gap:10px;width:100%;}
+.choices{display:grid;gap:11px;width:100%;}
 .choices.grid-2{grid-template-columns:1fr 1fr;}
 .choices.grid-1{grid-template-columns:1fr;}
-.choice{padding:16px 18px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);cursor:pointer;transition:all .18s;display:flex;align-items:flex-start;gap:12px;font-family:inherit;text-align:left;width:100%;}
-.choice:hover:not(:disabled){background:var(--surface2);border-color:var(--purple);transform:translateY(-1px);box-shadow:0 4px 16px var(--shadow);}
-.choice-ico{font-size:22px;flex-shrink:0;margin-top:1px;}
+
+/* ── CHOICE CARDS ── */
+.choice{
+  padding:18px 16px;
+  background:var(--surface);
+  border:1.5px solid var(--border2);
+  border-radius:18px;
+  cursor:pointer;
+  transition:all .18s cubic-bezier(.4,0,.2,1);
+  display:flex;
+  align-items:flex-start;
+  gap:13px;
+  font-family:inherit;
+  text-align:left;
+  width:100%;
+  box-shadow:0 3px 10px rgba(0,0,0,.22),0 1px 3px rgba(0,0,0,.15);
+  position:relative;
+  overflow:hidden;
+}
+.choice::before{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,.04) 0%,transparent 60%);pointer-events:none;}
+.choice:hover:not(:disabled){
+  background:var(--surface2);
+  border-color:rgba(124,109,240,.5);
+  transform:translateY(-3px) scale(1.01);
+  box-shadow:0 8px 24px rgba(0,0,0,.3),0 0 0 1px rgba(124,109,240,.2);
+}
+.choice:active:not(:disabled){transform:translateY(-1px) scale(1);}
+
+/* grid-2: icon on top, centered — feels like game cards */
+.choices.grid-2 .choice{
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  padding:22px 12px 18px;
+  gap:10px;
+}
+.choices.grid-2 .choice-ico{font-size:36px;margin-top:0;}
+.choices.grid-2 .choice-text{font-size:13px;}
+
+.choice-ico{font-size:24px;flex-shrink:0;line-height:1;margin-top:1px;}
 .choice-text{font-size:14px;font-weight:500;color:var(--text);line-height:1.55;}
-.choice.correct{background:rgba(61,214,140,.1);border-color:var(--green);box-shadow:0 0 20px rgba(61,214,140,.15);}
+
+/* States */
+.choice.correct{
+  background:rgba(61,214,140,.12);
+  border-color:var(--green);
+  box-shadow:0 0 24px rgba(61,214,140,.2),0 4px 12px rgba(0,0,0,.2);
+  transform:none;
+}
 .choice.correct .choice-text{color:var(--green);}
-.choice.wrong{background:rgba(240,107,107,.1);border-color:var(--red);}
+.choice.wrong{
+  background:rgba(240,107,107,.1);
+  border-color:var(--red);
+  box-shadow:0 0 16px rgba(240,107,107,.15);
+  transform:none;
+}
 .choice.wrong .choice-text{color:var(--red);}
-.choice.dim{opacity:.28;transform:none;box-shadow:none;}
+.choice.dim{opacity:.22;transform:none;box-shadow:none;}
 .choice:disabled{cursor:default;}
 
 /* ── REVEAL RESULT — more dramatic ── */
@@ -938,57 +984,71 @@ function showMap(){
     btn.className='main-btn btn-go';
     window._mapBtnChapter=activeChapter.id;
   } else {
-    btn.textContent='Pick a chapter'; btn.className='main-btn btn-check';
+    btn.textContent='Pick a chapter below'; btn.className='main-btn btn-check';
     window._mapBtnChapter=null;
   }
 
-  // Build path
-  const nodesHTML=CHAPTERS.map((c,i)=>{
+  // Chapter progress dots inside the case card
+  const dotsHTML=CHAPTERS.map((c,i)=>{
     const isDone=done.includes(c.id);
     const isLocked=i>0&&!done.includes(CHAPTERS[i-1].id);
     const isActive=!isDone&&!isLocked;
-    const state=isDone?'state-done':isLocked?'state-locked':'state-active';
-    const side=i%2===0?'side-l':'side-r';
-    return `<div class="path-row ${side}">
-      <div class="path-node ${state}" ${!isLocked?`onclick="startChapter(${c.id})"`:''}>
-        <div class="pn-circle">
-          ${isDone?'<div class="pn-check">✓</div>':''}
-          ${isActive?'<div class="pn-arrow">▾</div>':''}
-          ${c.icon}
-        </div>
-        <div class="pn-label">${c.name}</div>
-        ${isActive?`<div class="pn-xp">+${c.xp} XP</div>`:''}
-      </div>
-    </div>`;
+    const cls=isDone?'ch-done':isActive?'ch-active':'ch-locked';
+    const connector=i<CHAPTERS.length-1?`<div class="cc-line ${isDone?'line-done':''}"></div>`:'';
+    return `<div class="cc-dot ${cls}" title="${c.name}">${c.icon}</div>${connector}`;
   }).join('');
+
+  const pctDone=Math.round(done.length/CHAPTERS.length*100);
+  const caseStatus=done.length===CHAPTERS.length?'s-done':'s-active';
+  const caseLabel=done.length===CHAPTERS.length?'Complete ✓':
+    done.length===0?'Start here':'In progress';
+  const ctaText=done.length===CHAPTERS.length?'Review the case':
+    done.length===0?'Begin the case':
+    `Next: ${activeChapter?activeChapter.name:'continue'}`;
 
   document.getElementById('chapters').innerHTML=`
     <div class="path-section">
-      <div class="disc-header">
-        <span class="disc-icon">🧠</span>
-        <div>
-          <div class="disc-name">Neurology</div>
-          <div class="disc-meta">${done.length}/${CHAPTERS.length} complete · The Case of Jan de Vries</div>
+      <div class="disc-pill"><span class="disc-pill-icon">🧠</span> Neurology</div>
+
+      <div class="case-card ${done.length===CHAPTERS.length?'case-done':'active'}" onclick="window._mapBtnChapter!=null?startChapter(window._mapBtnChapter):null">
+        <div class="case-top">
+          <div>
+            <div class="case-patient">Jan de Vries, 54</div>
+            <div class="case-hook">Something is wrong with his hand. Work through the case.</div>
+          </div>
+          <div class="case-status ${caseStatus}">${caseLabel}</div>
+        </div>
+        <div class="case-chapters">${dotsHTML}</div>
+        <div class="case-cta">${ctaText}</div>
+      </div>
+
+      <div class="case-card case-locked">
+        <div class="case-top">
+          <div>
+            <div class="case-patient">Coming soon</div>
+            <div class="case-hook">A new patient. A new puzzle.</div>
+          </div>
+          <div class="case-status s-locked">Locked</div>
         </div>
       </div>
-      <div class="path-track">${nodesHTML}</div>
     </div>
+
     <div class="disc-coming">
-      <div class="disc-header">
-        <span class="disc-icon">❤️</span>
-        <div><div class="disc-name">Cardiology</div><div class="disc-meta">Coming soon</div></div>
+      <div class="disc-pill"><span class="disc-pill-icon">❤️</span> Cardiology</div>
+      <div class="case-card case-locked">
+        <div class="case-top"><div><div class="case-patient">Coming soon</div><div class="case-hook">A chest pain that doesn't fit the textbook.</div></div><div class="case-status s-locked">Locked</div></div>
       </div>
     </div>
     <div class="disc-coming">
-      <div class="disc-header">
-        <span class="disc-icon">🫁</span>
-        <div><div class="disc-name">Respiratory</div><div class="disc-meta">Coming soon</div></div>
+      <div class="disc-pill"><span class="disc-pill-icon">🫁</span> Respiratory</div>
+      <div class="case-card case-locked">
+        <div class="case-top"><div><div class="case-patient">Coming soon</div><div class="case-hook">Shortness of breath that got worse over weeks.</div></div><div class="case-status s-locked">Locked</div></div>
       </div>
     </div>
     <div class="disc-coming">
-      <div class="disc-header">
-        <span class="disc-icon">🦠</span>
-        <div><div class="disc-name">Infectious Disease</div><div class="disc-meta">Coming soon</div></div>
+      <div class="disc-pill"><span class="disc-pill-icon">🦠</span> Infectious Disease</div>
+      <div class="case-card case-locked">
+        <div class="case-top"><div><div class="case-patient">Coming soon</div><div class="case-hook">A fever that three hospitals couldn't explain.</div></div><div class="case-status s-locked">Locked</div></div>
       </div>
     </div>`;
 }
