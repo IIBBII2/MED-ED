@@ -960,6 +960,12 @@ steps:[
 ]},
 ];
 
+function openActiveCase(){
+  const active=CHAPTERS.find((c,i)=>!done.includes(c.id)&&(i===0||done.includes(CHAPTERS[i-1].id)));
+  if(active) startChapter(active.id);
+  else if(done.length===CHAPTERS.length) startChapter(CHAPTERS[0].id);
+}
+
 // ══════════════════════════
 //  RENDER MAP
 // ══════════════════════════
@@ -1010,7 +1016,7 @@ function showMap(){
     <div class="path-section">
       <div class="disc-pill"><span class="disc-pill-icon">🧠</span> Neurology</div>
 
-      <div class="case-card ${done.length===CHAPTERS.length?'case-done':'active'}" onclick="window._mapBtnChapter!=null?startChapter(window._mapBtnChapter):null">
+      <div class="case-card ${done.length===CHAPTERS.length?'case-done':'active'}" onclick="openActiveCase()">
         <div class="case-top">
           <div>
             <div class="case-patient">Jan de Vries, 54</div>
@@ -1588,8 +1594,7 @@ function toggleDepth(){
 function handleBtn(){
   // On map screen — button starts active chapter directly
   if(!curChapter){
-    if(window._mapBtnChapter!=null) startChapter(window._mapBtnChapter);
-    else document.getElementById('chapters').scrollIntoView({behavior:'smooth'});
+    openActiveCase();
     return;
   }
 
