@@ -112,16 +112,27 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
 .case-status.s-done{background:rgba(61,214,140,.15);color:var(--green);}
 .case-status.s-locked{background:var(--surface2);color:var(--text3);}
 
-/* Chapter progress dots inside case card */
-.case-chapters{display:flex;align-items:center;gap:0;margin:14px 0 16px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;}
-.cc-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .2s;position:relative;}
-.cc-dot.ch-done{background:rgba(61,214,140,.15);border:2px solid rgba(61,214,140,.5);}
-.cc-dot.ch-active{background:rgba(124,109,240,.18);border:2px solid var(--purple);box-shadow:0 0 10px rgba(124,109,240,.35);animation:nodePulse 2.5s ease-in-out infinite;}
-.cc-dot.ch-locked{background:var(--surface2);border:2px solid var(--border);opacity:.35;}
-.cc-line{flex:1;height:2px;background:repeating-linear-gradient(to right,var(--border2) 0,var(--border2) 5px,transparent 5px,transparent 10px);min-width:8px;}
-.cc-line.line-done{background:rgba(61,214,140,.4);}
+/* Chapter list inside case card */
+.case-chapters{display:flex;flex-direction:column;gap:6px;margin:14px 0 16px;}
+.cc-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;cursor:pointer;transition:all .16s;border:1px solid transparent;-webkit-tap-highlight-color:transparent;}
+.cc-row.ch-done{background:rgba(61,214,140,.07);border-color:rgba(61,214,140,.2);}
+.cc-row.ch-done:hover{background:rgba(61,214,140,.12);border-color:rgba(61,214,140,.35);}
+.cc-row.ch-active{background:rgba(124,109,240,.1);border-color:rgba(124,109,240,.4);box-shadow:0 0 14px rgba(124,109,240,.15);}
+.cc-row.ch-active:hover{background:rgba(124,109,240,.15);}
+.cc-row.ch-locked{opacity:.28;cursor:not-allowed;pointer-events:none;}
+.cc-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.cc-row.ch-done .cc-icon{background:rgba(61,214,140,.15);}
+.cc-row.ch-active .cc-icon{background:rgba(124,109,240,.2);}
+.cc-row.ch-locked .cc-icon{background:var(--surface2);}
+.cc-info{flex:1;min-width:0;}
+.cc-name{font-size:13px;font-weight:700;color:var(--text);line-height:1.2;}
+.cc-desc{font-size:11px;color:var(--text3);margin-top:1px;}
+.cc-badge{font-size:11px;font-weight:700;flex-shrink:0;}
+.cc-row.ch-done .cc-badge{color:var(--green);}
+.cc-row.ch-active .cc-badge{color:var(--purple2);}
+.cc-row.ch-locked .cc-badge{color:var(--text3);}
 
-.case-cta{font-size:13px;font-weight:700;color:var(--purple2);display:flex;align-items:center;gap:6px;}
+.case-cta{font-size:13px;font-weight:700;color:var(--purple2);display:flex;align-items:center;gap:6px;padding-top:4px;}
 .case-cta::after{content:'→';transition:transform .2s;}
 .case-card:hover .case-cta::after{transform:translateX(4px);}
 .case-card.case-done .case-cta{color:var(--green);}
@@ -994,29 +1005,33 @@ function showMap(){
     window._mapBtnChapter=null;
   }
 
-  // Chapter progress dots inside the case card
-  const dotsHTML=CHAPTERS.map((c,i)=>{
+  // Chapter rows inside the case card
+  const chapRowsHTML=CHAPTERS.map((c,i)=>{
     const isDone=done.includes(c.id);
     const isLocked=i>0&&!done.includes(CHAPTERS[i-1].id);
     const isActive=!isDone&&!isLocked;
     const cls=isDone?'ch-done':isActive?'ch-active':'ch-locked';
-    const connector=i<CHAPTERS.length-1?`<div class="cc-line ${isDone?'line-done':''}"></div>`:'';
-    return `<div class="cc-dot ${cls}" title="${c.name}">${c.icon}</div>${connector}`;
+    const badge=isDone?'✓ Done':isActive?`+${c.xp} XP`:`🔒`;
+    const onclick=(!isLocked)?`onclick="startChapter(${c.id})"` : '';
+    return `<div class="cc-row ${cls}" ${onclick}>
+      <div class="cc-icon">${c.icon}</div>
+      <div class="cc-info">
+        <div class="cc-name">${c.name}</div>
+        <div class="cc-desc">${c.desc}</div>
+      </div>
+      <div class="cc-badge">${badge}</div>
+    </div>`;
   }).join('');
 
-  const pctDone=Math.round(done.length/CHAPTERS.length*100);
   const caseStatus=done.length===CHAPTERS.length?'s-done':'s-active';
   const caseLabel=done.length===CHAPTERS.length?'Complete ✓':
-    done.length===0?'Start here':'In progress';
-  const ctaText=done.length===CHAPTERS.length?'Review the case':
-    done.length===0?'Begin the case':
-    `Next: ${activeChapter?activeChapter.name:'continue'}`;
+    `${done.length}/${CHAPTERS.length} chapters`;
 
   document.getElementById('chapters').innerHTML=`
     <div class="path-section">
       <div class="disc-pill"><span class="disc-pill-icon">🧠</span> Neurology</div>
 
-      <div class="case-card ${done.length===CHAPTERS.length?'case-done':'active'}" onclick="openActiveCase()">
+      <div class="case-card ${done.length===CHAPTERS.length?'case-done':'active'}">
         <div class="case-top">
           <div>
             <div class="case-patient">Jan de Vries, 54</div>
@@ -1024,8 +1039,7 @@ function showMap(){
           </div>
           <div class="case-status ${caseStatus}">${caseLabel}</div>
         </div>
-        <div class="case-chapters">${dotsHTML}</div>
-        <div class="case-cta">${ctaText}</div>
+        <div class="case-chapters">${chapRowsHTML}</div>
       </div>
 
       <div class="case-card case-locked">
