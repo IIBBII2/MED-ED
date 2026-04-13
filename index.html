@@ -77,9 +77,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
    MAP SCREEN — cinematic
 ════════════════════════════════ */
 #map-screen{background:var(--bg);justify-content:flex-start;}
-.map-top{text-align:center;margin-bottom:28px;padding-top:12px;}
+.map-top{text-align:center;margin-bottom:24px;padding-top:12px;}
 .map-eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--purple2);margin-bottom:14px;}
-.map-title{font-family:'Syne',sans-serif;font-size:clamp(42px,11vw,72px);font-weight:800;line-height:1.0;margin-bottom:12px;letter-spacing:-.02em;}
+.map-title{font-family:'Syne',sans-serif;font-size:clamp(38px,10vw,64px);font-weight:800;line-height:1.0;margin-bottom:12px;letter-spacing:-.02em;}
 .map-title em{font-style:normal;background:linear-gradient(135deg,var(--purple),var(--purple2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .map-sub{font-size:14px;color:var(--text2);line-height:1.7;max-width:360px;margin:0 auto;}
 
@@ -88,33 +88,50 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
 .mstat-n{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:2px;}
 .mstat-l{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);}
 
-.chapters{display:flex;flex-direction:column;gap:10px;width:100%;max-width:500px;padding-bottom:24px;}
+/* ── PATH MAP ── */
+.path-section{width:100%;max-width:500px;padding-bottom:40px;}
 
-/* Base chapter card */
-.chapter-btn{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);cursor:pointer;transition:all .22s;text-align:left;width:100%;font-family:inherit;}
-.chapter-btn:hover:not(.locked):not(.active){background:var(--surface2);border-color:var(--border2);}
-.chapter-btn.locked{opacity:.28;cursor:not-allowed;}
-.chapter-btn.done{border-color:rgba(61,214,140,.25);background:rgba(61,214,140,.04);}
+.disc-header{display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:6px;cursor:default;}
+.disc-icon{font-size:24px;flex-shrink:0;}
+.disc-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.disc-meta{font-size:11px;color:var(--text3);}
 
-/* Active (next to unlock) — the star of the show */
-.chapter-btn.active{
-  padding:20px 18px;
-  border:1.5px solid rgba(124,109,240,.55);
-  background:linear-gradient(135deg,rgba(124,109,240,.13),rgba(124,109,240,.04));
-  box-shadow:0 0 28px rgba(124,109,240,.18),inset 0 1px 0 rgba(255,255,255,.06);
-}
-.chapter-btn.active:hover{box-shadow:0 0 36px rgba(124,109,240,.26);}
-.chapter-btn.active .ch-icon{width:52px;height:52px;font-size:24px;border-radius:14px;}
-.chapter-btn.active .ch-name{font-size:17px;}
-.chapter-btn.active .ch-desc{font-size:12px;color:var(--text2);}
+.disc-case-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);text-align:center;margin:16px 0 4px;}
 
-.ch-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;transition:all .22s;}
-.ch-info{flex:1;min-width:0;}
-.ch-num{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:3px;}
-.ch-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:font-size .22s;}
-.ch-desc{font-size:11px;color:var(--text3);line-height:1.4;transition:color .22s;}
-.ch-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
-.ch-xp{font-size:11px;font-weight:700;color:var(--amber);}
+/* Path track */
+.path-track{position:relative;display:flex;flex-direction:column;align-items:stretch;padding:8px 0;}
+.path-track::before{content:'';position:absolute;top:48px;bottom:48px;left:50%;width:2px;background:repeating-linear-gradient(to bottom,var(--border2) 0,var(--border2) 6px,transparent 6px,transparent 12px);transform:translateX(-50%);border-radius:2px;}
+
+.path-row{display:flex;padding:6px 24px;position:relative;z-index:1;}
+.path-row.side-l{justify-content:flex-start;}
+.path-row.side-r{justify-content:flex-end;}
+
+.path-node{width:96px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;-webkit-tap-highlight-color:transparent;position:relative;}
+
+.pn-circle{width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;background:var(--surface2);border:3px solid var(--border2);transition:all .2s;position:relative;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+
+/* Done */
+.path-node.state-done .pn-circle{background:rgba(61,214,140,.1);border-color:rgba(61,214,140,.55);}
+.pn-check{position:absolute;top:-4px;right:-4px;width:22px;height:22px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;border:2.5px solid var(--bg);}
+
+/* Active */
+.path-node.state-active .pn-circle{background:rgba(124,109,240,.15);border-color:var(--purple);box-shadow:0 0 0 6px rgba(124,109,240,.1),0 4px 20px rgba(124,109,240,.3);animation:nodePulse 2.5s ease-in-out infinite;}
+@keyframes nodePulse{0%,100%{box-shadow:0 0 0 6px rgba(124,109,240,.1),0 4px 20px rgba(124,109,240,.3);}50%{box-shadow:0 0 0 14px rgba(124,109,240,.05),0 4px 28px rgba(124,109,240,.4);}}
+.pn-arrow{position:absolute;bottom:-8px;font-size:16px;color:var(--purple2);animation:arrowBounce 1.3s ease-in-out infinite;}
+@keyframes arrowBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(5px);}}
+
+/* Locked */
+.path-node.state-locked{cursor:not-allowed;}
+.path-node.state-locked .pn-circle{opacity:.25;}
+.path-node.state-locked .pn-label,.path-node.state-locked .pn-xp{opacity:.25;}
+
+.pn-label{font-size:11px;font-weight:700;color:var(--text2);text-align:center;line-height:1.3;max-width:92px;}
+.path-node.state-active .pn-label{color:var(--text);}
+.pn-xp{font-size:10px;font-weight:700;color:var(--amber);}
+
+/* Coming-soon disciplines */
+.disc-coming{opacity:.35;pointer-events:none;margin-top:16px;}
+.disc-coming .disc-header{background:transparent;}
 
 /* ════════════════════════════════
    LESSON SCREEN
@@ -511,7 +528,7 @@ steps:[
   {type:'moment',
    tag:'Rotterdam · Tuesday 9am',
    title:'Jan de Vries, 54, walks into your clinic.',
-   body:'He\'s a civil engineer. Fit, capable. But for 8 months, his right hand hasn\'t been right.',
+   body:'He\'s a civil engineer. Fit, used to being capable with his hands. His wife is in the waiting room — she drove him in today. He\'s been putting this appointment off for eight months.',
    visual:'patient'},
 
   // 1 — choice: what do you notice?
@@ -531,8 +548,8 @@ steps:[
   {type:'fact',
    icon:'📋',
    label:'His story',
-   text:'"I can\'t button my shirt anymore. I dropped a mug last week."',
-   sub:'Progressive. Worsening. Asymmetric — only the right hand. This is not normal ageing.'},
+   text:'"I can\'t button my shirt anymore. I dropped a mug last week. I thought it was stress — my wife made me come."',
+   sub:'Progressive. Worsening. Asymmetric — only the right hand. He waited eight months. This is not normal ageing.'},
 
   // 3 — visual: the hand
   {type:'moment',
@@ -552,6 +569,13 @@ steps:[
    ],
    feedback:{correct:'Exactly. Wasting = lower motor neuron dying (the nerve going to that muscle). Brisk reflex = upper motor neuron dying (the brain\'s command wire). Both at once — that combination is almost unique to one disease.',
              wrong:'Not quite — but this is one of the most important combinations in neurology. Wasting means the nerve to the muscle is dying (lower motor neuron). The brisk reflex means the brain\'s command neuron is also dying (upper motor neuron). Both failing simultaneously? That points to one diagnosis almost uniquely.'}},
+
+  // hook
+  {type:'moment',
+   tag:'Something doesn\'t add up.',
+   title:'Wasted muscle. Brisk reflex. Same hand.',
+   body:'One system shouldn\'t do both. Wasting means the nerve to the muscle is dying. But a brisk reflex means the brain\'s command wire is overactive — as if the brake is gone. You\'ve never seen that combination behave this way before. You need to understand the architecture behind it.',
+   visual:'hand'},
 ]},
 
 // ─── CHAPTER 1: THE TWO SYSTEMS ───
@@ -609,7 +633,14 @@ steps:[
    icon:'🔑',
    label:'The clinical pearl',
    text:'Brisk reflex in a wasted, twitching muscle — same limb.',
-   sub:'That combination is almost unique to ALS. Two systems failing at once. That\'s your diagnosis.'},
+   sub:'That combination is almost unique to one disease. Two systems failing at once. You recognise the pattern now.'},
+
+  // hook
+  {type:'moment',
+   tag:'Now the harder question.',
+   title:'You know the paradox. But why these specific cells?',
+   body:'Out of every neuron in the body — why do motor neurons die while everything else survives? There\'s a specific answer. Four design flaws that make them uniquely, catastrophically vulnerable to exactly what\'s happening to Jan.',
+   visual:'neuron'},
 ]},
 
 // ─── CHAPTER 2: WHAT IS KILLING THEM? ───
@@ -661,6 +692,13 @@ steps:[
      {left:'FUS',right:'Young-onset, aggressive disease (20s–30s)'},
      {left:'TDP-43 aggregates',right:'Found in 97% of ALL ALS cases'},
    ]},
+
+  // hook
+  {type:'moment',
+   tag:'You\'ve been building toward this.',
+   title:'You know the mechanism. Now name it.',
+   body:'The wasted hand. The brisk reflex. The four design flaws. The calcium flood, the protein clumps, the dying axons. Every piece has been pointing at one diagnosis. Jan has been waiting eight months. Time to commit.',
+   visual:'relay'},
 ]},
 
 // ─── CHAPTER 3: HOW TO DIAGNOSE IT ───
@@ -759,6 +797,13 @@ steps:[
    ],
    depth:'<strong>MMN:</strong> GM1 antibody positive, LMN signs only, responds dramatically to IVIG — always exclude this first. <strong>Cervical myelopathy:</strong> MRI confirms, surgery may help. <strong>Myasthenia:</strong> AChR antibody, fatigable weakness, responds to pyridostigmine. <strong>Thyroid myopathy:</strong> treat the thyroid. Kennedy disease and PLS are real neurodegenerative conditions without effective disease-modifying treatment.',
    feedback:'MMN, cervical myelopathy, myasthenia, and thyroid myopathy are all treatable. Kennedy disease (X-linked, LMN only) and PLS are neurodegenerative — different from ALS but not "treatable" in the same sense. The big one to never miss: MMN — it looks like ALS and IVIG can transform patients.'},
+
+  // hook
+  {type:'moment',
+   tag:'Definite ALS.',
+   title:'You call Jan. He answers on the first ring.',
+   body:'Tomorrow morning he\'s coming in with his wife. He already suspects something serious — he Googled his symptoms weeks ago and closed the tab. You\'ve confirmed what he feared. Now the question is: what can actually be done?',
+   visual:'exam'},
 ]},
 
 // ─── CHAPTER 4: TREATMENT ───
@@ -817,6 +862,13 @@ steps:[
      {q:'M — Muscle cramps + spasticity', a:'Cramps: mexiletine (RCT evidence). Spasticity: baclofen (GABA-B agonist). Physiotherapy throughout.'},
    ],
    depth:'SCREAM covers every quality-of-life domain that ALS attacks. The critical timing rules: voice bank before speech goes, PEG before FVC <50%, NIV before respiratory crisis, advance care planning before capacity is lost. MDT care (neurologist, SLT, physio, dietitian, palliative) independently extends survival.'},
+
+  // hook
+  {type:'moment',
+   tag:'Six months pass.',
+   title:'You did everything right. ALS doesn\'t stop.',
+   body:'Riluzole is running. NIV is being planned. The MDT referral is sent. Jan banked his voice last month — he recorded messages for his daughter while he still could. But ALS doesn\'t stop for good medicine. He\'s coming back. And in his last bloods, his FVC is already dropping below 52%.',
+   visual:'followup'},
 ]},
 
 // ─── CHAPTER 5: THE FULL PICTURE ───
@@ -825,8 +877,8 @@ steps:[
   // 0 — update
   {type:'moment',
    tag:'Six months later',
-   title:'Jan is back. You can see it in his face.',
-   body:'The EMG came back — Definite ALS. He started riluzole straight away. Now, six months on, his right arm is noticeably weaker and his left leg has started to drag. His FVC is 52%. He doesn\'t say it directly, but you can tell — he\'s worried about his breathing. So are you.',
+   title:'Jan is back. His daughter came with him this time.',
+   body:'She\'s in her late twenties. She sits quietly beside him and writes things down in a notebook. Jan\'s right arm is noticeably weaker. His left leg has started to drag. His FVC is 52%. He doesn\'t say it directly, but you can tell — he\'s worried about his breathing. His daughter asks the questions he won\'t ask himself.',
    visual:'followup'},
 
   // 1 — pseudobulbar
@@ -857,7 +909,7 @@ steps:[
   {type:'badge',
    emoji:'🏆',
    title:'ALS Discovered.',
-   sub:'You went from a handshake that felt wrong to a full clinical picture — pathophysiology, diagnosis, treatment, and cutting-edge prevention. Jan is lucky to have you.',
+   sub:'You went from a weak handshake to a full clinical picture — the paradox, the mechanism, the diagnosis, and the frontier of prevention. Jan\'s daughter still has that notebook. The questions you helped answer are in it.',
   },
 ]},
 ];
@@ -869,33 +921,76 @@ function showMap(){
   document.getElementById('map-screen').classList.remove('hidden');
   document.getElementById('lesson-screen').classList.add('hidden');
   document.getElementById('bar-fill').style.width='0%';
-  document.getElementById('main-btn').textContent='↓ Pick a chapter below';
-  document.getElementById('main-btn').className='main-btn btn-check';
 
   document.getElementById('stat-xp').textContent=XP;
   document.getElementById('stat-done').textContent=done.length;
   document.getElementById('stat-acc').textContent=ta>0?Math.round(tc/ta*100)+'%':'—';
   document.getElementById('bar-xp').textContent=XP+' XP';
 
-  document.getElementById('chapters').innerHTML=CHAPTERS.map((c,i)=>{
+  // Contextual map button
+  const btn=document.getElementById('main-btn');
+  const activeChapter=CHAPTERS.find((c,i)=>!done.includes(c.id)&&(i===0||done.includes(CHAPTERS[i-1].id)));
+  if(done.length===CHAPTERS.length){
+    btn.textContent='Review the case →'; btn.className='main-btn btn-done';
+    window._mapBtnChapter=null;
+  } else if(activeChapter){
+    btn.textContent=done.length===0?'Start the case →':`Continue: ${activeChapter.name} →`;
+    btn.className='main-btn btn-go';
+    window._mapBtnChapter=activeChapter.id;
+  } else {
+    btn.textContent='Pick a chapter'; btn.className='main-btn btn-check';
+    window._mapBtnChapter=null;
+  }
+
+  // Build path
+  const nodesHTML=CHAPTERS.map((c,i)=>{
     const isDone=done.includes(c.id);
     const isLocked=i>0&&!done.includes(CHAPTERS[i-1].id);
     const isActive=!isDone&&!isLocked;
-    return `<button class="chapter-btn ${isLocked?'locked':''} ${isDone?'done':''} ${isActive?'active':''}"
-      style="${!isLocked?'cursor:pointer':''}"
-      onclick="${isLocked?'':'startChapter('+c.id+')'}">
-      <div class="ch-icon" style="background:${c.color}">${c.icon}</div>
-      <div class="ch-info">
-        <div class="ch-num">Chapter ${i+1}</div>
-        <div class="ch-name">${c.name}</div>
-        <div class="ch-desc">${c.desc}</div>
+    const state=isDone?'state-done':isLocked?'state-locked':'state-active';
+    const side=i%2===0?'side-l':'side-r';
+    return `<div class="path-row ${side}">
+      <div class="path-node ${state}" ${!isLocked?`onclick="startChapter(${c.id})"`:''}>
+        <div class="pn-circle">
+          ${isDone?'<div class="pn-check">✓</div>':''}
+          ${isActive?'<div class="pn-arrow">▾</div>':''}
+          ${c.icon}
+        </div>
+        <div class="pn-label">${c.name}</div>
+        ${isActive?`<div class="pn-xp">+${c.xp} XP</div>`:''}
       </div>
-      <div class="ch-right">
-        <div class="ch-xp">+${c.xp} XP</div>
-        <div>${isDone?'✅':isLocked?'🔒':'→'}</div>
-      </div>
-    </button>`;
+    </div>`;
   }).join('');
+
+  document.getElementById('chapters').innerHTML=`
+    <div class="path-section">
+      <div class="disc-header">
+        <span class="disc-icon">🧠</span>
+        <div>
+          <div class="disc-name">Neurology</div>
+          <div class="disc-meta">${done.length}/${CHAPTERS.length} complete · The Case of Jan de Vries</div>
+        </div>
+      </div>
+      <div class="path-track">${nodesHTML}</div>
+    </div>
+    <div class="disc-coming">
+      <div class="disc-header">
+        <span class="disc-icon">❤️</span>
+        <div><div class="disc-name">Cardiology</div><div class="disc-meta">Coming soon</div></div>
+      </div>
+    </div>
+    <div class="disc-coming">
+      <div class="disc-header">
+        <span class="disc-icon">🫁</span>
+        <div><div class="disc-name">Respiratory</div><div class="disc-meta">Coming soon</div></div>
+      </div>
+    </div>
+    <div class="disc-coming">
+      <div class="disc-header">
+        <span class="disc-icon">🦠</span>
+        <div><div class="disc-name">Infectious Disease</div><div class="disc-meta">Coming soon</div></div>
+      </div>
+    </div>`;
 }
 
 // ══════════════════════════
@@ -1431,9 +1526,10 @@ function toggleDepth(){
 //  BUTTON + FLOW
 // ══════════════════════════
 function handleBtn(){
-  // On map screen — button just scrolls to chapters
+  // On map screen — button starts active chapter directly
   if(!curChapter){
-    document.getElementById('chapters').scrollIntoView({behavior:'smooth'});
+    if(window._mapBtnChapter!=null) startChapter(window._mapBtnChapter);
+    else document.getElementById('chapters').scrollIntoView({behavior:'smooth'});
     return;
   }
 
