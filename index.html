@@ -304,7 +304,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);}
         <div class="map-top">
           <div class="map-eyebrow">Motor Neuron Disease</div>
           <div class="map-title">Discover<br><em>ALS</em></div>
-          <div class="map-sub">You're a junior doctor. A patient just walked in. Let's figure this out together.</div>
+          <div class="map-sub">You're a junior doctor and Jan just walked into your clinic. By the end of this, you'll know exactly what he has, how you'd catch it, and what to do — for real.</div>
         </div>
         <div class="map-stats">
           <div class="mstat"><div class="mstat-n" id="stat-xp" style="color:var(--amber)">0</div><div class="mstat-l">XP</div></div>
@@ -351,7 +351,7 @@ function save(){
 const CHAPTERS = [
 
 // ─── CHAPTER 0: THE PATIENT ───
-{id:0,icon:'🚪',color:'rgba(124,109,240,.18)',name:'The patient walks in',desc:'Something is very wrong',xp:80,
+{id:0,icon:'🚪',color:'rgba(124,109,240,.18)',name:'The patient walks in',desc:'Your first clue walks in the door',xp:80,
 steps:[
   // 0 — scene setter
   {type:'moment',
@@ -370,8 +370,8 @@ steps:[
      {ico:'🗣️',text:'His speech is slightly slurred', value:'speech', correct:false},
      {ico:'😰',text:'He\'s sweating heavily', value:'sweat', correct:false},
    ],
-   feedback:{correct:'Good eye. The grip weakness is the first clue — and it\'s been getting worse for 8 months, not better. That matters.',
-             wrong:'That might be there — but the medical finding is the grip weakness. 8 months of progressive weakness in one hand is the signal you can\'t ignore.'}},
+   feedback:{correct:'Good eye. The grip weakness is your first clue — and it\'s been getting worse for 8 months. That progression is the whole story.',
+             wrong:'Good instinct — but the finding you can\'t walk past is the grip weakness. Eight months of one hand getting progressively weaker. That\'s not stress. That\'s not overuse. That\'s the signal.'}},
 
   // 2 — fact card
   {type:'fact',
@@ -396,18 +396,18 @@ steps:[
      {ico:'💭',text:'The wasting is from disuse — he\'s not using the hand so it shrank. The reflex is just normal variation.', value:'b', correct:false},
      {ico:'❓',text:'These findings cancel each other out — you can\'t draw any conclusions.', value:'c', correct:false},
    ],
-   feedback:{correct:'Exactly. Wasting = lower motor neuron dying (the nerve that connects directly to muscle). Brisk reflex = upper motor neuron dying (the brain\'s command neuron). Both at once. That combination is almost unique to one disease.',
-             wrong:'Actually this combination is a red flag. Wasting means the nerve to the muscle is dying (lower motor neuron). A brisk reflex means the brain\'s command neuron is also dying (upper motor neuron). Both failing simultaneously points directly to one diagnosis.'}},
+   feedback:{correct:'Exactly. Wasting = lower motor neuron dying (the nerve going to that muscle). Brisk reflex = upper motor neuron dying (the brain\'s command wire). Both at once — that combination is almost unique to one disease.',
+             wrong:'Not quite — but this is one of the most important combinations in neurology. Wasting means the nerve to the muscle is dying (lower motor neuron). The brisk reflex means the brain\'s command neuron is also dying (upper motor neuron). Both failing simultaneously? That points to one diagnosis almost uniquely.'}},
 ]},
 
 // ─── CHAPTER 1: THE TWO SYSTEMS ───
-{id:1,icon:'⚡',color:'rgba(91,164,245,.18)',name:'The two-neuron relay',desc:'Why this paradox exists',xp:100,
+{id:1,icon:'⚡',color:'rgba(91,164,245,.18)',name:'The two-neuron relay',desc:'Two wires. Both cutting at once.',xp:100,
 steps:[
   // 0 — visual intro
   {type:'moment',
-   tag:'Understanding the paradox',
-   title:'Your motor system is a relay race.',
-   body:'Two neurons. One hands off to the other. Most diseases destroy one. ALS destroys <strong>both at once</strong>.',
+   tag:'Here\'s why it made no sense',
+   title:'Your motor system is a two-neuron relay.',
+   body:'One neuron starts in your brain. It hands the signal to a second neuron, which connects directly to the muscle. Most diseases destroy one or the other. ALS destroys <strong>both — simultaneously</strong>. That\'s the paradox.',
    visual:'relay'},
 
   // 1 — build the relay
@@ -459,13 +459,13 @@ steps:[
 ]},
 
 // ─── CHAPTER 2: WHAT IS KILLING THEM? ───
-{id:2,icon:'🔬',color:'rgba(245,158,11,.15)',name:'Inside the neuron',desc:'Why motor neurons die',xp:120,
+{id:2,icon:'🔬',color:'rgba(245,158,11,.15)',name:'Inside the neuron',desc:'Why these cells? There\'s a reason.',xp:120,
 steps:[
   // 0
   {type:'moment',
-   tag:'The molecular story',
-   title:'Why motor neurons? Why not brain cells, or heart cells?',
-   body:'Motor neurons are the worst-designed cells in the body for surviving what ALS throws at them. Four design flaws that all hit at once.',
+   tag:'Why these specific cells?',
+   title:'Motor neurons are uniquely bad at surviving ALS.',
+   body:'Out of all the cells in your body, motor neurons are the most vulnerable to exactly what ALS does to them. It\'s not bad luck — it\'s four specific design flaws, all hitting at once.',
    visual:'neuron'},
 
   // 1 — four flaws reveal
@@ -488,8 +488,8 @@ steps:[
      {ico:'💤',text:'The motor neuron temporarily shuts down but recovers after rest', value:'b', correct:false},
      {ico:'🔄',text:'Neighbouring neurons compensate, so no noticeable damage occurs', value:'c', correct:false},
    ],
-   feedback:{correct:'This is excitotoxicity — neurons being excited to death. Glutamate overload → Ca²⁺ floods in → mitochondria collapse → reactive oxygen species (molecular sparks) fly everywhere → the cell destroys itself. Riluzole blocks the glutamate release upstream of this cascade.',
-             wrong:'No recovery here. The Ca²⁺ flood overwhelms the mitochondria and triggers a self-destruction cascade. This is excitotoxicity — neurons excited to death. Riluzole blocks the glutamate that starts this process.'}},
+   feedback:{correct:'Yes — that\'s excitotoxicity. Neurons excited to death. Glutamate overload → Ca²⁺ floods in → mitochondria collapse → reactive oxygen species (molecular sparks) fly everywhere → the cell destroys itself from within. Riluzole blocks the glutamate release that starts all of this.',
+             wrong:'No recovery in this one — the Ca²⁺ flood overwhelms the mitochondria and triggers a self-destruction cascade. That\'s excitotoxicity: neurons excited to death. Riluzole works by blocking the glutamate that kicks this whole thing off.'}},
 
   // 3 — the protein hallmark
   {type:'fact',
@@ -510,18 +510,36 @@ steps:[
 ]},
 
 // ─── CHAPTER 3: HOW TO DIAGNOSE IT ───
-{id:3,icon:'🩺',color:'rgba(61,214,140,.15)',name:'Cracking the diagnosis',desc:'El Escorial · EMG · mimics',xp:120,
+{id:3,icon:'🩺',color:'rgba(61,214,140,.15)',name:'Cracking the diagnosis',desc:'Spot it before anyone else does',xp:120,
 steps:[
-  // 0
+  // 0 — detective intro
   {type:'moment',
-   tag:'Back to Jan',
-   title:'You examine him fully. It\'s spreading.',
-   body:'Right hand wasting and brisk reflexes. Left leg fasciculations. Slightly slurred speech. His tongue twitches at rest.',
+   tag:'The skill that changes everything',
+   title:'You can diagnose ALS before a single test comes back.',
+   body:'Seriously. If you know what to look for, the diagnosis is right there in the room with you — in the hands, the reflexes, the tongue. Here\'s the exact exam, in order.',
    visual:'exam'},
 
-  // 1 — how many regions?
+  // 1 — the 4-step bedside exam
+  {type:'reveal-sequence',
+   title:'Your 4-step ALS exam 🔍',
+   items:[
+     {q:'Step 1 — Look at the hands', a:'Is the thumb pad (thenar eminence) hollowed out? Is the space between thumb and index finger sunken? But the pinky side looks normal? That\'s the <strong>split-hand sign</strong> — almost unique to ALS. The muscle wasting picks these specific areas first.'},
+     {q:'Step 2 — Tap the reflexes', a:'Brisk reflex in a wasted, twitching limb? That\'s the paradox you learned. Upper motor neuron dying = reflexes go wild. Lower motor neuron dying = muscle wastes. Both in the same arm? That\'s your diagnosis, right there.'},
+     {q:'Step 3 — Look at the tongue', a:'Ask them to rest their tongue flat. Just rest it. Are there tiny, worm-like movements — fasciculations? Not after movement — at rest. That\'s bulbar lower motor neuron involvement. Highly specific for ALS.'},
+     {q:'Step 4 — Count your regions', a:'Go through each of the 4 regions: <strong>Bulbar</strong> (speech + tongue), <strong>Cervical</strong> (arms + hands), <strong>Thoracic</strong> (trunk, check reflexes), <strong>Lumbosacral</strong> (legs). UMN + LMN signs in 2 regions = Probable ALS. 3+ regions = Definite ALS.'},
+   ],
+   depth:'The split-hand sign is one of the most specific bedside findings in neurology. The thenar and first dorsal interosseous muscles denervate earlier than the hypothenar — nobody fully knows why, but it\'s consistent enough to be diagnostically useful. Tongue fasciculations at rest (not triggered by movement) are also highly specific — a moving tongue always shows some rippling, so you must see it at rest.'},
+
+  // 2 — Jan update
+  {type:'moment',
+   tag:'Back to Jan — your exam',
+   title:'You examine him fully. It\'s spreading.',
+   body:'Right hand: split-hand sign. Brisk reflexes in that same wasted arm. Left leg: fasciculations. And when you ask him to rest his tongue — it\'s moving on its own.',
+   visual:'exam'},
+
+  // 3 — how many regions? (was step 1)
   {type:'choice', layout:'grid-2',
-   prompt:'ALS is diagnosed by region. How many body regions show UMN + LMN signs?',
+   prompt:'You\'ve done the exam. How many of the 4 regions show both UMN and LMN signs in Jan?',
    sub:'Bulbar · Cervical · Thoracic · Lumbosacral',
    choices:[
      {ico:'1️⃣',text:'1 region', value:'1', correct:false},
@@ -529,8 +547,8 @@ steps:[
      {ico:'3️⃣',text:'3 regions', value:'3', correct:true},
      {ico:'4️⃣',text:'4 regions', value:'4', correct:false},
    ],
-   feedback:{correct:'Bulbar (tongue fasciculations + slurred speech) + Cervical (right hand) + Lumbosacral (left leg). 3 regions with both UMN and LMN signs = Definite ALS by El Escorial criteria.',
-             wrong:'Count again: Bulbar (tongue twitching = LMN + slurred speech = UMN), Cervical (right hand wasting = LMN + brisk reflexes = UMN), Lumbosacral (left leg fasciculations). That\'s 3 regions. 3+ = Definite ALS by El Escorial.'}},
+   feedback:{correct:'Exactly right. Bulbar (tongue fasciculations = LMN, slurred speech = UMN) + Cervical (right hand wasting = LMN, brisk reflexes = UMN) + Lumbosacral (left leg). Three regions with both UMN and LMN signs = Definite ALS by El Escorial criteria.',
+             wrong:'Let\'s count together: Bulbar (tongue twitching = LMN, slurred speech = UMN), Cervical (right hand wasting = LMN, brisk reflexes = UMN), Lumbosacral (left leg fasciculations). That\'s 3 regions. And 3+ regions = Definite ALS.'}},
 
   // 2 — investigation order
   {type:'choice', layout:'grid-1',
@@ -542,8 +560,8 @@ steps:[
      {ico:'🩸',text:'Blood tests including CK and GM1 antibodies', value:'blood', correct:false},
      {ico:'💨',text:'Spirometry — lung function testing', value:'fvc', correct:false},
    ],
-   feedback:{correct:'EMG is the cornerstone. It shows active denervation (fibrillations, positive sharp waves, fasciculation potentials) across multiple myotomes — confirming LMN damage beyond what\'s clinically visible. Normal nerve conduction velocities simultaneously exclude peripheral neuropathy. It\'s diagnostic and exclusionary in one test.',
-             wrong:'All of these matter, but EMG is the king. It maps denervation across multiple regions (confirming the diagnosis) and normal conduction velocities exclude most mimics. MRI mainly excludes structural causes. Blood tests look for treatable mimics. Spirometry monitors respiratory — vital, but not diagnostic.'}},
+   feedback:{correct:'EMG is the cornerstone — it shows active denervation (fibrillations, positive sharp waves, fasciculation potentials) across multiple regions, confirming LMN damage beyond what you can see clinically. Normal nerve conduction simultaneously excludes peripheral neuropathy. One test does two jobs.',
+             wrong:'All of these matter — but EMG is the one test that confirms the diagnosis AND excludes the main mimics in one go. It maps denervation across regions and normal conduction velocities exclude peripheral neuropathy. MRI mainly rules out structural causes. Spirometry is vital for monitoring, not diagnosing.'}},
 
   // 3 — mimic tap
   {type:'tap',
@@ -562,13 +580,13 @@ steps:[
 ]},
 
 // ─── CHAPTER 4: TREATMENT ───
-{id:4,icon:'💊',color:'rgba(124,109,240,.18)',name:'What we can do',desc:'RET · Respiratory · SCREAM',xp:150,
+{id:4,icon:'💊',color:'rgba(124,109,240,.18)',name:'What we can do',desc:'What you can actually do for Jan',xp:150,
 steps:[
   // 0
   {type:'moment',
    tag:'The honest conversation',
-   title:'ALS has no cure. But there\'s a lot you CAN do.',
-   body:'Three disease-modifying drugs. A critical respiratory window. Six symptom domains to manage. Done well, this extends survival and quality of life.',
+   title:'No cure yet. But a lot more than nothing.',
+   body:'Three drugs that slow the disease. A respiratory window where timing is everything. Six symptom domains where you can genuinely change Jan\'s quality of life. Done well, this stuff matters — and you\'re about to know exactly what to do.',
    visual:'treatment'},
 
   // 1 — drug match
@@ -590,8 +608,8 @@ steps:[
      {ico:'💉',text:'Edaravone — slows decline by 33%', value:'c', correct:false},
      {ico:'🧬',text:'Tofersen — the most targeted option', value:'d', correct:false},
    ],
-   feedback:{correct:'Riluzole for everyone with ALS (first-line disease-modifying therapy). FVC <50% = start NIV (BiPAP) now — it extends survival 7–13 months and dramatically improves quality of life. Edaravone needs FVC >80%, so not indicated here. Tofersen is only for SOD1 mutation carriers — Jan has sporadic ALS.',
-             wrong:'Two things here: Riluzole is first-line for all ALS patients. And FVC 45% (<50%) means NIV (BiPAP) should start immediately — this threshold extends survival 7–13 months. Edaravone requires FVC >80%. Tofersen is only for confirmed SOD1 mutations.'}},
+   feedback:{correct:'Spot on. Riluzole for everyone with ALS — it\'s first-line always. And FVC <50% means NIV (BiPAP) starts now — this adds 7–13 months of survival and makes a huge difference to quality of life. Edaravone needs FVC >80%, so it\'s out here. Tofersen is only for SOD1 mutation carriers, which Jan isn\'t.',
+             wrong:'Two rules to lock in: Riluzole is first-line for every ALS patient. And FVC 45% (below 50%) means NIV (BiPAP) starts today — that threshold is where it matters most, adding 7–13 months. Edaravone requires FVC >80%. Tofersen needs a confirmed SOD1 mutation.'}},
 
   // 3 — morning headache
   {type:'choice', layout:'grid-1',
@@ -602,8 +620,8 @@ steps:[
      {ico:'💨',text:'Nocturnal CO₂ retention — diaphragm too weak to ventilate during sleep. Urgent NIV.', value:'b', correct:true},
      {ico:'🧠',text:'Raised intracranial pressure from disease progression to the brain', value:'c', correct:false},
    ],
-   feedback:{correct:'Morning headache in ALS = nocturnal CO₂ retention until proven otherwise. The diaphragm is too weak to breathe adequately during sleep → CO₂ builds up → vasodilation → headache on waking. This is a respiratory emergency. Arrange urgent spirometry and overnight oximetry. Start NIV immediately if confirmed.',
-             wrong:'Morning headache in ALS has a specific cause: nocturnal CO₂ retention. The weakened diaphragm can\'t adequately ventilate during sleep → CO₂ accumulates → headache on waking. ALS doesn\'t raise intracranial pressure. This is a respiratory emergency — act now.'}},
+   feedback:{correct:'Exactly right — and this is a respiratory emergency. Morning headache in ALS means nocturnal CO₂ retention until proven otherwise. The diaphragm is too weak to breathe properly during sleep → CO₂ builds up overnight → vasodilation → headache on waking. Urgent spirometry + overnight oximetry, and start NIV immediately.',
+             wrong:'Morning headache in ALS has a very specific cause: nocturnal CO₂ retention. The weakened diaphragm can\'t ventilate properly during sleep → CO₂ builds up → headache on waking from vasodilation. ALS doesn\'t cause raised intracranial pressure. Treat this as a respiratory emergency.'}},
 
   // 4 — SCREAM reveal
   {type:'reveal-sequence',
@@ -620,13 +638,13 @@ steps:[
 ]},
 
 // ─── CHAPTER 5: THE FULL PICTURE ───
-{id:5,icon:'🏆',color:'rgba(61,214,140,.18)',name:'The full case',desc:'Jan — 6 months later',xp:200,
+{id:5,icon:'🏆',color:'rgba(61,214,140,.18)',name:'The full case',desc:'Put it all together',xp:200,
 steps:[
   // 0 — update
   {type:'moment',
-   tag:'6 months on',
-   title:'Jan is back. A lot has changed.',
-   body:'EMG confirmed Definite ALS. He\'s on riluzole. FVC now 52%. Right arm weak, left leg dragging. He\'s scared about breathing.',
+   tag:'Six months later',
+   title:'Jan is back. You can see it in his face.',
+   body:'The EMG came back — Definite ALS. He started riluzole straight away. Now, six months on, his right arm is noticeably weaker and his left leg has started to drag. His FVC is 52%. He doesn\'t say it directly, but you can tell — he\'s worried about his breathing. So are you.',
    visual:'followup'},
 
   // 1 — pseudobulbar
@@ -638,8 +656,8 @@ steps:[
      {ico:'🧠',text:'Pseudobulbar affect — UMN sign causing involuntary emotional expression. Treat with dextromethorphan/quinidine.', value:'b', correct:true},
      {ico:'😰',text:'Anxiety disorder — refer to psychology', value:'c', correct:false},
    ],
-   feedback:{correct:'Pseudobulbar affect (PBA) = involuntary emotional expression from UMN loss of cortical inhibition. The patient\'s MOOD is normal — it\'s the expression that\'s uncontrolled. He\'s embarrassed, not amused. Dextromethorphan/quinidine (Nuedexta) has RCT evidence. Reassure the family — this is a neurological sign, not a psychiatric breakdown.',
-             wrong:'This is pseudobulbar affect — a UMN sign, not depression or anxiety. The emotional expression is involuntary and disproportionate; the underlying mood may be fine. Dextromethorphan/quinidine (Nuedexta) treats it specifically. Antidepressants won\'t help PBA.'}},
+   feedback:{correct:'This is pseudobulbar affect — and the most important thing is reassuring the family. His MOOD is fine. It\'s the expression that\'s uncontrolled — UMN loss of cortical inhibition over the brainstem\'s emotional circuits. He\'s not amused; he\'s embarrassed. Dextromethorphan/quinidine (Nuedexta) has solid RCT evidence. This is a neurological sign, not a mental health crisis.',
+             wrong:'This is pseudobulbar affect — a UMN sign, not depression or anxiety. The emotional expression is involuntary and wildly disproportionate; his actual mood may be completely fine. Dextromethorphan/quinidine (Nuedexta) is the specific treatment. Antidepressants don\'t touch PBA. And the family needs to hear: he\'s not losing his mind.'}},
 
   // 2 — final rapid fire
   {type:'choice', layout:'grid-1',
@@ -650,8 +668,8 @@ steps:[
      {ico:'❌',text:'No — nothing can be done before symptoms appear', value:'b', correct:false},
      {ico:'⏳',text:'Wait and watch — only start treatment when symptoms develop', value:'c', correct:false},
    ],
-   feedback:{correct:'The ATLAS trial is attempting something unprecedented — preventing a neurodegenerative disease before it starts. Pre-symptomatic SOD1 carriers can get tofersen, and NfL (neurofilament light chain) rising in blood can signal when neurons are starting to stress, even years before symptoms. If it works, it would be the first neurodegenerative disease prevention trial to succeed.',
-             wrong:'This is actually the frontier of ALS research. The ATLAS trial gives tofersen to pre-symptomatic SOD1 carriers — attempting to prevent ALS from starting. NfL in blood can detect neuronal stress before any weakness appears. Genetic counselling + trial enrolment should be offered to at-risk relatives.'}},
+   feedback:{correct:'This is the frontier of medicine right now. The ATLAS trial gives tofersen to people who carry the SOD1 mutation but have zero symptoms — trying to stop ALS before it starts. A blood marker called NfL (neurofilament light) can detect neuronal stress years before any weakness appears. If ATLAS succeeds, it\'ll be the first time a neurodegenerative disease has ever been prevented.',
+             wrong:'Actually, this is one of the most exciting things happening in ALS right now. The ATLAS trial gives tofersen to pre-symptomatic SOD1 carriers — the goal is to prevent ALS from ever starting. NfL in blood can detect when neurons start stressing, years before symptoms. Genetic counselling and trial enrolment should be offered to any at-risk relative.'}},
 
   // 3 — badge
   {type:'badge',
