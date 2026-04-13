@@ -342,6 +342,40 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
 /* Bar XP pulse */
 @keyframes barPulse{0%,100%{box-shadow:none;}50%{box-shadow:0 0 12px rgba(245,158,11,.5);}}
 .bar-pulse{animation:barPulse .5s ease;}
+
+/* ── B: GLOSSARY ── */
+.gloss-term{border-bottom:1.5px dotted var(--purple2);cursor:pointer;color:inherit;transition:color .15s;}
+.gloss-term:hover,.gloss-term:active{color:var(--purple2);}
+
+#gloss-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1100;opacity:0;pointer-events:none;transition:opacity .25s;}
+#gloss-overlay.show{opacity:1;pointer-events:all;}
+
+#gloss-sheet{position:fixed;bottom:-100%;left:0;right:0;max-width:600px;margin:0 auto;background:var(--surface2);border-top:0.5px solid var(--border2);border-radius:22px 22px 0 0;padding:0 24px 40px;z-index:1101;transition:bottom .32s cubic-bezier(.4,0,.2,1);}
+#gloss-sheet.show{bottom:0;}
+.gloss-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 20px;}
+.gloss-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+.gloss-eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--purple2);margin-bottom:4px;}
+.gloss-term-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);}
+.gloss-close{background:var(--surface3);border:none;color:var(--text2);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.gloss-body{font-size:14px;line-height:1.7;color:var(--text2);}
+.gloss-body strong{color:var(--text);}
+
+/* ── C: DIAGNOSIS COMMIT ── */
+.diag-commit{width:100%;}
+.dc-eyebrow{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--amber);margin-bottom:8px;}
+.dc-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);line-height:1.25;margin-bottom:6px;}
+.dc-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px;}
+.dc-evidence{display:flex;flex-direction:column;gap:6px;margin-bottom:20px;padding:14px 16px;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;}
+.dc-clue{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--text2);line-height:1.5;}
+.dc-clue-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+.dc-question{font-size:14px;font-weight:700;color:var(--text);margin-bottom:12px;}
+
+/* ── D: CASE BOARD ── */
+.case-board{margin-bottom:14px;padding:10px 14px;background:var(--surface);border:0.5px solid var(--border);border-radius:14px;}
+.cb-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:7px;}
+.cb-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.cb-chip{font-size:11px;font-weight:500;color:var(--text3);background:var(--surface2);border:0.5px solid var(--border);border-radius:20px;padding:4px 10px;line-height:1.3;}
+.cb-chip.new{color:var(--purple2);border-color:rgba(124,109,240,.35);background:rgba(124,109,240,.07);}
 </style>
 </head>
 <body>
@@ -349,6 +383,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
 <canvas id="confetti-canvas"></canvas>
 <div id="combo-banner"></div>
 <div id="toast-container"></div>
+
+<!-- Glossary sheet -->
+<div id="gloss-overlay" onclick="hideGloss()"></div>
+<div id="gloss-sheet">
+  <div class="gloss-handle"></div>
+  <div class="gloss-top">
+    <div>
+      <div class="gloss-eyebrow">Definition</div>
+      <div class="gloss-term-name" id="gloss-term-name"></div>
+    </div>
+    <button class="gloss-close" onclick="hideGloss()">✕</button>
+  </div>
+  <div class="gloss-body" id="gloss-body"></div>
+</div>
 <div id="levelup-modal">
   <div class="levelup-card">
     <div class="lu-emoji" id="lu-emoji">⭐</div>
@@ -379,9 +427,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);trans
     <div class="screen" id="map-screen">
       <div class="scene">
         <div class="map-top">
-          <div class="map-eyebrow">Motor Neuron Disease</div>
-          <div class="map-title">Discover<br><em>ALS</em></div>
-          <div class="map-sub">You're a junior doctor and Jan just walked into your clinic. By the end of this, you'll know exactly what he has, how you'd catch it, and what to do — for real.</div>
+          <div class="map-eyebrow">A Clinical Case</div>
+          <div class="map-title">The Case of<br><em>Jan de Vries</em></div>
+          <div class="map-sub">You're a junior doctor. Jan just walked into your clinic with something wrong with his hand. Work through the case — and figure out what's going on.</div>
         </div>
         <div class="map-stats">
           <div class="mstat"><div class="mstat-n" id="stat-xp" style="color:var(--amber)">0</div><div class="mstat-l">XP</div></div>
@@ -618,7 +666,35 @@ steps:[
 // ─── CHAPTER 3: HOW TO DIAGNOSE IT ───
 {id:3,icon:'🩺',color:'rgba(61,214,140,.15)',name:'Cracking the diagnosis',desc:'Spot it before anyone else does',xp:120,
 steps:[
-  // 0 — detective intro
+  // 0 — DIAGNOSIS COMMIT GATE
+  {type:'diagnosis-commit',
+   title:'You\'ve seen the signs. Time to commit.',
+   sub:'Right hand wasted, reflex brisk. Left leg fasciculating. Tongue moving at rest. Progressive over months. No sensory loss, no pain.',
+   evidence:[
+     {icon:'👋', text:'Thenar wasting — right hand, 8 months'},
+     {icon:'⚡', text:'Brisk reflex in the same wasted limb'},
+     {icon:'✨', text:'Fasciculations — left leg, at rest'},
+     {icon:'👅', text:'Tongue fasciculations at rest'},
+     {icon:'🔕', text:'No sensory loss. No pain. Cognition intact.'},
+   ],
+   question:'What is your working diagnosis?',
+   choices:[
+     {ico:'🧠',text:'Multiple Sclerosis — demyelinating, relapsing-remitting', value:'ms', correct:false},
+     {ico:'⚡',text:'ALS — upper AND lower motor neuron failure, simultaneously', value:'als', correct:true},
+     {ico:'💪',text:'Myasthenia Gravis — neuromuscular junction autoimmune disease', value:'mg', correct:false},
+     {ico:'🦴',text:'Cervical Myelopathy — spinal cord compression from disc disease', value:'cm', correct:false},
+   ],
+   feedback:{
+     correct:'Yes. This is ALS. UMN and LMN both failing — the paradox you recognised in Chapter 1 has a name. Progressive, no sensory loss, multiple regions, months of decline. Let\'s now confirm it properly and learn exactly how to prove it at the bedside.',
+     wrong:{
+       ms:'MS causes UMN signs and sensory loss — but no muscle wasting, no fasciculations. It doesn\'t kill LMNs. And Jan\'s course is relentlessly progressive, not relapsing. ALS is the diagnosis.',
+       mg:'Myasthenia Gravis attacks the neuromuscular junction — causing fatigable weakness (worse through the day), normal reflexes, no wasting. Nothing kills LMNs. Jan has both UMN and LMN involvement.',
+       cm:'Cervical myelopathy is the most important mimic — and you must always exclude it with MRI. But it\'s structural compression at one level. It wouldn\'t explain the tongue fasciculations or the left leg involvement. With multiple regions affected: ALS.',
+       default:'Not quite. The key is the combination: UMN signs (brisk reflexes) AND LMN signs (wasting, fasciculations) in the same patient, spreading across regions. Only one disease does both simultaneously.',
+     }
+   }},
+
+  // 1 — detective intro
   {type:'moment',
    tag:'The skill that changes everything',
    title:'You can diagnose ALS before a single test comes back.',
@@ -846,7 +922,7 @@ function renderStep(){
   document.getElementById('bar-hearts').textContent='❤️'.repeat(hearts)+'🖤'.repeat(Math.max(0,3-hearts));
 
   const el=document.getElementById('lesson-content');
-  el.innerHTML=buildStep(step);
+  el.innerHTML=getCaseBoardHTML()+buildStep(step);
   el.classList.remove('anim-slide');
   void el.offsetWidth;
   el.classList.add('anim-slide');
@@ -855,6 +931,8 @@ function renderStep(){
   const btn=document.getElementById('main-btn');
   if(['moment','fact','signs'].includes(step.type)){
     btn.textContent='Continue'; btn.className='main-btn btn-go'; stepDone=true;
+  } else if(step.type==='diagnosis-commit'){
+    btn.textContent='Select your diagnosis above'; btn.className='main-btn btn-check'; stepDone=false;
   } else if(step.type==='neuron-build'){
     window._nbOpened=new Set();
     btn.textContent=`Open all 4 stages to continue`; btn.className='main-btn btn-check'; stepDone=false;
@@ -876,6 +954,7 @@ function buildStep(step){
   if(step.type==='moment') return buildMoment(step);
   if(step.type==='fact') return buildFact(step);
   if(step.type==='choice') return buildChoice(step);
+  if(step.type==='diagnosis-commit') return buildDiagnosisCommit(step);
   if(step.type==='tap') return buildTap(step);
   if(step.type==='match') return buildMatch(step);
   if(step.type==='signs') return buildSigns(step);
@@ -993,7 +1072,7 @@ function buildMoment(s){
     <div class="moment-tag">${s.tag||''}</div>
     <div class="moment-visual story-visual">${visuals[s.visual]||''}</div>
     <div class="moment-title">${s.title}</div>
-    <div class="moment-body">${s.body}</div>
+    <div class="moment-body">${glossify(s.body)}</div>
   </div>`;
 }
 
@@ -1002,8 +1081,8 @@ function buildFact(s){
   return `<div class="fact-card anim-pop">
     <div class="fact-icon">${s.icon}</div>
     <div class="fact-label">${s.label}</div>
-    <div class="fact-text">${s.text}</div>
-    <div class="fact-sub">${s.sub}</div>
+    <div class="fact-text">${glossify(s.text)}</div>
+    <div class="fact-sub">${glossify(s.sub)}</div>
   </div>`;
 }
 
@@ -1014,14 +1093,33 @@ function buildChoice(s){
   const small=window.innerWidth<380;
   const cols=(s.layout==='grid-2'&&s.choices.length===4&&!small)?'grid-2':'grid-1';
   return `<div class="anim-slide" style="width:100%">
-    <div class="choice-prompt">${s.prompt}</div>
-    <div class="choice-sub">${s.sub}</div>
+    <div class="choice-prompt">${glossify(s.prompt)}</div>
+    <div class="choice-sub">${glossify(s.sub)}</div>
     <div class="choices ${cols}" id="choices">
       ${s.choices.map((c,i)=>`<button class="choice" id="ch${i}" onclick="pickChoice(${i})">
         <span class="choice-ico">${c.ico}</span>
         <span class="choice-text">${c.text}</span>
       </button>`).join('')}
     </div>
+    <div id="choice-fb" style="display:none;margin-top:12px"></div>
+  </div>`;
+}
+
+// DIAGNOSIS COMMIT — same pickChoice/checkChoice logic, different presentation
+function buildDiagnosisCommit(s){
+  _selectedChoice=-1;
+  const evHTML = s.evidence.map(e=>`<div class="dc-clue"><span class="dc-clue-icon">${e.icon}</span><span>${e.text}</span></div>`).join('');
+  const choicesHTML = s.choices.map((c,i)=>`<button class="choice" id="ch${i}" onclick="pickChoice(${i})">
+    <span class="choice-ico">${c.ico}</span>
+    <span class="choice-text">${c.text}</span>
+  </button>`).join('');
+  return `<div class="diag-commit anim-slide">
+    <div class="dc-eyebrow">Your working diagnosis</div>
+    <div class="dc-title">${s.title}</div>
+    <div class="dc-sub">${glossify(s.sub)}</div>
+    <div class="dc-evidence">${evHTML}</div>
+    <div class="dc-question">${s.question}</div>
+    <div class="choices grid-1" id="choices">${choicesHTML}</div>
     <div id="choice-fb" style="display:none;margin-top:12px"></div>
   </div>`;
 }
@@ -1033,7 +1131,9 @@ function pickChoice(i){
   document.getElementById('ch'+i).classList.remove('dim');
   document.getElementById('ch'+i).style.borderColor='var(--purple)';
   const btn=document.getElementById('main-btn');
-  btn.textContent='Check'; btn.className='main-btn btn-ready';
+  const isDC = curChapter && curChapter.steps[curStep] && curChapter.steps[curStep].type==='diagnosis-commit';
+  btn.textContent = isDC ? 'Commit to this diagnosis →' : 'Check';
+  btn.className='main-btn btn-ready';
 }
 
 function checkChoice(){
@@ -1053,9 +1153,12 @@ function checkChoice(){
   });
   const fb=document.getElementById('choice-fb');
   fb.className='reveal-result '+(correct?'good':'bad');
+  const wrongText = (typeof step.feedback.wrong === 'object')
+    ? (step.feedback.wrong[choice.value] || step.feedback.wrong.default || 'Not quite.')
+    : step.feedback.wrong;
   fb.innerHTML=`<div class="reveal-emoji">${correct?'✅':'❌'}</div>
     <div class="reveal-verdict" style="color:var(--${correct?'green':'red'})">${correct?'Exactly right.':'Not quite.'}</div>
-    <div class="reveal-explain">${correct?step.feedback.correct:step.feedback.wrong}</div>`;
+    <div class="reveal-explain">${correct?step.feedback.correct:wrongText}</div>`;
   fb.style.display='block';
   flashScreen(correct);
   document.getElementById('bar-hearts').textContent='❤️'.repeat(hearts)+'🖤'.repeat(Math.max(0,3-hearts));
@@ -1068,8 +1171,8 @@ let _tapped=new Set();
 function buildTap(s){
   _tapped=new Set();
   return `<div class="tap-wrap anim-slide">
-    <div class="tap-prompt">${s.prompt}</div>
-    <div class="tap-sub">${s.sub}</div>
+    <div class="tap-prompt">${glossify(s.prompt)}</div>
+    <div class="tap-sub">${glossify(s.sub)}</div>
     <div class="tap-grid">${s.chips.map((c,i)=>`<button class="tap-chip" id="tc${i}" onclick="toggleTap(${i})">${c.text}</button>`).join('')}</div>
     <div id="tap-fb" style="display:none;margin-top:12px"></div>
     ${s.depth?`<button class="depth-btn" id="depth-btn" onclick="toggleDepth()">💡 More depth</button>
@@ -1338,7 +1441,7 @@ function handleBtn(){
   if(step.type==='badge'){showMap();return;}
 
   if(!stepDone){
-    if(step.type==='choice') checkChoice();
+    if(step.type==='choice'||step.type==='diagnosis-commit') checkChoice();
     else if(step.type==='tap') checkTap();
     return;
   }
@@ -1544,6 +1647,81 @@ function launchConfetti(ms=2800){
     if(Date.now()-start < ms) requestAnimationFrame(frame);
     else{ ctx.clearRect(0,0,canvas.width,canvas.height); canvas.style.display='none'; }
   })();
+}
+
+// ══════════════════════════════════════════════════
+//  B — GLOSSARY
+// ══════════════════════════════════════════════════
+const GLOSSARY = {
+  'UMN':  '<strong>Upper Motor Neuron</strong> — the brain\'s command wire. Starts in the motor cortex, runs down to the spinal cord. Controls the lower motor neuron. When it dies: reflexes go brisk, spasticity, Babinski sign.',
+  'LMN':  '<strong>Lower Motor Neuron</strong> — the spinal cord wire to the muscle. When it dies: the muscle loses its signal → wasting, fasciculations, floppy tone, lost reflexes.',
+  'FVC':  '<strong>Forced Vital Capacity</strong> — a lung function test. Measures how much air you can breathe out forcefully. In ALS: <50% means the diaphragm is failing → start NIV (BiPAP) immediately.',
+  'NIV':  '<strong>Non-Invasive Ventilation</strong> — breathing support through a mask (usually BiPAP). No intubation. Used overnight in ALS when the diaphragm can\'t ventilate during sleep. Adds 7–13 months of survival.',
+  'BiPAP':'<strong>Bilevel Positive Airway Pressure</strong> — a form of NIV. Delivers pressurised air through a face mask; one pressure for breathing in, one for out. First-line respiratory support in ALS.',
+  'EMG':  '<strong>Electromyography</strong> — records electrical activity in muscles using fine needles. In ALS: shows active denervation (fibrillations, positive sharp waves) across multiple regions. The cornerstone diagnostic test.',
+  'NMJ':  '<strong>Neuromuscular Junction</strong> — the synapse where the nerve meets the muscle. Acetylcholine is released here. In ALS the NMJ degenerates as the LMN dies. In Myasthenia Gravis, antibodies attack it directly.',
+  'SOD1': '<strong>Superoxide Dismutase 1</strong> — a gene mutated in ~20% of familial ALS. Produces misfolded toxic protein. Target of tofersen (an antisense oligonucleotide drug that silences the gene).',
+  'TDP-43':'<strong>TDP-43</strong> — a nuclear RNA-binding protein. In 97% of ALS, it escapes the nucleus, clumps up in the cytoplasm, and destroys the neuron\'s RNA machinery. The molecular fingerprint of ALS.',
+  'C9orf72':'<strong>C9orf72</strong> — the most common genetic cause of both ALS and frontotemporal dementia (FTD). A repeat expansion in chromosome 9. Accounts for ~40% of familial ALS.',
+  'ASO':  '<strong>Antisense Oligonucleotide</strong> — a short piece of engineered DNA that binds to a specific mRNA and silences it. Tofersen uses this mechanism to reduce toxic SOD1 protein.',
+  'NfL':  '<strong>Neurofilament Light chain</strong> — a protein released into blood and CSF when neurons are stressed or dying. Can detect neuronal damage years before symptoms appear. Used as a biomarker in ALS trials.',
+  'PEG':  '<strong>Percutaneous Endoscopic Gastrostomy</strong> — a feeding tube placed through the abdominal wall into the stomach. Must be inserted BEFORE FVC drops below 50% — anaesthetic risk rises sharply below that threshold.',
+  'MDT':  '<strong>Multidisciplinary Team</strong> — in ALS: neurologist, respiratory physician, SLT (speech), dietitian, physiotherapist, OT, psychologist, palliative care. MDT care independently extends survival.',
+  'SLT':  '<strong>Speech and Language Therapist</strong> — manages communication and swallowing in ALS. Recommends voice banking, AAC devices, and dietary modifications for dysphagia.',
+  'AAC':  '<strong>Augmentative and Alternative Communication</strong> — devices that allow non-verbal communication. Ranges from letter boards to eye-tracking technology (e.g. Tobii). Critical when speech fails.',
+  'MRC':  '<strong>Medical Research Council scale</strong> — grades muscle strength 0–5. 0 = no movement, 5 = full power against resistance. Standard tool for documenting motor decline in ALS.',
+  'AMPA': '<strong>AMPA receptor</strong> — a glutamate receptor on neurons. Motor neurons have abnormally low GluR2 subunits → the channel is calcium-permeable → floods of Ca²⁺ enter with every signal (excitotoxicity).',
+  'MMN':  '<strong>Multifocal Motor Neuropathy</strong> — a treatable mimic of ALS. LMN signs only, no UMN signs, GM1 antibodies positive. Responds to IVIG. Missing it means a patient gets an ALS label instead of a cure.',
+  'El Escorial':'<strong>El Escorial criteria</strong> — the international diagnostic framework for ALS. Counts how many of 4 body regions (Bulbar, Cervical, Thoracic, Lumbosacral) show both UMN and LMN signs. 3+ = Definite ALS.',
+  'CO₂':  '<strong>Carbon dioxide</strong> — the waste gas from metabolism. In ALS: a weakened diaphragm can\'t clear CO₂ during sleep → it builds up overnight → CO₂ causes cerebral vasodilation → morning headache on waking.',
+  'ATLAS':'<strong>ATLAS trial</strong> — a landmark clinical trial giving tofersen to pre-symptomatic SOD1 mutation carriers. Goal: prevent ALS from ever starting. Uses NfL as a biomarker to detect presymptomatic neuronal stress.',
+};
+
+function glossify(html){
+  if(!html) return html;
+  // Sort longest terms first to avoid partial matches
+  const terms = Object.keys(GLOSSARY).sort((a,b) => b.length - a.length);
+  terms.forEach(term => {
+    const safe = term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    // Only match whole words/phrases, not inside HTML tags or existing gloss spans
+    const re = new RegExp(`(?<!<[^>]*)\\b(${safe})\\b(?![^<]*>)(?![^<]*class="gloss-term")`, 'g');
+    html = html.replace(re, (match) =>
+      `<span class="gloss-term" onclick="showGloss('${term.replace(/'/g,"\\'")}')">${match}</span>`
+    );
+  });
+  return html;
+}
+
+function showGloss(term){
+  document.getElementById('gloss-term-name').textContent = term;
+  document.getElementById('gloss-body').innerHTML = GLOSSARY[term] || term;
+  document.getElementById('gloss-sheet').classList.add('show');
+  document.getElementById('gloss-overlay').classList.add('show');
+}
+function hideGloss(){
+  document.getElementById('gloss-sheet').classList.remove('show');
+  document.getElementById('gloss-overlay').classList.remove('show');
+}
+
+// ══════════════════════════════════════════════════
+//  D — CASE BOARD
+// ══════════════════════════════════════════════════
+const CASE_BOARD = {
+  0: ['Grip weak · right hand · 8 months','Thenar wasted + reflex brisk — same limb'],
+  1: ['UMN + LMN fail simultaneously','The paradox → only one disease does this'],
+  2: ['4 motor neuron design flaws','TDP-43: molecular fingerprint in 97%'],
+  3: ['El Escorial 3 regions = Definite','EMG maps the denervation'],
+  4: ['Riluzole first-line always','FVC <50% → NIV now'],
+};
+
+function getCaseBoardHTML(){
+  const chips = [];
+  done.forEach(id => { if(CASE_BOARD[id]) chips.push(...CASE_BOARD[id]); });
+  if(!chips.length) return '';
+  return `<div class="case-board anim-fade">
+    <div class="cb-label">Case so far</div>
+    <div class="cb-chips">${chips.map((c,i)=>`<div class="cb-chip${i>=chips.length-2?' new':''}">${c}</div>`).join('')}</div>
+  </div>`;
 }
 
 // ── INTEGRATE INTO GAME ──
